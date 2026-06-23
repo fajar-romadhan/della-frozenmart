@@ -1,0 +1,46 @@
+===================================================
+PANDUAN MENJALANKAN SISTEM DELLA FROZEN MART
+===================================================
+
+Berikut adalah panduan singkat untuk menjalankan aplikasi ini di komputer Anda:
+
+1. PERSIAPAN APLIKASI
+   - Pastikan Anda sudah menginstal aplikasi XAMPP (dengan PHP versi 8.2 atau lebih baru) dan Composer.
+   - Ekstrak folder zip proyek ini.
+   - Pindahkan folder "della-frozenmart" ke dalam folder XAMPP htdocs Anda:
+     (Biasanya terletak di: C:\xampp\htdocs\della-frozenmart)
+
+2. PERSIAPAN DATABASE
+   - Buka aplikasi XAMPP Control Panel, lalu klik "Start" pada module Apache dan MySQL.
+   - Buka browser dan akses alamat: http://localhost/phpmyadmin
+   - Buat database baru dengan nama persis seperti ini: della_frozenmart
+   - (Jangan ubah apapun, cukup buat database kosong)
+
+3. MENJALANKAN DATABASE & APLIKASI
+   - Buka Command Prompt (CMD) atau Terminal.
+   - Arahkan ke folder proyek dengan mengetik:
+     cd C:\xampp\htdocs\della-frozenmart
+   
+   - Jalankan perintah berikut untuk membuat struktur tabel dan mengisi data awal:
+     php artisan migrate:fresh --seed
+
+   - Setelah berhasil, jalankan server lokal aplikasi dengan perintah:
+     php artisan serve
+
+4. AKSES APLIKASI
+   - Buka browser Anda dan kunjungi: http://localhost:8000
+   - Gunakan salah satu akun berikut untuk Login (semua password default adalah: password):
+
+     A. Sebagai Admin (Pengelola Operasional Harian):
+        Email: admin@della.test
+        Password: password
+
+     B. Sebagai Manager (Manajemen Stok & Analisis):
+        Email: manager@della.test
+        Password: password
+
+     C. Sebagai Owner (Pemilik Toko, untuk Laporan):
+        Email: owner@della.test
+        Password: password
+
+Selamat Menggunakan Sistem Inventori Della Frozen Mart!

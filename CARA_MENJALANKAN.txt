@@ -1,0 +1,93 @@
+================================================================================
+          PANDUAN LENGKAP CARA MENJALANKAN APLIKASI DELLA FROZEN MART
+================================================================================
+
+Panduan ini berisi langkah-langkah detail untuk menyiapkan dan menjalankan
+Sistem Informasi Persediaan Della Frozen Mart di komputer lokal Anda menggunakan 
+XAMPP dan Composer.
+
+--------------------------------------------------------------------------------
+1. PERSIAPAN & INSTALASI UTAMA
+--------------------------------------------------------------------------------
+* XAMPP: Pastikan Anda sudah menginstal XAMPP terbaru (PHP versi 8.2 atau 8.3).
+* Composer: Pastikan Anda sudah menginstal Composer (PHP Package Manager).
+
+--------------------------------------------------------------------------------
+2. AKTIFKAN EKSTENSI PHP DI XAMPP
+--------------------------------------------------------------------------------
+Agar ekspor/impor Excel dan pembuatan PDF berjalan lancar, Anda wajib mengaktifkan 
+modul GD, ZIP, dan ekstensi lainnya di XAMPP:
+
+Langkah-langkah:
+1. Buka XAMPP Control Panel.
+2. Pada baris "Apache", klik tombol "Config" -> Pilih "PHP (php.ini)".
+3. Tekan tombol Ctrl+F di Notepad, lalu cari kata kunci: extension=gd
+4. Hapus tanda titik koma (;) di depan ekstensi berikut agar aktif:
+   - Hapus titik koma di ';extension=gd'       -> menjadi 'extension=gd'
+   - Hapus titik koma di ';extension=zip'      -> menjadi 'extension=zip'
+   - Hapus titik koma di ';extension=fileinfo' -> menjadi 'extension=fileinfo'
+   - Hapus titik koma di ';extension=intl'     -> menjadi 'extension=intl'
+5. Simpan file (Ctrl+S) dan tutup Notepad.
+6. Restart Apache di XAMPP Control Panel dengan mengklik "Stop" lalu "Start" kembali.
+
+--------------------------------------------------------------------------------
+3. NYALAKAN SERVER DATABASE (XAMPP) & BUAT DATABASE
+--------------------------------------------------------------------------------
+1. Pastikan modul "Apache" dan "MySQL" di XAMPP Control Panel dalam keadaan "Running" (Hijau).
+2. Buka browser internet Anda (Chrome/Firefox/Edge) dan akses alamat:
+   http://localhost/phpmyadmin/
+3. Klik tombol "New" (Baru) di bagian kiri.
+4. Masukkan nama database: della_frozenmart
+5. Klik tombol "Create" (Buat) untuk menyelesaikannya.
+
+--------------------------------------------------------------------------------
+4. MENJALANKAN APLIKASI (DI TERMINAL / CMD)
+--------------------------------------------------------------------------------
+Buka Command Prompt (CMD) atau PowerShell di folder proyek ini (d:\ANTIGRAVITY\della-frozenmart)
+kemudian jalankan perintah-perintah berikut secara berurutan:
+
+Langkah A: Tambahkan lokasi PHP XAMPP ke terminal (jika belum terdaftar di PATH):
+   $env:Path += ";C:\xampp\php"
+
+Langkah B: Salin file konfigurasi .env:
+   copy .env.example .env
+
+Langkah C: Instal dependensi library (sambil terhubung ke internet):
+   composer install
+
+Langkah D: Membuat kunci keamanan (Key Generate):
+   php artisan key:generate
+
+Langkah E: Mengisi struktur tabel dan data contoh ke database:
+   php artisan migrate --seed
+
+Langkah F: Menyalakan server lokal web Anda:
+   php artisan serve
+
+--------------------------------------------------------------------------------
+5. MENGAKSES APLIKASI
+--------------------------------------------------------------------------------
+Setelah server lokal menyala, buka browser Anda dan akses tautan berikut:
+👉 http://127.0.0.1:8000
+
+Untuk login ke dalam dashboard, Anda dapat menggunakan akun default di bawah ini:
+
+Akun 1 (Administrator):
+* Email: admin@della.test
+* Password: password
+
+Akun 2 (Manager):
+* Email: manager@della.test
+* Password: password
+
+Akun 3 (Owner):
+* Email: owner@della.test
+* Password: password
+
+================================================================================
+* Catatan: Jika suatu saat Anda ingin menyalakan aplikasi ini lagi, Anda hanya perlu:
+  1. Menyalakan Apache & MySQL di XAMPP.
+  2. Buka CMD/PowerShell di folder proyek ini.
+  3. Ketik perintah: php artisan serve
+  4. Buka http://127.0.0.1:8000 di browser Anda.
+================================================================================

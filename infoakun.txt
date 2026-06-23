@@ -1,0 +1,33 @@
+================================================================================
+           INFORMASI AKUN LOGIN - SISTEM INFORMASI DELLA FROZEN MART
+================================================================================
+
+Berikut adalah data akun default yang dapat digunakan untuk masuk ke dalam
+sistem setelah Anda menjalankan "php artisan migrate --seed".
+
+--------------------------------------------------------------------------------
+1. AKUN ADMINISTRATOR
+--------------------------------------------------------------------------------
+* Peran/Role : Admin (Mengelola data produk, transaksi, supplier, dll)
+* Email      : admin@della.test
+* Password   : password
+
+--------------------------------------------------------------------------------
+2. AKUN MANAGER
+--------------------------------------------------------------------------------
+* Peran/Role : Manager (Manajemen stok minimum, analisis persediaan safety stock)
+* Email      : manager@della.test
+* Password   : password
+
+--------------------------------------------------------------------------------
+3. AKUN OWNER
+--------------------------------------------------------------------------------
+* Peran/Role : Owner / Pemilik Toko (Melihat berbagai laporan persediaan & penjualan)
+* Email      : owner@della.test
+* Password   : password
+
+--------------------------------------------------------------------------------
+PENTING:
+- Semua password default di atas adalah: password
+- Harap ganti password Anda melalui profil akun demi keamanan setelah login pertama kali.
+================================================================================
