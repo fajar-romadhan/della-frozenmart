@@ -1,9 +1,11 @@
 ================================================================================
            INFORMASI AKUN LOGIN - SISTEM INFORMASI DELLA FROZEN MART
 ================================================================================
+* Domain Utama  : http://dellafrozenmart.my.id/
+* Demo Reset    : http://dellafrozenmart.my.id/reset_demo.php
 
 Berikut adalah data akun default yang dapat digunakan untuk masuk ke dalam
-sistem setelah Anda menjalankan "php artisan migrate --seed".
+sistem setelah Anda menjalankan "php artisan migrate --seed" atau mereset data.
 
 --------------------------------------------------------------------------------
 1. AKUN ADMINISTRATOR

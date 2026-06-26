@@ -1,0 +1,355 @@
+<?php
+/**
+ * Laravel 11 Database Demo Reset & Seeder Tool
+ * Created by Antigravity AI
+ */
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+
+$baseDir = dirname(__DIR__);
+
+// Check if vendor folder exists
+$vendorExists = file_exists($baseDir . '/vendor/autoload.php');
+
+$message = '';
+$messageType = '';
+$logOutput = '';
+
+if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $action = $_POST['action'] ?? '';
+    
+    try {
+        // Bootstrap Laravel
+        require $baseDir . '/vendor/autoload.php';
+        $app = require_once $baseDir . '/bootstrap/app.php';
+        $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+        $kernel->bootstrap();
+        
+        if ($action === 'clear') {
+            // Fresh migration to empty all tables
+            $exitCode = Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+            $logOutput .= "1. Refresh Database (Mengosongkan Semua Tabel): " . ($exitCode === 0 ? "SUKSES (OK)\n" : "GAGAL (Code: $exitCode)\n");
+            
+            // Seed ONLY users
+            $seedExitCode = Illuminate\Support\Facades\Artisan::call('db:seed', [
+                '--class' => 'Database\\Seeders\\UserSeeder',
+                '--force' => true
+            ]);
+            $logOutput .= "2. Membuat Akun Login Default (Admin, Manager, Owner): " . ($seedExitCode === 0 ? "SUKSES (OK)\n" : "GAGAL (Code: $seedExitCode)\n");
+            
+            // Clear caches
+            Illuminate\Support\Facades\Artisan::call('cache:clear');
+            Illuminate\Support\Facades\Artisan::call('config:clear');
+            $logOutput .= "3. Pembersihan Cache Aplikasi: SUKSES (OK)\n";
+            
+            if ($exitCode === 0 && $seedExitCode === 0) {
+                $message = "Database berhasil dikosongkan! Sekarang sistem bersih dari data produk, kategori, supplier, dan transaksi. Hanya akun login default yang aktif.";
+                $messageType = 'success';
+            } else {
+                $message = "Terjadi kegagalan saat membersihkan database.";
+                $messageType = 'error';
+            }
+        } elseif ($action === 'seed') {
+            // Fresh migration
+            $exitCode = Illuminate\Support\Facades\Artisan::call('migrate:fresh', ['--force' => true]);
+            $logOutput .= "1. Refresh Database: " . ($exitCode === 0 ? "SUKSES (OK)\n" : "GAGAL (Code: $exitCode)\n");
+            
+            // Seed ALL data
+            $seedExitCode = Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+            $logOutput .= "2. Mengisi Seluruh Data Contoh (Full Seed): " . ($seedExitCode === 0 ? "SUKSES (OK)\n" : "GAGAL (Code: $seedExitCode)\n");
+            
+            // Clear caches
+            Illuminate\Support\Facades\Artisan::call('cache:clear');
+            Illuminate\Support\Facades\Artisan::call('config:clear');
+            $logOutput .= "3. Pembersihan Cache Aplikasi: SUKSES (OK)\n";
+            
+            if ($exitCode === 0 && $seedExitCode === 0) {
+                $message = "Data contoh berhasil dimasukkan kembali! Seluruh produk, kategori, supplier, batch stok, dan transaksi contoh telah dipulihkan.";
+                $messageType = 'success';
+            } else {
+                $message = "Terjadi kegagalan saat memasukkan data contoh.";
+                $messageType = 'error';
+            }
+        }
+    } catch (Exception $e) {
+        $message = "Error: " . $e->getMessage();
+        $messageType = 'error';
+        $logOutput .= "ERROR: " . $e->getMessage() . "\n" . $e->getTraceAsString();
+    }
+}
+?>
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Della Frozen Mart - Database Manager</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent-success: #10b981;
+            --accent-danger: #ef4444;
+            --accent-warning: #f59e0b;
+            --accent-info: #0284c7;
+            --glass-blur: blur(12px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
+            background-image: radial-gradient(circle at 10% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 40%),
+                              radial-gradient(circle at 90% 80%, rgba(16, 185, 129, 0.08) 0%, transparent 45%);
+            background-attachment: fixed;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 750px;
+            background: var(--card-bg);
+            backdrop-filter: var(--glass-blur);
+            -webkit-backdrop-filter: var(--glass-blur);
+            border: 1px solid var(--border-color);
+            border-radius: 24px;
+            padding: 2.5rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+        }
+
+        header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #38bdf8, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        .alert {
+            padding: 1rem 1.25rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .alert-success {
+            background-color: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+        }
+
+        .alert-danger {
+            background-color: rgba(239, 68, 68, 0.12);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+        }
+
+        .alert-warning {
+            background-color: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.25);
+            color: #fbbf24;
+        }
+
+        .action-card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .action-info {
+            flex: 1;
+        }
+
+        .action-title {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #f1f5f9;
+            margin-bottom: 0.25rem;
+        }
+
+        .action-desc {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.4;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-danger {
+            background-color: var(--accent-danger);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #dc2626;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .btn-info {
+            background-color: var(--accent-info);
+            color: white;
+        }
+
+        .btn-info:hover {
+            background-color: #026ca3;
+            box-shadow: 0 0 12px rgba(2, 132, 199, 0.4);
+        }
+
+        .btn-secondary {
+            background-color: #475569;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-secondary:hover {
+            background-color: #334155;
+        }
+
+        .log-section {
+            margin-top: 1.5rem;
+        }
+
+        .log-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: #cbd5e1;
+            margin-bottom: 0.5rem;
+        }
+
+        .log-box {
+            background: #090d16;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            color: #a7f3d0;
+        }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.25rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Pengatur Database Demo</h1>
+            <p>Sistem Informasi Persediaan Della Frozen Mart</p>
+        </header>
+
+        <?php if (!$vendorExists): ?>
+            <div class="alert alert-danger">
+                <strong>Error:</strong> Folder <code>vendor/</code> tidak ditemukan. Harap unggah folder vendor lengkap agar Laravel dapat berjalan.
+            </div>
+        <?php endif; ?>
+
+        <?php if ($message): ?>
+            <div class="alert alert-<?php echo $messageType === 'success' ? 'success' : 'danger'; ?>">
+                <?php echo htmlspecialchars($message); ?>
+            </div>
+        <?php endif; ?>
+
+        <div class="alert alert-warning">
+            ⚠️ <strong>Perhatian:</strong> Halaman ini digunakan khusus untuk bimbingan/demo dosen. Memilih tindakan di bawah ini akan menghapus data di database saat ini. Pastikan Anda memahami konsekuensinya.
+        </div>
+
+        <?php if ($vendorExists): ?>
+            <!-- Opsi 1: Bersihkan Data Produk & Transaksi (Mode Demo Kosong) -->
+            <div class="action-card">
+                <div class="action-info">
+                    <h3 class="action-title">1. Reset ke Mode Kosong (Hanya Akun Login)</h3>
+                    <p class="action-desc">Mengosongkan semua data produk, kategori, supplier, dan transaksi. Hanya menyisakan 3 akun login default (Admin, Manager, Owner) agar Anda bisa mendemokan penginputan dari awal.</p>
+                </div>
+                <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin MENGOSONGKAN semua data produk dan transaksi? Tindakan ini tidak bisa dibatalkan.');">
+                    <input type="hidden" name="action" value="clear">
+                    <button type="submit" class="btn btn-danger">Kosongkan Database</button>
+                </form>
+            </div>
+
+            <!-- Opsi 2: Isi Kembali Data Contoh (Full Seed) -->
+            <div class="action-card">
+                <div class="action-info">
+                    <h3 class="action-title">2. Isi Kembali Data Contoh (Restore Mock Data)</h3>
+                    <p class="action-desc">Membuat ulang semua tabel dan mengisinya kembali dengan data simulasi bawaan (produk, batch, penjualan, analisis ROP) secara otomatis.</p>
+                </div>
+                <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin memulihkan seluruh data simulasi contoh?');">
+                    <input type="hidden" name="action" value="seed">
+                    <button type="submit" class="btn btn-info">Isi Data Contoh</button>
+                </form>
+            </div>
+        <?php endif; ?>
+
+        <?php if (!empty($logOutput)): ?>
+            <div class="log-section">
+                <h4 class="log-title">Log Proses Eksekusi:</h4>
+                <div class="log-box"><?php echo htmlspecialchars($logOutput); ?></div>
+            </div>
+        <?php endif; ?>
+
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="/" class="btn btn-secondary">Kembali ke Dashboard Utama</a>
+        </div>
+
+        <footer>
+            <p>Database Demo Manager &copy; 2026. Antigravity AI Coding Assistant.</p>
+        </footer>
+    </div>
+</body>
+</html>

@@ -396,7 +396,6 @@
                         <th class="col-price">Harga Satuan (Rp)</th>
                         <th class="col-total">Total (Rp)</th>
                         <th class="col-loc">ID_Lokasi</th>
-                        <th class="col-desc">Keterangan</th>
                         <th class="col-action">Aksi</th>
                     </tr>
                 </thead>
@@ -411,7 +410,6 @@
                         <td class="col-price fw-semibold">Rp {{ number_format($item->harga_beli, 0, ',', '.') }}</td>
                         <td class="col-total fw-bold text-dark">Rp {{ number_format($item->jumlah * $item->harga_beli, 0, ',', '.') }}</td>
                         <td class="col-loc"><span class="badge bg-light text-secondary fw-semibold border">{{ $item->id_lokasi ?? '-' }}</span></td>
-                        <td class="col-desc text-muted">{{ $item->keterangan ?? '-' }}</td>
                         <td class="col-action text-center">
                             <a href="{{ route('barang-masuk.show', $item->id) }}" class="btn btn-sm btn-light border p-1" style="border-radius: 6px;" title="Detail Transaksi">
                                 <i class="ph ph-eye text-primary" style="font-size: 1.1rem; vertical-align: middle;"></i>
@@ -420,7 +418,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center py-5 text-muted">
+                        <td colspan="9" class="text-center py-5 text-muted">
                             <i class="ph ph-info fs-1 d-block mb-2"></i>
                             Belum ada data transaksi barang masuk yang cocok.
                         </td>
