@@ -76,68 +76,6 @@
         </div>
     </div>
 
-    {{-- Summary Cards Row --}}
-    <div class="row g-3 mb-4">
-        {{-- Card 1: Total Transaksi --}}
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm bg-slate-light" style="border: 1px solid #e2e8f0 !important;">
-                <div class="card-body d-flex align-items-center">
-                    <div class="stat-icon icon-slate me-3">
-                        <i class="ph ph-receipt"></i>
-                    </div>
-                    <div>
-                        <span class="text-muted-dark small d-block">Total Transaksi</span>
-                        <h3 class="fw-bold mb-0 mt-1 text-slate-dark">{{ number_format($totalTransaksi) }} <span class="fs-6 fw-normal text-muted">Baris</span></h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Card 2: Total Produk Unik --}}
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm bg-blue-light" style="border: 1px solid #dbeafe !important;">
-                <div class="card-body d-flex align-items-center">
-                    <div class="stat-icon icon-blue me-3">
-                        <i class="ph ph-package"></i>
-                    </div>
-                    <div>
-                        <span class="text-muted-dark small d-block">Total Produk</span>
-                        <h3 class="fw-bold mb-0 mt-1 text-blue-dark">{{ number_format($totalProduk) }} <span class="fs-6 fw-normal text-muted">Jenis</span></h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Card 3: Total Qty Masuk --}}
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm bg-warning-light" style="border: 1px solid #fef9c3 !important;">
-                <div class="card-body d-flex align-items-center">
-                    <div class="stat-icon icon-warning me-3">
-                        <i class="ph ph-arrow-down-left"></i>
-                    </div>
-                    <div>
-                        <span class="text-muted-dark small d-block">Total Qty Masuk</span>
-                        <h3 class="fw-bold mb-0 mt-1 text-warning-dark">{{ number_format($totalQty) }} <span class="fs-6 fw-normal text-muted">Pcs</span></h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Card 4: Total Nilai Pembelian --}}
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm bg-emerald-light" style="border: 1px solid #dcfce7 !important;">
-                <div class="card-body d-flex align-items-center">
-                    <div class="stat-icon icon-emerald me-3">
-                        <span class="fw-bold" style="font-size: 0.95rem; font-family: var(--font-display);">Rp</span>
-                    </div>
-                    <div>
-                        <span class="text-muted-dark small d-block">Nilai Pembelian</span>
-                        <h3 class="fw-bold mb-0 mt-1 text-emerald-dark" style="white-space: nowrap; font-size: clamp(1.1rem, 1.3vw, 1.4rem);">Rp {{ number_format($totalNilai, 0, ',', '.') }}</h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
     {{-- Main Table Card --}}
     <div class="card border-0 shadow-sm mb-4">
