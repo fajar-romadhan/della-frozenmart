@@ -41,10 +41,6 @@ class CategorySeeder extends Seeder
                 'nama_kategori' => 'Minuman',
                 'deskripsi' => 'Minuman dingin dan beku',
             ],
-            [
-                'nama_kategori' => 'Belum Dikategorikan',
-                'deskripsi' => 'Produk yang belum memiliki kategori',
-            ],
         ];
 
         foreach ($categories as $category) {

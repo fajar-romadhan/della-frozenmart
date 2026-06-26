@@ -541,7 +541,7 @@ class ProductSeeder extends Seeder
             [
                 'kode_produk' => 'PRD-0066',
                 'nama_produk' => 'Spageti (Pasta) 200 gram',
-                'category_id' => 8, // Belum Dikategorikan
+                'category_id' => 1, // Frozen Food
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 50,
                 'stok_minimum' => 10,
@@ -549,7 +549,7 @@ class ProductSeeder extends Seeder
             [
                 'kode_produk' => 'PRD-0067',
                 'nama_produk' => 'Spageti (Pasta) 500 gram',
-                'category_id' => 8, // Belum Dikategorikan
+                'category_id' => 1, // Frozen Food
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 50,
                 'stok_minimum' => 10,
@@ -637,7 +637,7 @@ class ProductSeeder extends Seeder
             [
                 'kode_produk' => 'PRD-0078',
                 'nama_produk' => 'Mie Ayam Tanggamus',
-                'category_id' => 8, // Belum Dikategorikan
+                'category_id' => 1, // Frozen Food
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 50,
                 'stok_minimum' => 10,

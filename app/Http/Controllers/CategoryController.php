@@ -83,9 +83,9 @@ class CategoryController extends Controller
     public function destroy(Category $kategori)
     {
         // Prevent deleting default category
-        if ($kategori->nama_kategori === 'Belum Dikategorikan') {
+        if ($kategori->nama_kategori === 'Frozen Food') {
             return redirect()->route('kategori.index')
-                ->with('error', 'Kategori "Belum Dikategorikan" tidak dapat dihapus karena merupakan kategori default.');
+                ->with('error', 'Kategori "Frozen Food" tidak dapat dihapus karena merupakan kategori default.');
         }
 
         // Check if category has products

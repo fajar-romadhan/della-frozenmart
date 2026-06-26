@@ -84,7 +84,7 @@ class ImportFakturController extends Controller
         }
 
         $defaultCategory = \App\Models\Category::firstOrCreate(
-            ['nama_kategori' => 'Belum Dikategorikan']
+            ['nama_kategori' => 'Frozen Food']
         );
 
         DB::beginTransaction();
