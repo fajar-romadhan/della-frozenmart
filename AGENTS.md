@@ -2,7 +2,7 @@
 
 ## Project
 Della Frozenmart is a Laravel stock management web application.
-The project is already hosted, so every change must be safe, minimal, and easy to rollback.
+The project is already hosted, so all changes must be safe, minimal, and easy to rollback.
 
 ## Tech Stack
 - Laravel
@@ -31,8 +31,6 @@ The project is already hosted, so every change must be safe, minimal, and easy t
 6. Keep UI consistent with the existing design.
 7. Explain every changed file.
 8. Run verification commands when possible.
-9. Protect product, stock, purchase, and invoice data integrity.
-10. Give deployment notes for changes that affect hosting.
 
 ## Safe Commands
 - php artisan route:list
@@ -51,5 +49,4 @@ The project is already hosted, so every change must be safe, minimal, and easy t
 - composer update
 - deleting storage files
 - changing production `.env`
-- changing app key
 - force push
