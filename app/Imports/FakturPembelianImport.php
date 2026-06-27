@@ -38,7 +38,25 @@ class FakturPembelianImport implements ToCollection, WithStartRow
                 $errors[] = 'Tanggal kosong';
             } else {
                 try {
-                    Carbon::createFromFormat('d/m/Y', $tanggal);
+                    if ($tanggal instanceof \DateTime) {
+                        $tanggalStr = $tanggal->format('d/m/Y');
+                    } elseif (is_numeric($tanggal)) {
+                        // Excel serial date
+                        $tanggalStr = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggal))->format('d/m/Y');
+                    } else {
+                        $trimmed = trim($tanggal);
+                        if (preg_match('/^\d{4}-\d{2}-\d{2}/', $trimmed)) {
+                            $tanggalStr = Carbon::parse($trimmed)->format('d/m/Y');
+                        } else {
+                            try {
+                                Carbon::createFromFormat('d/m/Y', $trimmed);
+                                $tanggalStr = $trimmed;
+                            } catch (\Exception $ex) {
+                                $tanggalStr = Carbon::parse($trimmed)->format('d/m/Y');
+                            }
+                        }
+                    }
+                    $tanggal = $tanggalStr;
                 } catch (\Exception $e) {
                     $errors[] = 'Format tanggal salah (harus DD/MM/YYYY)';
                 }

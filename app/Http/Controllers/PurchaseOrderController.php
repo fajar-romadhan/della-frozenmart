@@ -79,6 +79,12 @@ class PurchaseOrderController extends Controller
             return redirect()->back()->withErrors(['error' => 'Pemesanan belum berstatus diterima.']);
         }
 
+        // Prevent double receive
+        $exists = IncomingGood::where('sumber_import', 'Purchase Order #' . $purchaseOrder->id)->exists();
+        if ($exists) {
+            return redirect()->back()->withErrors(['error' => 'Barang masuk untuk Pemesanan ini sudah pernah diproses.']);
+        }
+
         DB::beginTransaction();
         try {
             $tanggal = date('Y-m-d');

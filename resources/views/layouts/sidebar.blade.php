@@ -154,10 +154,17 @@
             </a>
         @endif
 
-        <a href="{{ route('laporan.penjualan') }}" class="sidebar-icon {{ request()->routeIs('laporan.penjualan') ? 'active' : '' }}">
-            <i class="ph ph-shopping-cart"></i>
-            <span class="sidebar-text">{{ $role === 'owner' ? 'Laporan Penjualan' : 'Laporan Penjualan Produk' }}</span>
-        </a>
+        @if($role === 'owner')
+            <a href="{{ route('laporan.penjualan') }}" class="sidebar-icon {{ request()->routeIs('laporan.penjualan') ? 'active' : '' }}">
+                <i class="ph ph-shopping-cart"></i>
+                <span class="sidebar-text">Laporan Penjualan</span>
+            </a>
+        @else
+            <a href="{{ route('pemesanan-supplier.index') }}" class="sidebar-icon {{ request()->routeIs('pemesanan-supplier.*') ? 'active' : '' }}">
+                <i class="ph ph-truck"></i>
+                <span class="sidebar-text">Laporan Pemesanan Produk</span>
+            </a>
+        @endif
     </div>
     </div>
 

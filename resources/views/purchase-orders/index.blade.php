@@ -1,6 +1,6 @@
 @extends('layouts.app')
-@section('title', 'Pemesanan Supplier')
-@section('page-title', 'Pemesanan Supplier')
+@section('title', 'Laporan Pemesanan Produk')
+@section('page-title', 'Laporan Pemesanan Produk ke Supplier')
 
 @section('content')
 <style>
@@ -47,8 +47,8 @@
 <div class="container-fluid py-2">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h4 class="fw-bold mb-1" style="color: #0f172a; font-family: var(--font-display);">Pemesanan Supplier</h4>
-            <p class="text-muted mb-0" style="font-size: 0.9rem;">Kelola pemesanan barang ke supplier</p>
+            <h4 class="fw-bold mb-1" style="color: #0f172a; font-family: var(--font-display);">Laporan Pemesanan Produk</h4>
+            <p class="text-muted mb-0" style="font-size: 0.9rem;">Daftar transaksi pemesanan barang kepada supplier</p>
         </div>
         @if(auth()->user()->role !== 'owner')
         <a href="{{ route('pemesanan-supplier.create') }}" class="btn btn-primary fw-bold" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 20px;"><i class="bi bi-plus-lg"></i> Buat Pemesanan</a>

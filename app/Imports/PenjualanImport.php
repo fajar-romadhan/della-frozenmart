@@ -31,8 +31,15 @@ class PenjualanImport implements ToCollection, WithHeadingRow
                 $errors[] = 'Tanggal kosong';
             } else {
                 try {
-                    // Try different formats
-                    Carbon::parse($tanggal);
+                    if ($tanggal instanceof \DateTime) {
+                        $parsedDate = Carbon::instance($tanggal);
+                    } elseif (is_numeric($tanggal)) {
+                        // Excel serial date
+                        $parsedDate = Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggal));
+                    } else {
+                        $parsedDate = Carbon::parse($tanggal);
+                    }
+                    $tanggal = $parsedDate->format('Y-m-d');
                 } catch (\Exception $e) {
                     $errors[] = 'Format tanggal tidak valid';
                 }
@@ -57,7 +64,7 @@ class PenjualanImport implements ToCollection, WithHeadingRow
                 ];
             } else {
                 $this->validRows[] = [
-                    'tanggal' => Carbon::parse($tanggal)->format('Y-m-d'),
+                    'tanggal' => $tanggal,
                     'nama_barang' => trim(preg_replace('/\s+/', ' ', $namaBarang)),
                     'jumlah' => (int) $jumlah
                 ];

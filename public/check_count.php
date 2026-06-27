@@ -6,6 +6,39 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Check security key from .env or fallback
+$envFile = dirname(__DIR__) . '/.env';
+$secureKey = 'DellaFrozenMart2026_SecureKey'; // fallback
+if (file_exists($envFile)) {
+    $envContent = file_get_contents($envFile);
+    if (preg_match('/^DEMO_RESET_KEY=(.*)$/m', $envContent, $matches)) {
+        $secureKey = trim($matches[1], "\"' ");
+    }
+}
+
+if (!isset($_GET['key']) || $_GET['key'] !== $secureKey) {
+    http_response_code(403);
+    echo "<!DOCTYPE html>
+    <html lang='id'>
+    <head>
+        <meta charset='UTF-8'>
+        <title>403 Akses Ditolak</title>
+        <link href='https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #f8fafc; text-align: center; padding: 5rem; }
+            h1 { color: #f87171; }
+            .key-info { background: #1e293b; padding: 1rem; border-radius: 8px; max-width: 500px; margin: 2rem auto; font-family: monospace; border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; }
+        </style>
+    </head>
+    <body>
+        <h1>403 Akses Ditolak</h1>
+        <p>Anda memerlukan token keamanan untuk mengakses halaman ini.</p>
+        <div class='key-info'>Hubungi administrator untuk token yang valid atau tambahkan parameter ?key=... pada URL.</div>
+    </body>
+    </html>";
+    exit;
+}
+
 $baseDir = dirname(__DIR__);
 
 echo "<!DOCTYPE html>

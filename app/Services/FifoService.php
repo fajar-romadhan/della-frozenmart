@@ -25,7 +25,7 @@ class FifoService
     public function deductStock(int $productId, int $quantity, int $outgoingGoodId): array
     {
         return DB::transaction(function () use ($productId, $quantity, $outgoingGoodId) {
-            $product = Product::findOrFail($productId);
+            $product = Product::lockForUpdate()->findOrFail($productId);
 
             // Get available batches ordered by FEFO then FIFO
             $batches = StockBatch::where('product_id', $productId)

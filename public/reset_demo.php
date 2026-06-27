@@ -7,6 +7,46 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Check security key from .env or fallback
+$envFile = dirname(__DIR__) . '/.env';
+$secureKey = 'DellaFrozenMart2026_SecureKey'; // fallback
+$appEnv = 'production';
+if (file_exists($envFile)) {
+    $envContent = file_get_contents($envFile);
+    if (preg_match('/^DEMO_RESET_KEY=(.*)$/m', $envContent, $matches)) {
+        $secureKey = trim($matches[1], "\"' ");
+    }
+    if (preg_match('/^APP_ENV=(.*)$/m', $envContent, $matches)) {
+        $appEnv = trim($matches[1], "\"' ");
+    }
+}
+
+// Request must have key in query string (for GET) or POST param (for form submission)
+$providedKey = $_REQUEST['key'] ?? '';
+
+if ($providedKey !== $secureKey) {
+    http_response_code(403);
+    echo "<!DOCTYPE html>
+    <html lang='id'>
+    <head>
+        <meta charset='UTF-8'>
+        <title>403 Akses Ditolak</title>
+        <link href='https://fonts.googleapis.com/css2?family=Outfit:wght@400;600&display=swap' rel='stylesheet'>
+        <style>
+            body { font-family: 'Outfit', sans-serif; background-color: #0f172a; color: #f8fafc; text-align: center; padding: 5rem; }
+            h1 { color: #f87171; }
+            .key-info { background: #1e293b; padding: 1rem; border-radius: 8px; max-width: 500px; margin: 2rem auto; font-family: monospace; border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; }
+        </style>
+    </head>
+    <body>
+        <h1>403 Akses Ditolak</h1>
+        <p>Anda memerlukan token keamanan untuk mengakses halaman ini.</p>
+        <div class='key-info'>Hubungi administrator untuk token yang valid atau tambahkan parameter ?key=... pada URL.</div>
+    </body>
+    </html>";
+    exit;
+}
+
 $baseDir = dirname(__DIR__);
 
 // Check if vendor folder exists
@@ -317,7 +357,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h3 class="action-title">1. Reset ke Mode Kosong (Hanya Akun Login)</h3>
                     <p class="action-desc">Mengosongkan semua data produk, kategori, supplier, dan transaksi. Hanya menyisakan 3 akun login default (Admin, Manager, Owner) agar Anda bisa mendemokan penginputan dari awal.</p>
                 </div>
-                <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin MENGOSONGKAN semua data produk dan transaksi? Tindakan ini tidak bisa dibatalkan.');">
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin MENGOSONGKAN semua data produk dan transaksi? Tindakan ini tidak bisa dibatalkan.');">
                     <input type="hidden" name="action" value="clear">
                     <button type="submit" class="btn btn-danger">Kosongkan Database</button>
                 </form>
@@ -329,7 +369,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h3 class="action-title">2. Isi Kembali Data Contoh (Restore Mock Data)</h3>
                     <p class="action-desc">Membuat ulang semua tabel dan mengisinya kembali dengan data simulasi bawaan (produk, batch, penjualan, analisis ROP) secara otomatis.</p>
                 </div>
-                <form method="POST" onsubmit="return confirm('Apakah Anda yakin ingin memulihkan seluruh data simulasi contoh?');">
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin memulihkan seluruh data simulasi contoh?');">
                     <input type="hidden" name="action" value="seed">
                     <button type="submit" class="btn btn-info">Isi Data Contoh</button>
                 </form>
