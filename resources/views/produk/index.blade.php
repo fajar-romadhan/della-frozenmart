@@ -348,6 +348,70 @@
         border-color: #e2e8f0;
         cursor: not-allowed;
     }
+
+    /* Stat Cards with Premium Hover Animations */
+    .stat-card {
+        background: #ffffff;
+        border: 1px solid rgba(0, 0, 0, 0.08);
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+        padding: 24px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        height: 100%;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        margin-bottom: 24px;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
+        border-color: rgba(37, 99, 235, 0.15);
+    }
+    
+    .stat-icon-wrapper {
+        width: 56px;
+        height: 56px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+    }
+
+    .stat-icon-wrapper i {
+        font-size: 1.75rem;
+    }
+    
+    .bg-primary-soft {
+        background-color: rgba(37, 99, 235, 0.08) !important;
+    }
+    
+    .stat-content {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .stat-title {
+        font-size: 0.88rem;
+        color: #64748b;
+        font-weight: 500;
+        margin-bottom: 2px;
+    }
+    
+    .stat-value {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
+    }
+    
+    .stat-subtitle {
+        font-size: 0.75rem;
+        color: #94a3b8;
+        margin-top: 2px;
+    }
 </style>
 
 <div class="container-fluid py-2">
@@ -360,6 +424,22 @@
         <a href="{{ route('produk.create') }}" class="btn-add-product" id="btnTambahProduk">
             <i class="ph ph-plus bold"></i> Tambah Produk
         </a>
+    </div>
+
+    {{-- Statistics Card Section --}}
+    <div class="row mb-4 g-3">
+        <div class="col-md-4 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon-wrapper bg-primary-soft">
+                    <i class="ph ph-box text-primary"></i>
+                </div>
+                <div class="stat-content">
+                    <div class="stat-title">Total Produk</div>
+                    <div class="stat-value" id="totalProdukVal">{{ number_format($totalProduk) }}</div>
+                    <div class="stat-subtitle">Produk Terdaftar</div>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Filter & Search Section --}}
@@ -395,10 +475,10 @@
                         <th class="col-name">NAMA PRODUK</th>
                         <th class="col-category">KATEGORI</th>
                         <th class="col-unit">SATUAN</th>
-                        <th class="col-stock">STOK</th>
+                        {{-- <th class="col-stock">STOK</th>
                         <th class="col-date">TANGGAL MASUK</th>
                         <th class="col-date">KEDALUWARSA</th>
-                        <th class="col-supplier">SUPPLIER</th>
+                        <th class="col-supplier">SUPPLIER</th> --}}
                         <th class="col-action">AKSI</th>
                     </tr>
                 </thead>
@@ -431,7 +511,7 @@
                             @endif
                         </td>
                         <td class="col-unit"><span class="text-secondary fw-semibold">{{ ucfirst(strtolower($product->satuan)) }}</span></td>
-                        <td class="col-stock">
+                        {{-- <td class="col-stock">
                             @if($product->stok_saat_ini < 0)
                                 <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-10 fw-bold" style="font-size: 0.78rem;">
                                     {{ number_format($product->stok_saat_ini) }}
@@ -472,7 +552,7 @@
                             @else
                                 <span class="text-muted" style="font-style: italic; font-size: 0.75rem;">Tidak Diketahui</span>
                             @endif
-                        </td>
+                        </td> --}}
                         <td class="col-action">
                             <div class="dropdown">
                                 <button class="btn-edit-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -495,11 +575,11 @@
                                             <i class="ph ph-package"></i> Edit Satuan
                                         </a>
                                     </li>
-                                    <li>
+                                    {{-- <li>
                                         <a class="dropdown-item" href="{{ route('produk.edit', $product) }}?focus=stok">
                                             <i class="ph ph-database"></i> Edit Stok
                                         </a>
-                                    </li>
+                                    </li> --}}
                                     <li>
                                         <a class="dropdown-item" href="{{ route('produk.edit', $product) }}?focus=kedaluwarsa">
                                             <i class="ph ph-calendar"></i> Edit Tanggal Kedaluwarsa
@@ -526,7 +606,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center py-5 text-muted">
+                        <td colspan="6" class="text-center py-5 text-muted">
                             <i class="ph ph-info fs-1 d-block mb-2"></i>
                             Belum ada data produk yang cocok.
                         </td>

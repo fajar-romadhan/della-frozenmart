@@ -377,7 +377,7 @@
                     </div>
                 </div>
                 
-                <div class="row g-3">
+                <div class="row g-3 d-none">
                     <div class="col-md-12 keterangan-container">
                         <label for="keterangan_input" class="form-label-custom">Keterangan</label>
                         <input type="text" id="keterangan_input" class="form-control form-control-custom" maxlength="255" placeholder="Masukkan keterangan (opsional)" style="padding-right: 60px;">

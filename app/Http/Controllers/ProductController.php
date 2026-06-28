@@ -41,8 +41,9 @@ class ProductController extends Controller
 
         $products = $query->orderBy('nama_produk')->paginate(10)->withQueryString();
         $categories = Category::orderBy('nama_kategori')->get();
+        $totalProduk = Product::count();
 
-        return view('produk.index', compact('products', 'categories'));
+        return view('produk.index', compact('products', 'categories', 'totalProduk'));
     }
 
     /**
