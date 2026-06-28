@@ -38,7 +38,10 @@
             <div class="notif-dropdown" id="notifDropdown">
                 {{-- Header --}}
                 <div class="notif-dropdown-header">
-                    <h6 class="notif-dropdown-title">Notifikasi Stok</h6>
+                    <h6 class="notif-dropdown-title">
+                        Notifikasi Stok
+                        <span class="status-indicator-dot" id="notifStatusDot" style="display: {{ $navUnreadCount > 0 ? 'inline-block' : 'none' }};"></span>
+                    </h6>
                     <a href="{{ route('notifikasi.read-all') }}" class="notif-dropdown-mark-read"
                        onclick="event.preventDefault(); document.getElementById('formMarkAllRead').submit();">
                         Tandai semua sebagai dibaca

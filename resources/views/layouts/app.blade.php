@@ -132,6 +132,16 @@
                             updateBadge(sidebarBadge);
                             updateBadge(topbarBadge);
 
+                            // Update status dot in dropdown header dynamically
+                            const statusDot = document.getElementById('notifStatusDot');
+                            if (statusDot) {
+                                if (count > 0) {
+                                    statusDot.style.display = 'inline-block';
+                                } else {
+                                    statusDot.style.display = 'none';
+                                }
+                            }
+
                             // If there are new notifications, show a dynamic Toast
                             if (count > lastNotifCount) {
                                 showNotificationToast('Ada notifikasi sistem baru.');
