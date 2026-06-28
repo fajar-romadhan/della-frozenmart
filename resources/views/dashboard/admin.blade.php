@@ -253,13 +253,13 @@
                     <!-- Section 1: Informasi Utama -->
                     <h6 class="fw-bold text-primary mb-3"><i class="ph ph-info me-1"></i> Informasi Utama</h6>
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <label class="form-label small fw-bold">Nama Toko</label>
                             <input type="text" class="form-control" id="editStoreName" required>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 d-none">
                             <label class="form-label small fw-bold">Cabang / Unit</label>
-                            <input type="text" class="form-control" id="editStoreBranch" required>
+                            <input type="text" class="form-control" id="editStoreBranch">
                         </div>
                     </div>
                     <div class="mb-3">
@@ -350,7 +350,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // -------------------------------------------------------------------------
     const defaultProfile = {
         name: "Della Frozen Mart",
-        branch: "Cabang 2 – Lawang Kidul (Cabang Baru)",
+        branch: "",
         tagline: "Sosis, Bakso, Nugget, Bumbu, & Alat Grill Premium",
         address: "Jln. Kiemas Lawang Kidul, Tanjung Enim (sebelah Es Teh Nusantara / depan RM Kamang Indah)",
         phone: "+62 857-8368-7636",
@@ -374,7 +374,16 @@ document.addEventListener("DOMContentLoaded", function() {
         };
         
         updateText('.store-name-val', store.name);
-        updateText('.store-branch-val', store.branch);
+        
+        // Handle branch badge display dynamically
+        document.querySelectorAll('.store-branch-badge').forEach(el => {
+            if (store.branch && store.branch.trim() !== '' && store.branch !== '-') {
+                el.textContent = store.branch;
+                el.style.display = 'inline-block';
+            } else {
+                el.style.display = 'none';
+            }
+        });
         updateText('.store-tagline-val', store.tagline);
         updateText('.store-address-val', store.address);
         updateText('.store-phone-val', store.phone);
