@@ -322,7 +322,7 @@
                         </div>
 
                         <!-- Products and Services Info -->
-                        <div class="store-products-services">
+                        <div class="store-products-services d-none">
                             <div class="store-ps-item">
                                 <span class="store-ps-title"><i class="ph ph-package text-primary"></i> Katalog Produk</span>
                                 <span class="store-products-val store-ps-content">-</span>
@@ -424,15 +424,17 @@
                     <hr class="my-3" style="opacity: 0.1">
 
                     <!-- Section 4: Produk & Layanan -->
-                    <h6 class="fw-bold text-primary mb-3"><i class="ph ph-package me-1"></i> Katalog & Kemitraan</h6>
-                    <div class="row mb-3">
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label small fw-bold">Produk Yang Dijual (Pisahkan dengan koma)</label>
-                            <textarea class="form-control" id="editStoreProducts" rows="2" placeholder="Nugget, sosis, kompor portable..."></textarea>
-                        </div>
-                        <div class="col-md-6 mb-2">
-                            <label class="form-label small fw-bold">Layanan Lainnya</label>
-                            <textarea class="form-control" id="editStoreServices" rows="2" placeholder="Grosir, kemitraan..."></textarea>
+                    <div class="d-none">
+                        <h6 class="fw-bold text-primary mb-3"><i class="ph ph-package me-1"></i> Katalog & Kemitraan</h6>
+                        <div class="row mb-3">
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label small fw-bold">Produk Yang Dijual (Pisahkan dengan koma)</label>
+                                <textarea class="form-control" id="editStoreProducts" rows="2" placeholder="Nugget, sosis, kompor portable..."></textarea>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label class="form-label small fw-bold">Layanan Lainnya</label>
+                                <textarea class="form-control" id="editStoreServices" rows="2" placeholder="Grosir, kemitraan..."></textarea>
+                            </div>
                         </div>
                     </div>
                 </form>
