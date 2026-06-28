@@ -349,68 +349,118 @@
         cursor: not-allowed;
     }
 
-    /* Stat Cards with Premium Hover Animations */
+    /* Stat Cards with Gen Z Premium Style */
     .stat-card {
-        background: #ffffff;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(12px);
+        border: 1px solid rgba(99, 102, 241, 0.15);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px -10px rgba(99, 102, 241, 0.12);
         padding: 24px;
         display: flex;
         align-items: center;
         gap: 20px;
         height: 100%;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
         margin-bottom: 24px;
     }
     
+    /* Neon glow effect on hover */
     .stat-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.04);
-        border-color: rgba(37, 99, 235, 0.15);
+        transform: translateY(-4px) scale(1.01);
+        box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.25);
+        border-color: rgba(99, 102, 241, 0.35);
+    }
+
+    /* Abstract gradient circle in the background of the card */
+    .stat-card::after {
+        content: '';
+        position: absolute;
+        width: 150px;
+        height: 150px;
+        background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, transparent 70%);
+        top: -50px;
+        right: -50px;
+        z-index: 1;
+        pointer-events: none;
+        transition: all 0.5s ease;
+    }
+    
+    .stat-card:hover::after {
+        transform: scale(1.2);
     }
     
     .stat-icon-wrapper {
-        width: 56px;
-        height: 56px;
-        border-radius: 10px;
+        width: 60px;
+        height: 60px;
+        border-radius: 14px;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
+        background: linear-gradient(135deg, #6366f1 0%, #06b6d4 100%);
+        box-shadow: 0 8px 20px -6px rgba(99, 102, 241, 0.4);
+        transition: all 0.35s ease;
+        z-index: 2;
     }
 
     .stat-icon-wrapper i {
-        font-size: 1.75rem;
+        font-size: 2rem;
+        color: #ffffff !important;
+        transition: transform 0.4s ease;
     }
     
-    .bg-primary-soft {
-        background-color: rgba(37, 99, 235, 0.08) !important;
+    .stat-card:hover .stat-icon-wrapper {
+        transform: scale(1.08);
+        box-shadow: 0 12px 25px -6px rgba(99, 102, 241, 0.6);
+    }
+    
+    .stat-card:hover .stat-icon-wrapper i {
+        transform: rotate(10deg) scale(1.1);
     }
     
     .stat-content {
         display: flex;
         flex-direction: column;
+        z-index: 2;
     }
     
     .stat-title {
         font-size: 0.88rem;
-        color: #64748b;
-        font-weight: 500;
+        color: #475569;
+        font-weight: 600;
         margin-bottom: 2px;
+        letter-spacing: 0.02em;
     }
     
     .stat-value {
-        font-size: 1.6rem;
-        font-weight: 700;
-        color: #0f172a;
-        line-height: 1.2;
+        font-size: 2.2rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.1;
     }
     
     .stat-subtitle {
         font-size: 0.75rem;
-        color: #94a3b8;
-        margin-top: 2px;
+        color: #64748b;
+        margin-top: 4px;
+        font-weight: 500;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .stat-subtitle::before {
+        content: '';
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: #10b981;
+        border-radius: 50%;
     }
 </style>
 
@@ -429,9 +479,9 @@
     {{-- Statistics Card Section --}}
     <div class="row mb-4 g-3">
         <div class="col-md-4 col-sm-6">
-            <div class="stat-card">
-                <div class="stat-icon-wrapper bg-primary-soft">
-                    <i class="ph ph-box text-primary"></i>
+            <div class="stat-card shadow-sm border border-light">
+                <div class="stat-icon-wrapper">
+                    <i class="ph ph-package text-white"></i>
                 </div>
                 <div class="stat-content">
                     <div class="stat-title">Total Produk</div>
