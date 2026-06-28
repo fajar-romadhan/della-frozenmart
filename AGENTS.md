@@ -1,4 +1,4 @@
-﻿# AGENTS.md
+# AGENTS.md
 
 ## Project
 Della Frozenmart is a Laravel stock management web application.
@@ -50,3 +50,18 @@ The project is already hosted, so all changes must be safe, minimal, and easy to
 - deleting storage files
 - changing production `.env`
 - force push
+
+## Deployment & Live Environment Info
+- **Live URL**: http://dellafrozenmart.my.id/
+- **Remote Repo**: https://github.com/fajar-romadhan/della-frozenmart.git
+- **Deployment Method**: SSH Terminal on cPanel hosting server.
+  - Commands to pull changes on hosting terminal:
+    ```bash
+    cd public_html
+    git stash
+    git pull origin main
+    git stash pop
+    ```
+- **Laravel Cache Clearing**: Clean cache on hosting by opening:
+  `http://dellafrozenmart.my.id/clean.php?key=DellaFrozenMart2026_SecureKey`
+- **Security Access Token**: `DellaFrozenMart2026_SecureKey` (defined as `DEMO_RESET_KEY` in `.env`). Append `?key=DellaFrozenMart2026_SecureKey` to access utility files (`clean.php`, `reset_demo.php`, `diagnose.php`, `check_count.php`).
