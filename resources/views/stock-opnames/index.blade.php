@@ -377,29 +377,21 @@
     {{-- Filter Panel --}}
     <div class="filter-card">
         <form method="GET" action="{{ route('stok-opname.index') }}" class="row g-3" id="formFilterOpname">
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="filter-label">Dari Tanggal</label>
                 <input type="date" name="tanggal_dari" class="form-control form-control-sm" value="{{ request('tanggal_dari') }}">
             </div>
-            <div class="col-md-2">
+            <div class="col-md-3">
                 <label class="filter-label">Sampai Tanggal</label>
                 <input type="date" name="tanggal_sampai" class="form-control form-control-sm" value="{{ request('tanggal_sampai') }}">
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 <label class="filter-label">Produk</label>
                 <select name="product_id" class="form-select form-select-sm">
                     <option value="">Semua Produk</option>
                     @foreach($products as $p)
                         <option value="{{ $p->id }}" {{ request('product_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_produk }}</option>
                     @endforeach
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label class="filter-label">Status</label>
-                <select name="status" class="form-select form-select-sm">
-                    <option value="">Semua Status</option>
-                    <option value="sesuai" {{ request('status') == 'sesuai' ? 'selected' : '' }}>Sesuai</option>
-                    <option value="selisih" {{ request('status') == 'selisih' ? 'selected' : '' }}>Selisih</option>
                 </select>
             </div>
             <div class="col-md-2 d-flex align-items-end gap-2">
@@ -428,7 +420,6 @@
                         <th class="col-sistem">Stok Sistem</th>
                         <th class="col-fisik">Stok Fisik</th>
                         <th class="col-selisih">Selisih</th>
-                        <th class="col-status">Status</th>
                         <th class="col-user">Oleh</th>
                     </tr>
                 </thead>
@@ -450,26 +441,11 @@
                                 <span class="text-muted">0</span>
                             @endif
                         </td>
-                        <td class="col-status">
-                            @if($opname->selisih == 0)
-                                <span class="badge-status badge-sesuai">
-                                    <i class="ph ph-check-circle"></i> Sesuai
-                                </span>
-                            @elseif($opname->selisih < 0)
-                                <span class="badge-status badge-kurang">
-                                    <i class="ph ph-arrow-down"></i> Kurang
-                                </span>
-                            @else
-                                <span class="badge-status badge-lebih">
-                                    <i class="ph ph-arrow-up"></i> Lebih
-                                </span>
-                            @endif
-                        </td>
                         <td class="col-user text-muted">{{ $opname->user->name ?? '-' }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="9" class="text-center py-5 text-muted">
+                        <td colspan="8" class="text-center py-5 text-muted">
                             <i class="ph ph-clipboard-text fs-1 d-block mb-2"></i>
                             Belum ada data stok opname.
                         </td>
