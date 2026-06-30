@@ -26,7 +26,7 @@ class OutgoingGoodController extends Controller
 
     public function index(Request $request)
     {
-        $query = OutgoingGood::with(['product', 'user'])->latest('tanggal_keluar');
+        $query = OutgoingGood::with(['product', 'user', 'outgoingGoodDetails.stockBatch'])->latest('tanggal_keluar');
         
         if ($request->filled('tanggal_dari')) {
             $query->whereDate('tanggal_keluar', '>=', $request->tanggal_dari);

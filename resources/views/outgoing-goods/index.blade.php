@@ -434,7 +434,20 @@
                     <tr>
                         <td class="col-no text-muted">{{ $outgoingGoods->firstItem() + $i }}</td>
                         <td class="col-date">{{ \Carbon\Carbon::parse($item->tanggal_keluar)->format('d/m/Y') }}</td>
-                        <td class="col-product fw-bold">{{ $item->product->nama_produk ?? '-' }}</td>
+                        <td class="col-product fw-bold">
+                            <div>{{ $item->product->nama_produk ?? '-' }}</div>
+                            @if($item->outgoingGoodDetails && $item->outgoingGoodDetails->count() > 0)
+                                <div class="mt-1 d-flex flex-wrap gap-1 align-items-center" style="font-weight: 500;">
+                                    @foreach($item->outgoingGoodDetails as $detail)
+                                        <span class="badge bg-light text-secondary border fw-normal" style="font-size: 0.72rem; padding: 2px 6px;" title="Diambil dari Batch ini">
+                                            <i class="ph ph-stack-simple text-danger" style="vertical-align: middle;"></i> 
+                                            {{ $detail->stockBatch->batch_code ?? 'Batch' }} 
+                                            <span class="text-danger fw-bold">(-{{ number_format($detail->jumlah_diambil) }} pcs)</span>
+                                        </span>
+                                    @endforeach
+                                </div>
+                            @endif
+                        </td>
                         <td class="col-qty"><span class="text-danger fw-bold">-{{ number_format($item->jumlah) }}</span></td>
                         <td class="col-jenis">
                             @php 
