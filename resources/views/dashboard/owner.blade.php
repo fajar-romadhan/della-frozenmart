@@ -676,6 +676,21 @@ document.addEventListener("DOMContentLoaded", function() {
             plugins: {
                 legend: {
                     display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ': ';
+                            }
+                            const value = context.raw;
+                            const dataset = context.dataset;
+                            const total = dataset.data.reduce((sum, val) => sum + val, 0);
+                            const percentage = total > 0 ? ((value / total) * 100).toFixed(1) + '%' : '0%';
+                            return label + value + ' (' + percentage + ')';
+                        }
+                    }
                 }
             },
             cutout: '72%'
