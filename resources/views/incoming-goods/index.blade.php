@@ -417,16 +417,16 @@
                                 @php $batch = $item->stockBatch; @endphp
                                 <div class="mt-1">
                                     @if($batch->jumlah_sisa == 0)
-                                        <span class="badge bg-light text-muted border fw-normal" style="font-size: 0.72rem; padding: 2px 6px;">
-                                            Sisa: 0 <span class="text-danger fw-bold">(Habis)</span>
+                                        <span class="badge border" style="font-size: 0.72rem; padding: 4px 8px; background-color: #f8fafc; border-color: #e2e8f0 !important; color: #64748b; font-weight: 500;">
+                                            Sisa: 0 <span style="color: #ef4444; font-weight: 700; margin-left: 2px;">(Habis)</span>
                                         </span>
                                     @elseif($batch->jumlah_sisa == $batch->jumlah_awal)
-                                        <span class="badge bg-success bg-opacity-10 text-success border border-success fw-normal" style="font-size: 0.72rem; padding: 2px 6px;">
-                                            Sisa: {{ number_format($batch->jumlah_sisa) }} <span class="fw-bold">(Utuh)</span>
+                                        <span class="badge border" style="font-size: 0.72rem; padding: 4px 8px; background-color: #f0fdf4; border-color: #bbf7d0 !important; color: #166534; font-weight: 500;">
+                                            Sisa: {{ number_format($batch->jumlah_sisa) }} <span style="color: #15803d; font-weight: 700; margin-left: 2px;">(Utuh)</span>
                                         </span>
                                     @else
-                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning fw-normal" style="font-size: 0.72rem; padding: 2px 6px;">
-                                            Sisa: {{ number_format($batch->jumlah_sisa) }} <span class="fw-bold">(Sisa)</span>
+                                        <span class="badge border" style="font-size: 0.72rem; padding: 4px 8px; background-color: #fffbeb; border-color: #fde68a !important; color: #92400e; font-weight: 500;">
+                                            Sisa: {{ number_format($batch->jumlah_sisa) }} <span style="color: #b45309; font-weight: 700; margin-left: 2px;">(Sisa)</span>
                                         </span>
                                     @endif
                                 </div>
