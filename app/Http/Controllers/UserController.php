@@ -54,7 +54,8 @@ class UserController extends Controller
         $validated['password'] = Hash::make($validated['password']);
         $validated['status_aktif'] = true;
 
-        User::create($validated);
+        $user = User::create($validated);
+        \App\Services\LogActivity::log('create', 'Tambah Pengguna Baru', "Menambahkan pengguna baru '{$user->name}' dengan role '{$user->role}'.");
 
         return redirect()->route('pengguna.index')
             ->with('success', 'Pengguna berhasil ditambahkan.');
@@ -84,6 +85,7 @@ class UserController extends Controller
         ]);
 
         $pengguna->update($validated);
+        \App\Services\LogActivity::log('update', 'Perbarui Data Pengguna', "Memperbarui data pengguna '{$pengguna->name}' dengan role '{$pengguna->role}'.");
 
         return redirect()->route('pengguna.index')
             ->with('success', 'Pengguna berhasil diperbarui.');
@@ -96,7 +98,10 @@ class UserController extends Controller
                 ->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
         }
 
+        $userName = $pengguna->name;
+        $userEmail = $pengguna->email;
         $pengguna->delete();
+        \App\Services\LogActivity::log('delete', 'Hapus Pengguna', "Menghapus akun pengguna '{$userName}' ({$userEmail}).");
 
         return redirect()->route('pengguna.index')
             ->with('success', 'Pengguna berhasil dihapus.');
@@ -112,6 +117,7 @@ class UserController extends Controller
         $user->update(['status_aktif' => !$user->status_aktif]);
 
         $status = $user->status_aktif ? 'diaktifkan' : 'dinonaktifkan';
+        \App\Services\LogActivity::log('update', 'Ubah Status Pengguna', "Mengubah status akun pengguna '{$user->name}' menjadi {$status}.");
         return redirect()->route('pengguna.index')
             ->with('success', "Pengguna '{$user->name}' berhasil {$status}.");
     }
@@ -119,6 +125,7 @@ class UserController extends Controller
     public function resetPassword(User $user)
     {
         $user->update(['password' => Hash::make('password')]);
+        \App\Services\LogActivity::log('update', 'Reset Password Pengguna', "Mereset password pengguna '{$user->name}' ke default.");
 
         return redirect()->route('pengguna.index')
             ->with('success', "Password pengguna '{$user->name}' berhasil direset ke 'password'.");

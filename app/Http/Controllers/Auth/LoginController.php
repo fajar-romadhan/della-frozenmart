@@ -49,6 +49,7 @@ class LoginController extends Controller
             }
 
             $request->session()->regenerate();
+            \App\Services\LogActivity::log('login', 'User Login', "Pengguna '{$user->name}' ({$user->role}) berhasil masuk ke sistem.");
 
             return redirect()->intended(route('dashboard'));
         }
@@ -63,6 +64,11 @@ class LoginController extends Controller
      */
     public function logout(Request $request)
     {
+        $user = Auth::user();
+        if ($user) {
+            \App\Services\LogActivity::log('logout', 'User Logout', "Pengguna '{$user->name}' ({$user->role}) keluar dari sistem.");
+        }
+
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();

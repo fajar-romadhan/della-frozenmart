@@ -86,7 +86,7 @@ Route::middleware(['auth'])->group(function () {
         
         // Export Barang Keluar
         Route::get('export/barang-keluar/pdf', [ReportController::class, 'exportBarangKeluarPdf'])->name('export.barang-keluar.pdf');
-        Route::get('export/barang-keluar/excel', [ReportController::class, 'exportBarangKeluarExcel'])->name('export.barang-keluar.excel');
+        // Route::get('export/barang-keluar/excel', [ReportController::class, 'exportBarangKeluarExcel'])->name('export.barang-keluar.excel');
     });
     
     // All roles routes

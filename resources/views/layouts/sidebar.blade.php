@@ -42,11 +42,6 @@
                 <i class="ph ph-package"></i>
                 <span class="sidebar-text">Kelola Data Produk</span>
             </a>
-            
-            <a href="{{ route('supplier.index') }}" class="sidebar-icon {{ request()->routeIs('supplier.*') ? 'active' : '' }}">
-                <i class="ph ph-truck"></i>
-                <span class="sidebar-text">Kelola Supplier</span>
-            </a>
         @endif
 
         {{-- ============================================================ --}}

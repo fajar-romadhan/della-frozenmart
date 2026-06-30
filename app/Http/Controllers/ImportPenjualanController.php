@@ -139,6 +139,8 @@ class ImportPenjualanController extends Controller
             DB::commit();
             session()->forget('import_penjualan_preview');
 
+            \App\Services\LogActivity::log('import', 'Import Penjualan', "Mengimpor berkas data penjualan '{$previewData['file_name']}' (Berhasil: {$jumlahBarisBerhasil} baris, Gagal: " . count($previewData['error_rows']) . " baris).");
+
             return redirect()->route('import-penjualan.index')->with('success_import', [
                 'nama_file' => $previewData['file_name'],
                 'jumlah_berhasil' => $jumlahBarisBerhasil,

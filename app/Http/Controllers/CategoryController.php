@@ -42,7 +42,8 @@ class CategoryController extends Controller
             'deskripsi.max' => 'Deskripsi maksimal 1000 karakter.',
         ]);
 
-        Category::create($validated);
+        $category = Category::create($validated);
+        \App\Services\LogActivity::log('create', 'Tambah Kategori Baru', "Menambahkan kategori baru '{$category->nama_kategori}'.");
 
         return redirect()->route('kategori.index')
             ->with('success', 'Kategori berhasil ditambahkan.');
@@ -72,6 +73,7 @@ class CategoryController extends Controller
         ]);
 
         $kategori->update($validated);
+        \App\Services\LogActivity::log('update', 'Perbarui Kategori', "Memperbarui data kategori '{$kategori->nama_kategori}'.");
 
         return redirect()->route('kategori.index')
             ->with('success', 'Kategori berhasil diperbarui.');
@@ -94,7 +96,9 @@ class CategoryController extends Controller
                 ->with('error', "Kategori '{$kategori->nama_kategori}' tidak dapat dihapus karena masih memiliki {$kategori->products()->count()} produk.");
         }
 
+        $kategoriName = $kategori->nama_kategori;
         $kategori->delete();
+        \App\Services\LogActivity::log('delete', 'Hapus Kategori', "Menghapus data kategori '{$kategoriName}'.");
 
         return redirect()->route('kategori.index')
             ->with('success', 'Kategori berhasil dihapus.');

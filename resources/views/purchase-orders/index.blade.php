@@ -50,9 +50,6 @@
             <h4 class="fw-bold mb-1" style="color: #0f172a; font-family: var(--font-display);">Laporan Pemesanan Produk</h4>
             <p class="text-muted mb-0" style="font-size: 0.9rem;">Daftar transaksi pemesanan barang kepada supplier</p>
         </div>
-        @if(auth()->user()->role !== 'owner')
-        <a href="{{ route('pemesanan-supplier.create') }}" class="btn btn-primary fw-bold" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 20px;"><i class="bi bi-plus-lg"></i> Buat Pemesanan</a>
-        @endif
     </div>
 
     <div class="card mb-4 shadow-sm" style="border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.08);">
