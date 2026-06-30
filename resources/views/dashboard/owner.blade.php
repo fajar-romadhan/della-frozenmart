@@ -176,7 +176,7 @@
                         </table>
                     </div>
                     @if($produkPerluDipesan->hasPages())
-                    <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center">
+                    <div class="card-footer bg-white border-top p-3 d-flex justify-content-between align-items-center rop-pagination">
                         <div class="text-muted" style="font-size: 0.85rem;">
                             Menampilkan {{ $produkPerluDipesan->firstItem() }} - {{ $produkPerluDipesan->lastItem() }} dari {{ $produkPerluDipesan->total() }} produk
                         </div>
