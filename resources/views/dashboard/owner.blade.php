@@ -699,3 +699,22 @@ document.addEventListener("DOMContentLoaded", function() {
 });
 </script>
 @endpush
+
+@push('styles')
+<style>
+    /* Clean up pagination in ROP recommendations table */
+    .rop-pagination nav .flex-sm-fill.d-sm-flex > div:first-child {
+        display: none !important;
+    }
+    .rop-pagination nav .flex-sm-fill.d-sm-flex {
+        justify-content: flex-end !important;
+        margin: 0;
+    }
+    .rop-pagination .pagination {
+        margin-bottom: 0;
+    }
+    .rop-pagination nav {
+        width: 100%;
+    }
+</style>
+@endpush
