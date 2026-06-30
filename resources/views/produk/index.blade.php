@@ -598,7 +598,7 @@
                         </td> --}}
                         <td class="col-action">
                             <div class="dropdown">
-                                <button class="btn-edit-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <button class="btn-edit-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">
                                     <span>Edit</span>
                                     <i class="ph ph-caret-down"></i>
                                 </button>
