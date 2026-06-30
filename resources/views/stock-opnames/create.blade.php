@@ -736,7 +736,6 @@
                                 <th class="text-center">STOK FISIK <i class="ph ph-info text-white" style="font-size: 0.92rem; vertical-align: middle;" title="Jumlah perhitungan fisik"></i></th>
                                 <th class="text-center">SELISIH</th>
                                 <th class="text-center">STATUS</th>
-                                <th>KETERANGAN</th>
                             </tr>
                         </thead>
                         <tbody id="opnameTableBody">
@@ -764,13 +763,6 @@
                                     <span class="badge-status badge-pending">
                                         <i class="ph ph-minus"></i> —
                                     </span>
-                                </td>
-                                <td>
-                                    <input type="text" 
-                                        class="ket-input" 
-                                        name="items[{{ $product->id }}][keterangan]"
-                                        placeholder="Opsional..."
-                                        value="">
                                 </td>
                             </tr>
                             @endforeach
@@ -825,7 +817,6 @@
                                 <th class="text-center">STOK FISIK</th>
                                 <th class="text-center">SELISIH</th>
                                 <th class="text-center">STATUS</th>
-                                <th>KETERANGAN</th>
                                 <th class="text-center" style="width: 60px;">AKSI</th>
                             </tr>
                         </thead>
@@ -936,7 +927,6 @@
                                         <th class="text-center">SELISIH</th>
                                         <th class="text-center">PENYESUAIAN STOK</th>
                                         <th class="text-center">AKIBAT PENYESUAIAN</th>
-                                        <th>KETERANGAN</th>
                                     </tr>
                                 </thead>
                                 <tbody id="confirmTableBody">
@@ -1327,8 +1317,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const stokSistem = parseInt(input.dataset.stokSistem) || 0;
                 const stokFisik = parseInt(stokFisikVal);
                 const diff = stokFisik - stokSistem;
-                const ket = row.querySelector('.ket-input').value || '-';
-
                 // Only show rows with differences
                 if (diff !== 0) {
                     if (firstChangedName === '') firstChangedName = nama;
@@ -1359,9 +1347,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         </td>
                         <td class="text-center">${selisihHtml}</td>
                         <td class="text-center">${statusHtml}</td>
-                        <td>
-                            <input type="text" class="ket-input" value="${ket}" readonly disabled style="background:#f8fafc;">
-                        </td>
                         <td class="text-center">
                             <button type="button" class="btn btn-sm btn-light border p-1 btn-edit-trigger" style="border-radius:6px;" title="Edit Stok">
                                 <i class="ph ph-pencil-simple text-primary" style="font-size:1.15rem;"></i>
@@ -1427,8 +1412,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 const stokSistem = parseInt(input.dataset.stokSistem) || 0;
                 const stokFisik = parseInt(stokFisikVal);
                 const diff = stokFisik - stokSistem;
-                const ket = row.querySelector('.ket-input').value || '-';
-
                 // Only show changes
                 if (diff !== 0) {
                     const selisihHtml = diff > 0 
@@ -1449,7 +1432,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         <td class="text-center">${selisihHtml}</td>
                         <td class="text-center">${actionHtml}</td>
                         <td class="text-center"><span class="text-success fw-bold">Stok baru: ${stokFisik.toLocaleString('id-ID')}</span></td>
-                        <td class="text-muted" style="font-size:0.78rem;">${ket}</td>
                     `;
 
                     confirmBody.appendChild(tr);
@@ -1470,7 +1452,7 @@ document.addEventListener('DOMContentLoaded', function() {
         let hasData = false;
         
         // Temporarily enable everything just to make sure disabled review elements don't block
-        document.querySelectorAll('.stok-fisik-input, .ket-input, input[type="hidden"]').forEach(el => el.disabled = false);
+        document.querySelectorAll('.stok-fisik-input, input[type="hidden"]').forEach(el => el.disabled = false);
 
         document.querySelectorAll('#opnameTableBody .stok-fisik-input').forEach(input => {
             if (input.value !== '' && !isNaN(parseInt(input.value))) {
@@ -1479,8 +1461,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Disable to exclude from POST request
                 input.disabled = true;
                 const row = input.closest('tr');
-                const ket = row.querySelector('.ket-input');
-                if (ket) ket.disabled = true;
                 const hidden = row.querySelector('input[type="hidden"]');
                 if (hidden) hidden.disabled = true;
             }
