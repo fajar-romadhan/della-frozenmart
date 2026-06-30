@@ -243,7 +243,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @forelse($barang_masuk->stockBatches as $batch)
+                                @if($barang_masuk->stockBatch)
+                                @php $batch = $barang_masuk->stockBatch; @endphp
                                 <tr>
                                     <td class="fw-semibold text-primary">{{ $batch->batch_code }}</td>
                                     <td class="text-center fw-semibold text-secondary">{{ number_format($batch->jumlah_awal) }}</td>
@@ -260,14 +261,14 @@
                                         @endif
                                     </td>
                                 </tr>
-                                @empty
+                                @else
                                 <tr>
                                     <td colspan="4" class="text-center py-4 text-muted">
                                         <i class="ph ph-warning-circle d-block mb-1" style="font-size: 1.5rem;"></i>
                                         Tidak ada alokasi batch stok aktif untuk transaksi ini.
                                     </td>
                                 </tr>
-                                @endforelse
+                                @endif
                             </tbody>
                         </table>
                     </div>
