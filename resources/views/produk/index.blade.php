@@ -492,17 +492,10 @@
         </div>
     </div>
 
-    {{-- Filter & Search Section --}}
+    {{-- Filter Section --}}
     <div class="filter-card">
         <form method="GET" action="{{ route('produk.index') }}" class="row g-3" id="formFilterProduk">
-            <div class="col-md-7">
-                <label for="inputSearchProduk" class="filter-label">Cari Produk</label>
-                <div class="search-input-wrapper">
-                    <input type="text" name="search" class="form-control" placeholder="Cari nama atau kode produk..." value="{{ request('search') }}" id="inputSearchProduk">
-                    <i class="ph ph-magnifying-glass search-icon"></i>
-                </div>
-            </div>
-            <div class="col-md-5">
+            <div class="col-md-12">
                 <label for="filterKategori" class="filter-label">Kategori Produk ({{ $categories->count() }})</label>
                 <select name="category_id" class="category-select" id="filterKategori">
                     <option value="">Semua Kategori</option>
@@ -690,22 +683,7 @@
             });
         }
 
-        // Optional debounce search for smoother UX (if needed)
-        const searchInput = document.getElementById('inputSearchProduk');
-        let timeout = null;
-        if (searchInput) {
-            searchInput.addEventListener('input', function() {
-                clearTimeout(timeout);
-                timeout = setTimeout(function() {
-                    document.getElementById('formFilterProduk').submit();
-                }, 750); // debounce 750ms
-            });
-            // Focus at the end of text when search is submitted
-            const val = searchInput.value;
-            searchInput.value = '';
-            searchInput.focus();
-            searchInput.value = val;
-        }
+        // Search input listener removed
     });
 </script>
 @endsection
