@@ -982,10 +982,30 @@ h1, h2, h3, h4, h5, h6 {
     border-bottom: 1px solid #f8fafc;
     transition: background 0.2s ease;
     cursor: pointer;
+    border-left: 3px solid transparent;
+}
+
+.notif-dropdown-item.unread {
+    background: #f0f7ff; /* Very soft blue highlight for unread */
+    border-left-color: #3b82f6; /* Left blue border */
 }
 
 .notif-dropdown-item:hover {
     background: #f8fafc;
+}
+
+.notif-dropdown-item.unread:hover {
+    background: #e0f2fe; /* Slightly darker soft blue hover */
+}
+
+.unread-badge-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: #3b82f6;
+    border-radius: 50%;
+    margin-left: 6px;
+    vertical-align: middle;
 }
 
 .notif-dropdown-item:last-child {

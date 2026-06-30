@@ -146,6 +146,13 @@ class NotificationController extends Controller
         // Fetch active products
         $allProducts = \App\Models\Product::where('status_aktif', true)->get();
 
+        // Fetch unread product notification IDs for the logged in user
+        $unreadProductIds = \App\Models\Notification::where('user_id', auth()->id())
+            ->where('status_baca', false)
+            ->whereNotNull('product_id')
+            ->pluck('product_id')
+            ->toArray();
+
         $items = collect();
 
         foreach ($allProducts as $product) {
@@ -181,19 +188,21 @@ class NotificationController extends Controller
                 $color = 'red';
             } elseif ($analysis && $analysis->status_stok === 'Warning') {
                 $status = 'Warning';
-                $judul = 'Stok Minimum';
+                $judul = 'Stok Peringatan';
                 $pesan = $product->nama_produk . ' tersisa ' . number_format($product->stok_saat_ini, 0, ',', '.') . ' pcs.';
                 $icon = 'ph-warning';
                 $color = 'yellow';
             }
 
             if ($status) {
+                $isUnread = in_array($product->id, $unreadProductIds);
                 $items->push([
                     'judul' => $judul,
                     'pesan' => $pesan,
                     'icon' => $icon,
                     'color' => $color,
                     'status' => $status,
+                    'is_unread' => $isUnread,
                     'created_at' => $analysis ? $analysis->created_at : ($product->updated_at ?? now()),
                 ]);
             }
@@ -214,6 +223,7 @@ class NotificationController extends Controller
                 'pesan' => $item['pesan'],
                 'icon' => $item['icon'],
                 'color' => $item['color'],
+                'is_unread' => $item['is_unread'],
                 'waktu' => \Carbon\Carbon::parse($item['created_at'])->diffForHumans(),
             ];
         })->values();
@@ -221,7 +231,7 @@ class NotificationController extends Controller
         return response()->json([
             'items' => $latest,
             'total' => $totalCount,
-            'unread' => $totalCount,
+            'unread' => count($unreadProductIds),
         ]);
     }
 }

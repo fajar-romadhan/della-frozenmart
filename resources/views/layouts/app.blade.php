@@ -258,13 +258,15 @@
                 let html = '';
                 data.items.forEach(item => {
                     const colors = colorMap[item.color] || colorMap['red'];
+                    const unreadClass = item.is_unread ? 'unread' : '';
+                    const unreadDot = item.is_unread ? '<span class="unread-badge-dot" title="Belum dibaca"></span>' : '';
                     html += `
-                        <a href="{{ route('notifikasi.index') }}" class="notif-dropdown-item">
+                        <a href="{{ route('notifikasi.index') }}" class="notif-dropdown-item ${unreadClass}">
                             <div class="notif-dropdown-icon" style="background: ${colors.bg}; border-color: ${colors.border};">
                                 <i class="ph ${item.icon}" style="color: ${colors.icon};"></i>
                             </div>
                             <div class="notif-dropdown-content">
-                                <div class="notif-dropdown-item-title">${item.judul}</div>
+                                <div class="notif-dropdown-item-title">${item.judul}${unreadDot}</div>
                                 <div class="notif-dropdown-item-msg">${item.pesan}</div>
                             </div>
                             <div class="notif-dropdown-time">${item.waktu}</div>
