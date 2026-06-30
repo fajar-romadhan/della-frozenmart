@@ -756,25 +756,68 @@ document.addEventListener("DOMContentLoaded", function() {
 
 @push('styles')
 <style>
-    /* Clean up pagination in ROP recommendations table */
+    /* Responsive pagination styles for ROP table */
+    .rop-pagination {
+        flex-direction: column !important;
+        gap: 12px;
+        align-items: center !important;
+        text-align: center;
+    }
+    
+    .rop-pagination .text-muted {
+        width: 100%;
+        text-align: center;
+    }
+    
     .rop-pagination nav p {
         display: none !important;
     }
+    
     .rop-pagination nav > div:first-child {
         display: none !important;
     }
+    
     .rop-pagination nav > div:last-child {
         display: flex !important;
-        justify-content: flex-end !important;
+        justify-content: center !important;
         width: 100% !important;
     }
+    
     .rop-pagination .pagination {
         margin: 0 !important;
+        flex-wrap: wrap;
+        justify-content: center;
     }
+    
     .rop-pagination nav {
         width: 100% !important;
         display: flex !important;
-        justify-content: flex-end !important;
+        justify-content: center !important;
+    }
+
+    /* On wider screens (tablets & laptops) */
+    @media (min-width: 768px) {
+        .rop-pagination {
+            flex-direction: row !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            text-align: left;
+        }
+        
+        .rop-pagination .text-muted {
+            width: auto;
+            text-align: left;
+        }
+        
+        .rop-pagination nav {
+            width: auto !important;
+            justify-content: flex-end !important;
+        }
+        
+        .rop-pagination nav > div:last-child {
+            justify-content: flex-end !important;
+            width: auto !important;
+        }
     }
 </style>
 @endpush
