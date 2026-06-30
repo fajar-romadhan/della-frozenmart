@@ -604,33 +604,8 @@
                                 </button>
                                 <ul class="dropdown-menu dropdown-menu-end action-dropdown-menu">
                                     <li>
-                                        <a class="dropdown-item" href="{{ route('produk.edit', $product) }}?focus=nama">
-                                            <i class="ph ph-pencil-simple"></i> Edit Nama Produk
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('produk.edit', $product) }}?focus=kategori">
-                                            <i class="ph ph-tag"></i> Edit Kategori
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('produk.edit', $product) }}?focus=satuan">
-                                            <i class="ph ph-package"></i> Edit Satuan
-                                        </a>
-                                    </li>
-                                    {{-- <li>
-                                        <a class="dropdown-item" href="{{ route('produk.edit', $product) }}?focus=stok">
-                                            <i class="ph ph-database"></i> Edit Stok
-                                        </a>
-                                    </li> --}}
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('produk.edit', $product) }}?focus=kedaluwarsa">
-                                            <i class="ph ph-calendar"></i> Edit Tanggal Kedaluwarsa
-                                        </a>
-                                    </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('produk.edit', $product) }}?focus=supplier">
-                                            <i class="ph ph-truck"></i> Edit Supplier
+                                        <a class="dropdown-item" href="{{ route('produk.edit', $product) }}">
+                                            <i class="ph ph-pencil-simple"></i> Edit Produk
                                         </a>
                                     </li>
                                     <li><hr class="dropdown-divider"></li>
