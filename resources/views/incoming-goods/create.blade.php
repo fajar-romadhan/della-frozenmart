@@ -447,7 +447,6 @@
         {{-- Action Buttons --}}
         <div class="d-flex justify-content-end gap-2 mb-5">
             <a href="{{ route('barang-masuk.index') }}" class="btn btn-light shadow-sm" style="border-radius: 8px; font-weight: 600; padding: 10px 24px; border: 1px solid #cbd5e1;">Batal</a>
-            <button type="submit" name="action" value="save_and_create_new" id="btnSaveAndCreate" class="btn btn-white shadow-sm" style="border-radius: 8px; font-weight: 600; padding: 10px 24px; border: 1px solid #cbd5e1; background: #ffffff; color: #334155;">Simpan & Tambah Baru</button>
             <button type="submit" id="btnSubmitForm" class="btn btn-primary shadow-sm" style="border-radius: 8px; font-weight: 600; padding: 10px 24px; background-color: #2563eb; border-color: #2563eb;">
                 Simpan
             </button>
