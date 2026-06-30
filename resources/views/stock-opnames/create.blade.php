@@ -1219,7 +1219,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         if (confirm('Apakah Anda yakin ingin langsung menyimpan hasil penyesuaian stok opname ini?')) {
-            document.getElementById('formOpname').submit();
+            document.getElementById('btnSubmitOpname').click();
         }
     });
 
