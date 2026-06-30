@@ -268,6 +268,11 @@
                     </span>
                 </li>
                 <li>
+                    <a class="dropdown-item py-2" href="{{ route('password.change') }}">
+                        <i class="ph ph-key me-2"></i>Ganti Password
+                    </a>
+                </li>
+                <li>
                     <form action="{{ route('logout') }}" method="POST" id="formLogout">
                         @csrf
                         <button type="submit" class="dropdown-item py-2" id="btnLogout">

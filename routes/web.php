@@ -29,6 +29,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/dashboard/sales-data', [DashboardController::class, 'getSalesData'])->name('dashboard.sales-data');
     
+    // Ganti Password
+    Route::get('/change-password', [LoginController::class, 'showChangePasswordForm'])->name('password.change');
+    Route::post('/change-password', [LoginController::class, 'changePassword'])->name('password.update');
+    
     // Global Search API Route
     Route::get('/global-search', function (Illuminate\Http\Request $request) {
         $query = $request->query('q');
