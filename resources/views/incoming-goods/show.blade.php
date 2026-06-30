@@ -129,7 +129,7 @@
         </a>
         <div>
             <h1 class="page-title-main mb-1">Detail Transaksi Barang Masuk</h1>
-            <p class="page-subtitle mb-0">Kode Batch: <span class="badge bg-primary bg-opacity-10 text-primary fw-bold" style="font-size: 0.85rem;">{{ $barang_masuk->batch_code }}</span></p>
+            <p class="page-subtitle mb-0">Kode Batch: <span class="badge fw-bold" style="font-size: 0.85rem; background-color: rgba(91, 141, 238, 0.15); color: #1d4ed8; border: 1px solid rgba(91, 141, 238, 0.35);">{{ $barang_masuk->batch_code }}</span></p>
         </div>
     </div>
 

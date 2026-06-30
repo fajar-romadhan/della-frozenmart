@@ -545,7 +545,7 @@
                                         {{ $product->category->nama_kategori }}
                                     </span>
                                 @else
-                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-10 fw-semibold" style="text-transform: none; font-size: 0.72rem;">
+                                    <span class="badge fw-semibold" style="text-transform: none; font-size: 0.72rem; background-color: rgba(91, 141, 238, 0.15); color: #1d4ed8; border: 1px solid rgba(91, 141, 238, 0.35);">
                                         {{ $product->category->nama_kategori }}
                                     </span>
                                 @endif
