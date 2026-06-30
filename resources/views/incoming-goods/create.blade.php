@@ -416,13 +416,12 @@
                             <th class="text-end">HARGA SATUAN (RP)</th>
                             <th class="text-end">TOTAL (RP)</th>
                             <th class="text-center">ID LOKASI</th>
-                            <th>KETERANGAN</th>
                             <th class="text-center" style="width: 60px;">AKSI</th>
                         </tr>
                     </thead>
                     <tbody id="tempItemsBody">
                         <tr id="emptyRowPlaceholder">
-                            <td colspan="11" class="text-center py-5 text-muted">
+                            <td colspan="10" class="text-center py-5 text-muted">
                                 <i class="ph ph-package fs-1 d-block mb-2 text-muted" style="opacity: 0.4;"></i>
                                 <div class="fw-bold" style="font-size: 0.95rem; color: #64748b;">Belum ada data</div>
                                 <small style="font-size: 0.8rem; color: #94a3b8;">Tambahkan barang untuk melihat daftar di sini.</small>
@@ -631,7 +630,6 @@
                     <td class="text-end fw-semibold">Rp ${formatNumber(item.harga_beli)}</td>
                     <td class="text-end fw-bold text-dark">Rp ${formatNumber(totalRowPrice)}</td>
                     <td class="text-center"><span class="badge bg-light text-secondary border fw-semibold">${item.id_lokasi}</span></td>
-                    <td class="text-muted" style="font-size:0.8rem">${item.keterangan ? item.keterangan : '-'}</td>
                     <td class="text-center">
                         <button type="button" class="btn-delete-item" data-index="${index}">
                             <i class="ph ph-trash" style="font-size: 1.15rem;"></i>
