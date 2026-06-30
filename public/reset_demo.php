@@ -111,6 +111,47 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $message = "Terjadi kegagalan saat memasukkan data contoh.";
                 $messageType = 'error';
             }
+        } elseif ($action === 'reset_stock') {
+            // Disable foreign key checks
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            
+            // Truncate transaction and log tables
+            Illuminate\Support\Facades\DB::table('barang_masuk')->truncate();
+            Illuminate\Support\Facades\DB::table('barang_keluar')->truncate();
+            Illuminate\Support\Facades\DB::table('detail_barang_keluar')->truncate();
+            Illuminate\Support\Facades\DB::table('batch_stok')->truncate();
+            Illuminate\Support\Facades\DB::table('stok_opname')->truncate();
+            Illuminate\Support\Facades\DB::table('penjualan')->truncate();
+            Illuminate\Support\Facades\DB::table('pemesanan_supplier')->truncate();
+            Illuminate\Support\Facades\DB::table('analisa_persediaan')->truncate();
+            Illuminate\Support\Facades\DB::table('notifikasi')->truncate();
+            Illuminate\Support\Facades\DB::table('log_import')->truncate();
+            
+            // Reset stok_saat_ini on produk table
+            Illuminate\Support\Facades\DB::table('produk')->update(['stok_saat_ini' => 0]);
+            
+            // Re-enable foreign key checks
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+            // Clear caches
+            Illuminate\Support\Facades\Artisan::call('cache:clear');
+            Illuminate\Support\Facades\Artisan::call('config:clear');
+            
+            $logOutput .= "1. Mengosongkan Tabel Barang Masuk (barang_masuk): SUKSES\n";
+            $logOutput .= "2. Mengosongkan Tabel Barang Keluar (barang_keluar): SUKSES\n";
+            $logOutput .= "3. Mengosongkan Tabel Detail Barang Keluar (detail_barang_keluar): SUKSES\n";
+            $logOutput .= "4. Mengosongkan Tabel Batch Stok (batch_stok): SUKSES\n";
+            $logOutput .= "5. Mengosongkan Tabel Stock Opname (stok_opname): SUKSES\n";
+            $logOutput .= "6. Mengosongkan Tabel Penjualan (penjualan): SUKSES\n";
+            $logOutput .= "7. Mengosongkan Tabel Pemesanan Supplier (pemesanan_supplier): SUKSES\n";
+            $logOutput .= "8. Mengosongkan Tabel Analisa Persediaan (analisa_persediaan): SUKSES\n";
+            $logOutput .= "9. Mengosongkan Tabel Notifikasi (notifikasi): SUKSES\n";
+            $logOutput .= "10. Mengosongkan Tabel Log Import (log_import): SUKSES\n";
+            $logOutput .= "11. Mereset stok_saat_ini seluruh Produk ke 0: SUKSES\n";
+            $logOutput .= "12. Pembersihan Cache Aplikasi: SUKSES\n";
+            
+            $message = "Seluruh stok produk berhasil di-reset menjadi 0! Data produk, kategori, supplier, dan pengguna tetap aman.";
+            $messageType = 'success';
         }
     } catch (Exception $e) {
         $message = "Error: " . $e->getMessage();
@@ -372,6 +413,18 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin memulihkan seluruh data simulasi contoh?');">
                     <input type="hidden" name="action" value="seed">
                     <button type="submit" class="btn btn-info">Isi Data Contoh</button>
+                </form>
+            </div>
+
+            <!-- Opsi 3: Reset Semua Stok Produk ke 0 -->
+            <div class="action-card">
+                <div class="action-info">
+                    <h3 class="action-title">3. Reset Semua Stok Produk Menjadi 0</h3>
+                    <p class="action-desc">Mengosongkan seluruh transaksi barang masuk, barang keluar, batch stok, opname, penjualan, dan menyetel stok semua produk menjadi 0. Menjaga data master produk, kategori, dan supplier tetap aman.</p>
+                </div>
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin MERESET SEMUA STOK produk menjadi 0? Seluruh riwayat transaksi akan dihapus.');">
+                    <input type="hidden" name="action" value="reset_stock">
+                    <button type="submit" class="btn btn-danger" style="background-color: var(--accent-warning); box-shadow: none;">Reset Stok ke 0</button>
                 </form>
             </div>
         <?php endif; ?>
