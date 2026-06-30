@@ -429,7 +429,6 @@
                         <th class="col-fisik">Stok Fisik</th>
                         <th class="col-selisih">Selisih</th>
                         <th class="col-status">Status</th>
-                        <th class="col-keterangan">Keterangan</th>
                         <th class="col-user">Oleh</th>
                     </tr>
                 </thead>
@@ -466,12 +465,11 @@
                                 </span>
                             @endif
                         </td>
-                        <td class="col-keterangan text-muted">{{ Str::limit($opname->keterangan, 30) ?? '-' }}</td>
                         <td class="col-user text-muted">{{ $opname->user->name ?? '-' }}</td>
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="10" class="text-center py-5 text-muted">
+                        <td colspan="9" class="text-center py-5 text-muted">
                             <i class="ph ph-clipboard-text fs-1 d-block mb-2"></i>
                             Belum ada data stok opname.
                         </td>
