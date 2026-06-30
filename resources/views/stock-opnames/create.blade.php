@@ -616,7 +616,7 @@
             </div>
             <div class="opname-stat-text">
                 <span class="opname-stat-label">Lokasi</span>
-                <span class="opname-stat-value" id="statLokasi" style="font-size: 0.95rem;">FREZ-001 <br><small class="text-muted fw-normal" style="font-size: 0.72rem;">Freezer Utama</small></span>
+                <span class="opname-stat-value" id="statLokasi" style="font-size: 0.95rem;">FRZ-01 <br><small class="text-muted fw-normal" style="font-size: 0.72rem;">Freezer 1</small></span>
             </div>
         </div>
         {{-- Card 3: Total Produk --}}
@@ -707,11 +707,13 @@
                     <div class="filter-group" style="width: 25%;">
                         <label class="form-label-custom">ID Lokasi</label>
                         <select class="form-select" id="idLokasi" name="id_lokasi">
-                            <option value="FREZ-001" selected>FREZ-001 (Freezer Utama)</option>
-                            <option value="FREZ-002">FREZ-002 (Freezer Cadangan)</option>
-                            <option value="CHIL-001">CHIL-001 (Chiller 1)</option>
-                            <option value="CHIL-002">CHIL-002 (Chiller 2)</option>
-                            <option value="RACK-001">RACK-001 (Rak Depan)</option>
+                            <option value="FRZ-01" selected>FRZ-01 (Freezer 1)</option>
+                            <option value="FRZ-02">FRZ-02 (Freezer 2)</option>
+                            <option value="FRZ-03">FRZ-03 (Freezer 3)</option>
+                            <option value="RAK-A">RAK-A (Rak A)</option>
+                            <option value="RAK-B">RAK-B (Rak B)</option>
+                            <option value="RAK-C">RAK-C (Rak C)</option>
+                            <option value="RAK-D">RAK-D (Rak D)</option>
                         </select>
                     </div>
                     <div class="filter-group" style="flex: 1;">
@@ -877,7 +879,7 @@
                     </div>
                     <div class="confirm-info-row">
                         <span class="confirm-info-label">Lokasi</span>
-                        <span class="confirm-info-val" id="confirmLokasi">FREZ-001 - Freezer Utama</span>
+                        <span class="confirm-info-val" id="confirmLokasi">FRZ-01 - Freezer 1</span>
                     </div>
                     <div class="confirm-info-row">
                         <span class="confirm-info-label">Nama Produk</span>

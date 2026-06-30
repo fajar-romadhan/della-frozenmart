@@ -320,9 +320,13 @@
                         <label for="id_lokasi" class="form-label-custom">ID Lokasi <span class="text-danger">*</span></label>
                         <select name="id_lokasi" id="id_lokasi" class="form-select form-control-custom form-select-custom @error('id_lokasi') is-invalid @enderror" required>
                             <option value="">Pilih Lokasi</option>
-                            <option value="LOC-01" {{ old('id_lokasi') == 'LOC-01' ? 'selected' : '' }}>LOC-01 (Gudang Utama)</option>
-                            <option value="LOC-02" {{ old('id_lokasi') == 'LOC-02' ? 'selected' : '' }}>LOC-02 (Gudang Depan)</option>
-                            <option value="LOC-03" {{ old('id_lokasi') == 'LOC-03' ? 'selected' : '' }}>LOC-03 (Gudang Belakang)</option>
+                            <option value="FRZ-01" {{ old('id_lokasi') == 'FRZ-01' ? 'selected' : '' }}>FRZ-01 (Freezer 1)</option>
+                            <option value="FRZ-02" {{ old('id_lokasi') == 'FRZ-02' ? 'selected' : '' }}>FRZ-02 (Freezer 2)</option>
+                            <option value="FRZ-03" {{ old('id_lokasi') == 'FRZ-03' ? 'selected' : '' }}>FRZ-03 (Freezer 3)</option>
+                            <option value="RAK-A" {{ old('id_lokasi') == 'RAK-A' ? 'selected' : '' }}>RAK-A (Rak A)</option>
+                            <option value="RAK-B" {{ old('id_lokasi') == 'RAK-B' ? 'selected' : '' }}>RAK-B (Rak B)</option>
+                            <option value="RAK-C" {{ old('id_lokasi') == 'RAK-C' ? 'selected' : '' }}>RAK-C (Rak C)</option>
+                            <option value="RAK-D" {{ old('id_lokasi') == 'RAK-D' ? 'selected' : '' }}>RAK-D (Rak D)</option>
                         </select>
                         @error('id_lokasi') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         <div class="lock-indicator" id="locationLockIndicator">
