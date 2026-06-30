@@ -401,12 +401,37 @@
                 </thead>
                 <tbody>
                     @forelse($incomingGoods as $item)
-                    <tr>
+                     <tr>
                         <td class="col-date">{{ \Carbon\Carbon::parse($item->tanggal_masuk)->format('d/m/Y') }}</td>
-                        <td class="col-id fw-semibold text-muted">{{ $item->product->kode_produk ?? '-' }}</td>
+                        <td class="col-id fw-semibold text-muted">
+                            <div>{{ $item->product->kode_produk ?? '-' }}</div>
+                            <div class="mt-1" style="font-size: 0.72rem; font-weight: 500;">
+                                <span class="badge bg-light text-secondary border"><i class="ph ph-stack-simple"></i> {{ $item->batch_code }}</span>
+                            </div>
+                        </td>
                         <td class="col-name fw-bold">{{ $item->product->nama_produk ?? '-' }}</td>
                         <td class="col-supplier fw-semibold">{{ $item->supplier->nama_supplier ?? '-' }}</td>
-                        <td class="col-qty fw-bold text-success text-center">+{{ number_format($item->jumlah) }}</td>
+                        <td class="col-qty text-center">
+                            <span class="fw-bold text-success">+{{ number_format($item->jumlah) }}</span>
+                            @if($item->stockBatch)
+                                @php $batch = $item->stockBatch; @endphp
+                                <div class="mt-1">
+                                    @if($batch->jumlah_sisa == 0)
+                                        <span class="badge bg-light text-muted border fw-normal" style="font-size: 0.72rem; padding: 2px 6px;">
+                                            Sisa: 0 <span class="text-danger fw-bold">(Habis)</span>
+                                        </span>
+                                    @elseif($batch->jumlah_sisa == $batch->jumlah_awal)
+                                        <span class="badge bg-success bg-opacity-10 text-success border border-success fw-normal" style="font-size: 0.72rem; padding: 2px 6px;">
+                                            Sisa: {{ number_format($batch->jumlah_sisa) }} <span class="fw-bold">(Utuh)</span>
+                                        </span>
+                                    @else
+                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning fw-normal" style="font-size: 0.72rem; padding: 2px 6px;">
+                                            Sisa: {{ number_format($batch->jumlah_sisa) }} <span class="fw-bold">(Sisa)</span>
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
+                        </td>
                         <td class="col-price fw-semibold">Rp {{ number_format($item->harga_beli, 0, ',', '.') }}</td>
                         <td class="col-total fw-bold text-dark">Rp {{ number_format($item->jumlah * $item->harga_beli, 0, ',', '.') }}</td>
                         <td class="col-loc"><span class="badge bg-light text-secondary fw-semibold border">{{ $item->id_lokasi ?? '-' }}</span></td>

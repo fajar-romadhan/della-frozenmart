@@ -14,7 +14,7 @@ class IncomingGoodController extends Controller
 {
     public function index(Request $request)
     {
-        $query = IncomingGood::with(['product', 'supplier', 'user']);
+        $query = IncomingGood::with(['product', 'supplier', 'user', 'stockBatch']);
         
         if ($request->filled('tanggal_dari')) {
             $query->whereDate('tanggal_masuk', '>=', $request->tanggal_dari);
