@@ -524,11 +524,7 @@
                                             <i class="ph ph-pencil-simple"></i> Edit Supplier
                                         </a>
                                     </li>
-                                    <li>
-                                        <a class="dropdown-item" href="{{ route('supplier.show', $supplier) }}">
-                                            <i class="ph ph-eye"></i> Detail Supplier
-                                        </a>
-                                    </li>
+
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <form action="{{ route('supplier.destroy', $supplier) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus supplier ini?')">
