@@ -409,7 +409,9 @@
                             <th class="text-end">SAFETY STOCK (SS) (PCS)</th>
                             <th class="text-end">REORDER POINT (ROP) (PCS)</th>
                             <th class="text-center">STATUS STOK</th>
-                            <th class="text-center" style="width: 60px;">AKSI</th>
+                            @if(auth()->user()->role !== 'admin')
+                                <th class="text-center" style="width: 60px;">AKSI</th>
+                            @endif
                         </tr>
                     </thead>
                     <tbody>
@@ -451,41 +453,43 @@
                                         </span>
                                     @endif
                                 </td>
-                                <td class="text-center">
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-light border p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 6px;">
-                                            <i class="ph ph-dots-three-vertical-bold" style="font-size: 1.1rem; vertical-align: middle;"></i>
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="background:#ffffff;">
-                                            <li>
-                                                <a class="dropdown-item py-2" href="{{ route('analisis.show', $analysis->product_id) }}" style="font-size: 0.8rem; font-weight: 600;">
-                                                    <i class="ph ph-eye text-primary me-2"></i> Detail Analisis
-                                                </a>
-                                            </li>
-                                            @if(in_array(auth()->user()->role, ['admin', 'manager']))
+                                @if(auth()->user()->role !== 'admin')
+                                    <td class="text-center">
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-light border p-1" type="button" data-bs-toggle="dropdown" aria-expanded="false" style="border-radius: 6px;">
+                                                <i class="ph ph-dots-three-vertical-bold" style="font-size: 1.1rem; vertical-align: middle;"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0" style="background:#ffffff;">
                                                 <li>
-                                                    <form action="{{ route('analisis.analyze', $analysis->product_id) }}" method="POST" class="d-inline">
-                                                        @csrf
-                                                        <button type="submit" class="dropdown-item py-2" style="font-size: 0.8rem; font-weight: 600;">
-                                                            <i class="ph ph-arrows-clockwise text-success me-2"></i> Analisis Ulang
-                                                        </button>
-                                                    </form>
+                                                    <a class="dropdown-item py-2" href="{{ route('analisis.show', $analysis->product_id) }}" style="font-size: 0.8rem; font-weight: 600;">
+                                                        <i class="ph ph-eye text-primary me-2"></i> Detail Analisis
+                                                    </a>
                                                 </li>
-                                                @if($analysis->status_stok == 'Order' || $analysis->status_stok == 'Warning')
+                                                @if(in_array(auth()->user()->role, ['admin', 'manager']))
                                                     <li>
-                                                        <a class="dropdown-item py-2 text-danger" href="{{ route('pemesanan-supplier.create', ['product_id' => $analysis->product_id]) }}" style="font-size: 0.8rem; font-weight: 700;">
-                                                            <i class="ph ph-shopping-cart text-danger me-2"></i> Buat Pemesanan
-                                                        </a>
+                                                        <form action="{{ route('analisis.analyze', $analysis->product_id) }}" method="POST" class="d-inline">
+                                                            @csrf
+                                                            <button type="submit" class="dropdown-item py-2" style="font-size: 0.8rem; font-weight: 600;">
+                                                                <i class="ph ph-arrows-clockwise text-success me-2"></i> Analisis Ulang
+                                                            </button>
+                                                        </form>
                                                     </li>
+                                                    @if($analysis->status_stok == 'Order' || $analysis->status_stok == 'Warning')
+                                                        <li>
+                                                            <a class="dropdown-item py-2 text-danger" href="{{ route('pemesanan-supplier.create', ['product_id' => $analysis->product_id]) }}" style="font-size: 0.8rem; font-weight: 700;">
+                                                                <i class="ph ph-shopping-cart text-danger me-2"></i> Buat Pemesanan
+                                                            </a>
+                                                        </li>
+                                                    @endif
                                                 @endif
-                                            @endif
-                                        </ul>
-                                    </div>
-                                </td>
+                                            </ul>
+                                        </div>
+                                    </td>
+                                @endif
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-center py-5 text-muted">
+                                <td colspan="{{ auth()->user()->role === 'admin' ? 10 : 11 }}" class="text-center py-5 text-muted">
                                     <i class="ph ph-inbox fs-1 d-block mb-2"></i>
                                     Belum ada data hasil analisis. Silakan unggah file penjualan harian di atas atau klik "Analisis Ulang Semua Produk".
                                 </td>
