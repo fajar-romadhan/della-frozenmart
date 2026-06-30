@@ -149,7 +149,7 @@
             <span class="sidebar-text">Laporan Barang Masuk</span>
         </a>
 
-        @if($role === 'admin' || $role === 'owner')
+        @if($role === 'admin' || $role === 'owner' || $role === 'manager')
             <a href="{{ route('laporan.barang-keluar') }}" class="sidebar-icon {{ request()->routeIs('laporan.barang-keluar') ? 'active' : '' }}">
                 <i class="ph ph-file-text"></i>
                 <span class="sidebar-text">Laporan Barang Keluar</span>

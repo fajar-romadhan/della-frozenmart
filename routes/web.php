@@ -146,8 +146,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('status-stok', [InventoryAnalysisController::class, 'statusStok'])->name('status-stok');
     });
 
-    // Admin + Owner routes
-    Route::middleware(['role:admin,owner'])->group(function () {
+    // Admin + Owner + Manager routes
+    Route::middleware(['role:admin,owner,manager'])->group(function () {
         // Laporan Barang Keluar
         Route::get('laporan/barang-keluar', [ReportController::class, 'barangKeluar'])->name('laporan.barang-keluar');
         
