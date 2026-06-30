@@ -156,14 +156,11 @@ Route::middleware(['auth'])->group(function () {
         Route::post('import-penjualan/store', [ImportPenjualanController::class, 'store'])->name('import-penjualan.store');
     });
 
-    // Owner only routes
-    Route::middleware(['role:owner'])->group(function () {
-        // Status Stok
-        Route::get('status-stok', [InventoryAnalysisController::class, 'statusStok'])->name('status-stok');
-    });
-
     // Admin + Owner + Manager routes
     Route::middleware(['role:admin,owner,manager'])->group(function () {
+        // Status Stok
+        Route::get('status-stok', [InventoryAnalysisController::class, 'statusStok'])->name('status-stok');
+
         // Laporan Barang Keluar
         Route::get('laporan/barang-keluar', [ReportController::class, 'barangKeluar'])->name('laporan.barang-keluar');
         
