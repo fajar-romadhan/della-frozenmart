@@ -104,13 +104,13 @@ Route::middleware(['auth'])->group(function () {
         Route::resource('pengguna', UserController::class);
         Route::post('pengguna/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('pengguna.toggle-status');
         Route::post('pengguna/{user}/reset-password', [UserController::class, 'resetPassword'])->name('pengguna.reset-password');
+        Route::resource('stok-opname', StockOpnameController::class)->only(['index', 'create', 'store']);
     });
     
     // Admin + Manager routes
     Route::middleware(['role:admin,manager'])->group(function () {
         Route::resource('barang-masuk', IncomingGoodController::class);
         Route::resource('barang-keluar', OutgoingGoodController::class)->only(['index', 'create', 'store', 'show']);
-        Route::resource('stok-opname', StockOpnameController::class)->only(['index', 'create', 'store']);
         
         // Import Faktur Pembelian
         Route::get('import-faktur-pembelian', [ImportFakturController::class, 'index'])->name('import-faktur.index');

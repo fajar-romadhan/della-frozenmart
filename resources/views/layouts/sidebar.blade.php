@@ -68,10 +68,12 @@
                 <span class="sidebar-text">Barang Keluar</span>
             </a>
 
+            @if($role === 'admin')
             <a href="{{ route('stok-opname.index') }}" class="sidebar-icon {{ request()->routeIs('stok-opname.*') ? 'active' : '' }}">
                 <i class="ph ph-clipboard-text"></i>
                 <span class="sidebar-text">Stok Opname</span>
             </a>
+            @endif
 
             @if($role === 'manager')
                 <a href="{{ route('import-penjualan.index') }}" class="sidebar-icon {{ request()->routeIs('import-penjualan.*') ? 'active' : '' }}">
