@@ -81,11 +81,23 @@ Route::middleware(['auth'])->group(function () {
             ->limit(5)
             ->get(['id', 'nama_produk', 'kode_produk']);
             
+        $role = auth()->user()->role ?? 'admin';
         $filteredProducts = [];
         foreach ($products as $p) {
+            $url = '#';
+            if ($role === 'admin') {
+                $url = route('produk.index') . '?search=' . urlencode($p->kode_produk);
+            } elseif ($role === 'manager') {
+                // Manager has access to Inventory Analysis Show page
+                $url = route('analisis.show', $p->id);
+            } else {
+                // Owner and others go to Inventory Report
+                $url = route('laporan.persediaan');
+            }
+
             $filteredProducts[] = [
                 'name' => $p->nama_produk . ' (' . $p->kode_produk . ')',
-                'url' => route('produk.index') . '?search=' . urlencode($p->kode_produk),
+                'url' => $url,
                 'icon' => 'ph-package'
             ];
         }
