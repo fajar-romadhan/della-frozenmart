@@ -26,25 +26,17 @@
                         </div>
                         
                         <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="kontak" class="form-label fw-semibold">Nama Kontak Person</label>
-                                <input type="text" name="kontak" id="kontak" class="form-control @error('kontak') is-invalid @enderror" value="{{ old('kontak', $supplier->kontak) }}">
-                                @error('kontak') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="telepon" class="form-label fw-semibold">No. Telepon</label>
                                 <input type="text" name="telepon" id="telepon" class="form-control @error('telepon') is-invalid @enderror" value="{{ old('telepon', $supplier->telepon) }}">
                                 @error('telepon') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="email" class="form-label fw-semibold">Email</label>
                                 <input type="email" name="email" id="email" class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $supplier->email) }}">
                                 @error('email') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label for="status_aktif" class="form-label fw-semibold">Status Supplier <span class="text-danger">*</span></label>
                                 <select name="status_aktif" id="status_aktif" class="form-select @error('status_aktif') is-invalid @enderror" required>
                                     <option value="1" {{ old('status_aktif', $supplier->status_aktif ? '1' : '0') == '1' ? 'selected' : '' }}>Aktif</option>
