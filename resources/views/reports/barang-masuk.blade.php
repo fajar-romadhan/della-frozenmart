@@ -76,8 +76,7 @@
         <div class="card-header bg-white d-flex justify-content-between align-items-center border-0 pt-3 pb-0">
             <h5 class="mb-0 fw-bold"><i class="ph ph-file-text me-1 text-primary"></i> Data Laporan Barang Masuk</h5>
             <div class="no-print">
-                <a href="{{ route('export.barang-masuk.pdf', request()->all()) }}" class="btn btn-sm btn-outline-danger me-2"><i class="ph ph-file-pdf me-1"></i> Export PDF</a>
-                <a href="{{ route('export.barang-masuk.excel', request()->all()) }}" class="btn btn-sm btn-outline-success"><i class="ph ph-file-xls me-1"></i> Export Excel</a>
+                <a href="{{ route('export.barang-masuk.pdf', request()->all()) }}" class="btn btn-sm btn-outline-danger"><i class="ph ph-file-pdf me-1"></i> Export PDF</a>
             </div>
         </div>
         <div class="card-body p-0 mt-3">

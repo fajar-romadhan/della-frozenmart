@@ -170,7 +170,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('export/persediaan/pdf', [ReportController::class, 'exportPersediaanPdf'])->name('export.persediaan.pdf');
         Route::get('export/persediaan/excel', [ReportController::class, 'exportPersediaanExcel'])->name('export.persediaan.excel');
         Route::get('export/barang-masuk/pdf', [ReportController::class, 'exportBarangMasukPdf'])->name('export.barang-masuk.pdf');
-        Route::get('export/barang-masuk/excel', [ReportController::class, 'exportBarangMasukExcel'])->name('export.barang-masuk.excel');
+        // Route::get('export/barang-masuk/excel', [ReportController::class, 'exportBarangMasukExcel'])->name('export.barang-masuk.excel');
         
         // Notifikasi
         Route::get('notifikasi', [NotificationController::class, 'index'])->name('notifikasi.index');
