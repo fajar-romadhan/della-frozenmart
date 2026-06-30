@@ -234,7 +234,7 @@ class DashboardController extends Controller
         })
             ->where('status_stok', 'Order')
             ->with('product')
-            ->get();
+            ->paginate(5, ['*'], 'rop_page');
 
         // Stock status overview
         $latestAnalyses = InventoryAnalysis::whereIn('id', function ($query) {
