@@ -271,6 +271,169 @@
         margin-top: 6px;
         font-weight: 500;
     }
+
+    /* ── Searchable Select Dropdown ── */
+    .searchable-select {
+        position: relative;
+        width: 100%;
+    }
+    .searchable-select-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        min-height: 42px;
+        padding: 8px 14px;
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .searchable-select-trigger:hover {
+        border-color: #3b82f6;
+    }
+    .searchable-select.open .searchable-select-trigger {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .searchable-select-text {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.85rem;
+        color: #475569;
+    }
+    .searchable-select-text.has-value {
+        color: #1e293b;
+        font-weight: 500;
+    }
+    .searchable-select-arrow {
+        font-size: 1rem;
+        color: #94a3b8;
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+        margin-left: 8px;
+    }
+    .searchable-select.open .searchable-select-arrow {
+        transform: rotate(180deg);
+    }
+    .searchable-select-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.06);
+        z-index: 1050;
+        display: none;
+        max-height: 320px;
+        overflow: hidden;
+        animation: searchableDropFadeIn 0.2s ease;
+    }
+    @keyframes searchableDropFadeIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .searchable-select.open .searchable-select-dropdown {
+        display: block;
+    }
+    .searchable-select-search-wrapper {
+        position: relative;
+        padding: 10px 12px 8px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .searchable-select-search-icon {
+        position: absolute;
+        left: 22px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1rem;
+        color: #94a3b8;
+        pointer-events: none;
+    }
+    .searchable-select-search {
+        width: 100%;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 8px 12px 8px 34px;
+        font-size: 0.83rem;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: #f8fafc;
+    }
+    .searchable-select-search:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+        background: #fff;
+    }
+    .searchable-select-options {
+        list-style: none;
+        margin: 0;
+        padding: 4px 0;
+        max-height: 220px;
+        overflow-y: auto;
+    }
+    .searchable-select-options::-webkit-scrollbar {
+        width: 5px;
+    }
+    .searchable-select-options::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .searchable-select-options::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .searchable-select-options li {
+        padding: 9px 16px;
+        font-size: 0.83rem;
+        color: #334155;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    .searchable-select-options li:hover {
+        background: #eff6ff;
+        color: #1e40af;
+    }
+    .searchable-select-options li.active {
+        background: #3b82f6;
+        color: #fff;
+        font-weight: 600;
+    }
+    .searchable-select-options li .opt-code {
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 2px 7px;
+        border-radius: 5px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    .searchable-select-options li.active .opt-code {
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+    }
+    .searchable-select-options li .opt-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .searchable-select-empty {
+        padding: 20px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.83rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+    }
 </style>
 
 <div class="container-fluid py-2">
@@ -356,16 +519,34 @@
                     </div>
                     <div class="col-md-3">
                         <label for="product_id_select" class="form-label-custom">Produk <span class="text-danger">*</span></label>
-                        <div class="product-select-wrapper">
-                            <select id="product_id_select" class="form-select form-control-custom form-select-searchable" style="padding-right: 40px;">
-                                <option value="">Pilih Produk</option>
-                                @foreach($products as $p)
-                                    <option value="{{ $p->id }}" data-kode="{{ $p->kode_produk }}" data-satuan="{{ $p->satuan }}">
-                                        {{ $p->kode_produk }} - {{ $p->nama_produk }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            <i class="ph ph-magnifying-glass select-search-icon"></i>
+                        {{-- Hidden native select to hold the real value --}}
+                        <select id="product_id_select" style="display:none;">
+                            <option value="">Pilih Produk</option>
+                            @foreach($products as $p)
+                                <option value="{{ $p->id }}" data-kode="{{ $p->kode_produk }}" data-satuan="{{ $p->satuan }}">
+                                    {{ $p->kode_produk }} - {{ $p->nama_produk }}
+                                </option>
+                            @endforeach
+                        </select>
+                        {{-- Custom searchable dropdown --}}
+                        <div class="searchable-select" id="searchableProductSelect">
+                            <div class="searchable-select-trigger form-control form-control-custom" id="productSelectTrigger">
+                                <span class="searchable-select-text" id="productSelectText">Pilih Produk</span>
+                                <i class="ph ph-caret-down searchable-select-arrow"></i>
+                            </div>
+                            <div class="searchable-select-dropdown" id="productSelectDropdown">
+                                <div class="searchable-select-search-wrapper">
+                                    <i class="ph ph-magnifying-glass searchable-select-search-icon"></i>
+                                    <input type="text" class="searchable-select-search" id="productSearchInput" placeholder="Ketik nama atau kode produk..." autocomplete="off">
+                                </div>
+                                <ul class="searchable-select-options" id="productOptionsList">
+                                    {{-- Options populated by JS --}}
+                                </ul>
+                                <div class="searchable-select-empty" id="productEmptyMsg" style="display:none;">
+                                    <i class="ph ph-magnifying-glass" style="font-size:1.25rem; opacity:0.4;"></i>
+                                    <span>Produk tidak ditemukan</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-3">
@@ -492,6 +673,122 @@
             charCounter.textContent = `${this.value.length}/255`;
         });
 
+        // ── Custom Searchable Select Dropdown Logic ──
+        const searchableProductSelect = document.getElementById('searchableProductSelect');
+        const productSelectTrigger = document.getElementById('productSelectTrigger');
+        const productSelectText = document.getElementById('productSelectText');
+        const productSelectDropdown = document.getElementById('productSelectDropdown');
+        const productSearchInput = document.getElementById('productSearchInput');
+        const productOptionsList = document.getElementById('productOptionsList');
+        const productEmptyMsg = document.getElementById('productEmptyMsg');
+
+        // Extract options from the native select
+        const optionsData = [];
+        for (let i = 0; i < productSelect.options.length; i++) {
+            const opt = productSelect.options[i];
+            if (opt.value) {
+                optionsData.push({
+                    value: opt.value,
+                    text: opt.text,
+                    code: opt.getAttribute('data-kode') || '',
+                    satuan: opt.getAttribute('data-satuan') || ''
+                });
+            }
+        }
+
+        // Render searchable list items
+        function renderOptions(filterText = '') {
+            productOptionsList.innerHTML = '';
+            const normalizedFilter = filterText.toLowerCase().trim();
+            let matches = 0;
+
+            optionsData.forEach(opt => {
+                const optTextLower = opt.text.toLowerCase();
+                const optCodeLower = opt.code.toLowerCase();
+
+                if (optTextLower.includes(normalizedFilter) || optCodeLower.includes(normalizedFilter)) {
+                    matches++;
+                    const li = document.createElement('li');
+                    li.setAttribute('data-value', opt.value);
+                    if (productSelect.value === opt.value) {
+                        li.className = 'active';
+                    }
+                    
+                    li.innerHTML = `
+                        <span class="opt-code">${opt.code}</span>
+                        <span class="opt-name">${opt.text.replace(opt.code + ' - ', '')}</span>
+                    `;
+
+                    li.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        selectProduct(opt.value, opt.text);
+                    });
+                    productOptionsList.appendChild(li);
+                }
+            });
+
+            if (matches === 0) {
+                productEmptyMsg.style.display = 'flex';
+            } else {
+                productEmptyMsg.style.display = 'none';
+            }
+        }
+
+        // Handle Product Selection
+        function selectProduct(val, text) {
+            productSelect.value = val;
+            productSelect.dispatchEvent(new Event('change'));
+
+            if (val) {
+                const optData = optionsData.find(o => o.value === val);
+                const cleanName = optData ? optData.text.replace(optData.code + ' - ', '') : text;
+                const displayHtml = optData ? `<span class="opt-code me-2">${optData.code}</span> <span class="fw-semibold text-dark">${cleanName}</span>` : text;
+                
+                productSelectText.innerHTML = displayHtml;
+                productSelectText.classList.add('has-value');
+            } else {
+                productSelectText.innerHTML = 'Pilih Produk';
+                productSelectText.classList.remove('has-value');
+            }
+            closeProductDropdown();
+        }
+
+        // Open/Close dropdown
+        productSelectTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = searchableProductSelect.classList.contains('open');
+            if (isOpen) {
+                closeProductDropdown();
+            } else {
+                openProductDropdown();
+            }
+        });
+
+        function openProductDropdown() {
+            searchableProductSelect.classList.add('open');
+            productSearchInput.focus();
+            renderOptions(productSearchInput.value);
+        }
+
+        function closeProductDropdown() {
+            searchableProductSelect.classList.remove('open');
+        }
+
+        // Input filtering
+        productSearchInput.addEventListener('input', function() {
+            renderOptions(this.value);
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchableProductSelect.contains(e.target)) {
+                closeProductDropdown();
+            }
+        });
+
+        // Initialize option list
+        renderOptions();
+
         // Format date from YYYY-MM-DD to DD/MM/YYYY for table view
         function formatDateToView(dateStr) {
             if (!dateStr) return '-';
@@ -544,7 +841,7 @@
             }
             if (!productId) {
                 alert('Silakan pilih produk.');
-                productSelect.focus();
+                productSelectTrigger.click(); // Trigger custom dropdown open for user
                 return;
             }
             if (isNaN(qty) || qty < 1) {
@@ -574,7 +871,7 @@
 
             // Clear item inputs (keep date & location intact)
             supplierSelect.value = '';
-            productSelect.value = '';
+            selectProduct('', ''); // Reset searchable product select dropdown
             qtyInput.value = '';
             priceInput.value = '';
             notesInput.value = '';
