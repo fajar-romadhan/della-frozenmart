@@ -51,11 +51,7 @@
                             @error('alamat') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
                         
-                        <div class="mb-3">
-                            <label for="keterangan" class="form-label fw-semibold">Keterangan Tambahan</label>
-                            <textarea name="keterangan" id="keterangan" rows="2" class="form-control @error('keterangan') is-invalid @enderror" placeholder="Keterangan opsional pemasok...">{{ old('keterangan') }}</textarea>
-                            @error('keterangan') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
+
 
                         <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
                             <a href="{{ route('supplier.index') }}" class="btn btn-light">Batal</a>

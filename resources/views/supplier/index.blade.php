@@ -490,7 +490,6 @@
                     <tr>
                         <th class="col-no">No</th>
                         <th class="col-nama">Nama Supplier</th>
-                        <th class="col-kontak">Kontak</th>
                         <th class="col-telepon">Telepon</th>
                         <th class="col-email">Email</th>
                         <th class="col-alamat">Alamat</th>
@@ -503,7 +502,6 @@
                     <tr>
                         <td class="col-no text-muted">{{ $suppliers->firstItem() + $i }}</td>
                         <td class="col-nama fw-bold">{{ $supplier->nama_supplier }}</td>
-                        <td class="col-kontak fw-semibold">{{ $supplier->kontak ?? '-' }}</td>
                         <td class="col-telepon">{{ $supplier->telepon ?? '-' }}</td>
                         <td class="col-email text-muted">{{ $supplier->email ?? '-' }}</td>
                         <td class="col-alamat text-muted">{{ $supplier->alamat ?? '-' }}</td>
@@ -547,7 +545,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">
+                        <td colspan="7" class="text-center py-5 text-muted">
                             <i class="ph ph-info fs-1 d-block mb-2"></i>
                             Belum ada data supplier yang cocok.
                         </td>
