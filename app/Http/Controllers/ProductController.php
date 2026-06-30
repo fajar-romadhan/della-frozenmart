@@ -64,7 +64,7 @@ class ProductController extends Controller
             'nama_produk' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'exists:kategori,id'],
             'satuan' => ['required', 'string', 'max:50'],
-            'stok_minimum' => ['required', 'integer', 'min:0'],
+            'stok_minimum' => ['sometimes', 'integer', 'min:0'],
             'tanggal_kedaluwarsa' => ['nullable', 'date'],
         ], [
             'nama_produk.required' => 'Nama produk wajib diisi.',
@@ -72,7 +72,6 @@ class ProductController extends Controller
             'category_id.required' => 'Kategori wajib dipilih.',
             'category_id.exists' => 'Kategori yang dipilih tidak valid.',
             'satuan.required' => 'Satuan wajib diisi.',
-            'stok_minimum.required' => 'Stok minimum wajib diisi.',
             'stok_minimum.integer' => 'Stok minimum harus berupa angka.',
             'stok_minimum.min' => 'Stok minimum tidak boleh kurang dari 0.',
             'tanggal_kedaluwarsa.date' => 'Format tanggal kedaluwarsa tidak valid.',
@@ -81,6 +80,7 @@ class ProductController extends Controller
         // Generate kode_produk: PRD-XXXX
         $validated['kode_produk'] = $this->generateKodeProduk();
         $validated['stok_saat_ini'] = 0;
+        $validated['stok_minimum'] = $validated['stok_minimum'] ?? 0;
         $validated['status_aktif'] = true;
 
         // Standardize satuan
@@ -140,7 +140,7 @@ class ProductController extends Controller
             'nama_produk' => ['required', 'string', 'max:255'],
             'category_id' => ['required', 'exists:kategori,id'],
             'satuan' => ['required', 'string', 'max:50'],
-            'stok_minimum' => ['required', 'integer', 'min:0'],
+            'stok_minimum' => ['sometimes', 'integer', 'min:0'],
             'tanggal_kedaluwarsa' => ['nullable', 'date'],
             'status_aktif' => ['sometimes', 'boolean'],
         ], [
@@ -149,7 +149,6 @@ class ProductController extends Controller
             'category_id.required' => 'Kategori wajib dipilih.',
             'category_id.exists' => 'Kategori yang dipilih tidak valid.',
             'satuan.required' => 'Satuan wajib diisi.',
-            'stok_minimum.required' => 'Stok minimum wajib diisi.',
             'stok_minimum.integer' => 'Stok minimum harus berupa angka.',
             'stok_minimum.min' => 'Stok minimum tidak boleh kurang dari 0.',
             'tanggal_kedaluwarsa.date' => 'Format tanggal kedaluwarsa tidak valid.',

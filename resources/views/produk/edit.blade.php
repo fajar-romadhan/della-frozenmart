@@ -46,17 +46,10 @@
                             </div>
                         </div>
 
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <label for="stok_minimum" class="form-label fw-semibold">Stok Minimum <span class="text-danger">*</span></label>
-                                <input type="number" name="stok_minimum" id="stok_minimum" class="form-control @error('stok_minimum') is-invalid @enderror" value="{{ old('stok_minimum', $produk->stok_minimum) }}" min="0" required>
-                                @error('stok_minimum') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
-                            <div class="col-md-6">
-                                <label for="tanggal_kedaluwarsa" class="form-label fw-semibold">Tanggal Kedaluwarsa</label>
-                                <input type="date" name="tanggal_kedaluwarsa" id="tanggal_kedaluwarsa" class="form-control @error('tanggal_kedaluwarsa') is-invalid @enderror" value="{{ old('tanggal_kedaluwarsa', $produk->tanggal_kedaluwarsa ? \Carbon\Carbon::parse($produk->tanggal_kedaluwarsa)->format('Y-m-d') : '') }}">
-                                @error('tanggal_kedaluwarsa') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                            </div>
+                        <div class="mb-3">
+                            <label for="tanggal_kedaluwarsa" class="form-label fw-semibold">Tanggal Kedaluwarsa</label>
+                            <input type="date" name="tanggal_kedaluwarsa" id="tanggal_kedaluwarsa" class="form-control @error('tanggal_kedaluwarsa') is-invalid @enderror" value="{{ old('tanggal_kedaluwarsa', $produk->tanggal_kedaluwarsa ? \Carbon\Carbon::parse($produk->tanggal_kedaluwarsa)->format('Y-m-d') : '') }}">
+                            @error('tanggal_kedaluwarsa') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 
                         <div class="d-flex justify-content-end gap-2 mt-4 pt-3 border-top">
