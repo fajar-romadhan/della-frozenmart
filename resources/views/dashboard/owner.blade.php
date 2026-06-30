@@ -236,18 +236,24 @@
                     <div style="position: relative; height:220px; width:220px;">
                         <canvas id="statusChart"></canvas>
                     </div>
+                    @php
+                        $totalStokCount = ($statusOverview['aman'] ?? 0) + ($statusOverview['warning'] ?? 0) + ($statusOverview['order'] ?? 0);
+                        $persenAman = $totalStokCount > 0 ? round((($statusOverview['aman'] ?? 0) / $totalStokCount) * 100) : 0;
+                        $persenWarning = $totalStokCount > 0 ? round((($statusOverview['warning'] ?? 0) / $totalStokCount) * 100) : 0;
+                        $persenOrder = $totalStokCount > 0 ? round((($statusOverview['order'] ?? 0) / $totalStokCount) * 100) : 0;
+                    @endphp
                     <div class="mt-4 w-100">
                         <div class="d-flex justify-content-between mb-2">
                             <span><i class="ph ph-circle-fill text-success me-2"></i> Aman</span>
-                            <span class="fw-bold">{{ $statusOverview['aman'] ?? 0 }}</span>
+                            <span class="fw-bold">{{ $statusOverview['aman'] ?? 0 }} <span class="text-muted small fw-normal">({{ $persenAman }}%)</span></span>
                         </div>
                         <div class="d-flex justify-content-between mb-2">
                             <span><i class="ph ph-circle-fill text-warning me-2"></i> Warning</span>
-                            <span class="fw-bold">{{ $statusOverview['warning'] ?? 0 }}</span>
+                            <span class="fw-bold">{{ $statusOverview['warning'] ?? 0 }} <span class="text-muted small fw-normal">({{ $persenWarning }}%)</span></span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span><i class="ph ph-circle-fill text-danger me-2"></i> Order</span>
-                            <span class="fw-bold text-danger">{{ $statusOverview['order'] ?? 0 }}</span>
+                            <span class="fw-bold text-danger">{{ $statusOverview['order'] ?? 0 }} <span class="text-danger small fw-semibold">({{ $persenOrder }}%)</span></span>
                         </div>
                     </div>
                 </div>
@@ -694,7 +700,55 @@ document.addEventListener("DOMContentLoaded", function() {
                 }
             },
             cutout: '72%'
-        }
+        },
+        plugins: [{
+            id: 'centerText',
+            afterDraw: function(chart) {
+                var ctx = chart.ctx;
+                ctx.restore();
+                
+                const data = chart.data.datasets[0].data;
+                const total = data.reduce((a, b) => a + b, 0);
+                
+                let text = "0%";
+                let subtext = "Aman";
+                let color = "#10b981"; // Green
+                
+                if (total > 0) {
+                    if (data[2] > 0) { // Order
+                        text = Math.round((data[2] / total) * 100) + "%";
+                        subtext = "Perlu Order";
+                        color = "#ef4444"; // Red
+                    } else if (data[1] > 0) { // Warning
+                        text = Math.round((data[1] / total) * 100) + "%";
+                        subtext = "Warning";
+                        color = "#f59e0b"; // Yellow
+                    } else { // Aman
+                        text = Math.round((data[0] / total) * 100) + "%";
+                        subtext = "Stok Aman";
+                        color = "#10b981"; // Green
+                    }
+                }
+                
+                // Find center of chart Area
+                const xCenter = (chart.chartArea.left + chart.chartArea.right) / 2;
+                const yCenter = (chart.chartArea.top + chart.chartArea.bottom) / 2;
+                
+                // Draw main text
+                ctx.font = "bold 1.8rem 'Plus Jakarta Sans', sans-serif";
+                ctx.textBaseline = "middle";
+                ctx.textAlign = "center";
+                ctx.fillStyle = color;
+                ctx.fillText(text, xCenter, yCenter - 10);
+                
+                // Draw subtext
+                ctx.font = "600 0.72rem 'Plus Jakarta Sans', sans-serif";
+                ctx.fillStyle = "#64748b";
+                ctx.fillText(subtext, xCenter, yCenter + 15);
+                
+                ctx.save();
+            }
+        }]
     });
 });
 </script>
@@ -703,18 +757,24 @@ document.addEventListener("DOMContentLoaded", function() {
 @push('styles')
 <style>
     /* Clean up pagination in ROP recommendations table */
-    .rop-pagination nav .flex-sm-fill.d-sm-flex > div:first-child {
+    .rop-pagination nav p {
         display: none !important;
     }
-    .rop-pagination nav .flex-sm-fill.d-sm-flex {
+    .rop-pagination nav > div:first-child {
+        display: none !important;
+    }
+    .rop-pagination nav > div:last-child {
+        display: flex !important;
         justify-content: flex-end !important;
-        margin: 0;
+        width: 100% !important;
     }
     .rop-pagination .pagination {
-        margin-bottom: 0;
+        margin: 0 !important;
     }
     .rop-pagination nav {
-        width: 100%;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: flex-end !important;
     }
 </style>
 @endpush
