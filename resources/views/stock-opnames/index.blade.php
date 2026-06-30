@@ -308,6 +308,166 @@
         border-color: #e2e8f0;
         cursor: not-allowed;
     }
+
+    /* ── Searchable Select Dropdown ── */
+    .searchable-select {
+        position: relative;
+        width: 100%;
+    }
+    .searchable-select-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        cursor: pointer;
+        user-select: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .searchable-select-trigger:hover {
+        border-color: #3b82f6 !important;
+    }
+    .searchable-select.open .searchable-select-trigger {
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+    }
+    .searchable-select-text {
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        font-size: 0.8rem;
+        color: #475569;
+        text-align: left;
+    }
+    .searchable-select-text.has-value {
+        color: #1e293b;
+        font-weight: 500;
+    }
+    .searchable-select-arrow {
+        font-size: 0.85rem;
+        color: #94a3b8;
+        transition: transform 0.25s ease;
+        flex-shrink: 0;
+        margin-left: 8px;
+    }
+    .searchable-select.open .searchable-select-arrow {
+        transform: rotate(180deg);
+    }
+    .searchable-select-dropdown {
+        position: absolute;
+        top: calc(100% + 4px);
+        left: 0;
+        right: 0;
+        background: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+        z-index: 1050;
+        display: none;
+        max-height: 280px;
+        overflow: hidden;
+        animation: searchableDropFadeIn 0.2s ease;
+    }
+    @keyframes searchableDropFadeIn {
+        from { opacity: 0; transform: translateY(-6px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+    .searchable-select.open .searchable-select-dropdown {
+        display: block;
+    }
+    .searchable-select-search-wrapper {
+        position: relative;
+        padding: 8px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+    .searchable-select-search-icon {
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.9rem;
+        color: #94a3b8;
+        pointer-events: none;
+    }
+    .searchable-select-search {
+        width: 100%;
+        border: 1px solid #ced4da;
+        border-radius: 6px;
+        padding: 5px 8px 5px 28px;
+        font-size: 0.8rem;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+        background: #f8fafc;
+    }
+    .searchable-select-search:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59,130,246,0.08);
+        background: #fff;
+    }
+    .searchable-select-options {
+        list-style: none;
+        margin: 0;
+        padding: 4px 0;
+        max-height: 180px;
+        overflow-y: auto;
+        text-align: left;
+    }
+    .searchable-select-options::-webkit-scrollbar {
+        width: 5px;
+    }
+    .searchable-select-options::-webkit-scrollbar-track {
+        background: transparent;
+    }
+    .searchable-select-options::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+    }
+    .searchable-select-options li {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        color: #334155;
+        cursor: pointer;
+        transition: background 0.15s, color 0.15s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .searchable-select-options li:hover {
+        background: #eff6ff;
+        color: #1e40af;
+    }
+    .searchable-select-options li.active {
+        background: #3b82f6;
+        color: #fff;
+        font-weight: 600;
+    }
+    .searchable-select-options li .opt-code {
+        background: #f1f5f9;
+        color: #64748b;
+        padding: 1px 5px;
+        border-radius: 4px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        flex-shrink: 0;
+    }
+    .searchable-select-options li.active .opt-code {
+        background: rgba(255,255,255,0.2);
+        color: #fff;
+    }
+    .searchable-select-options li .opt-name {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .searchable-select-empty {
+        padding: 15px;
+        text-align: center;
+        color: #94a3b8;
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+    }
 </style>
 
 <div class="container-fluid py-2">
@@ -387,12 +547,35 @@
             </div>
             <div class="col-md-4">
                 <label class="filter-label">Produk</label>
-                <select name="product_id" class="form-select form-select-sm">
+                {{-- Hidden native select to hold the real value --}}
+                <select name="product_id" id="product_id_select" style="display:none;">
                     <option value="">Semua Produk</option>
                     @foreach($products as $p)
-                        <option value="{{ $p->id }}" {{ request('product_id') == $p->id ? 'selected' : '' }}>{{ $p->nama_produk }}</option>
+                        <option value="{{ $p->id }}" data-kode="{{ $p->kode_produk }}" {{ request('product_id') == $p->id ? 'selected' : '' }}>
+                            {{ $p->kode_produk }} - {{ $p->nama_produk }}
+                        </option>
                     @endforeach
                 </select>
+                {{-- Custom searchable dropdown --}}
+                <div class="searchable-select" id="searchableProductSelect">
+                    <div class="searchable-select-trigger form-control form-control-sm" id="productSelectTrigger" style="min-height: 31px; padding: 4px 10px; border-radius: .25rem; background: #fff; border: 1px solid #ced4da;">
+                        <span class="searchable-select-text" id="productSelectText" style="font-size: 0.8rem;">Semua Produk</span>
+                        <i class="ph ph-caret-down searchable-select-arrow" style="font-size: 0.8rem;"></i>
+                    </div>
+                    <div class="searchable-select-dropdown" id="productSelectDropdown" style="top: calc(100% + 2px); border-radius: 8px;">
+                        <div class="searchable-select-search-wrapper" style="padding: 6px 8px;">
+                            <i class="ph ph-magnifying-glass searchable-select-search-icon" style="left: 16px; font-size: 0.85rem;"></i>
+                            <input type="text" class="searchable-select-search" id="productSearchInput" placeholder="Ketik nama atau kode produk..." autocomplete="off" style="padding: 4px 8px 4px 26px; font-size: 0.8rem; border-radius: 6px;">
+                        </div>
+                        <ul class="searchable-select-options" id="productOptionsList" style="max-height: 180px;">
+                            {{-- Options populated by JS --}}
+                        </ul>
+                        <div class="searchable-select-empty" id="productEmptyMsg" style="display:none; padding: 12px;">
+                            <i class="ph ph-magnifying-glass" style="font-size: 1rem; opacity: 0.4;"></i>
+                            <span style="font-size: 0.8rem;">Produk tidak ditemukan</span>
+                        </div>
+                    </div>
+                </div>
             </div>
             <div class="col-md-2 d-flex align-items-end gap-2">
                 <button type="submit" class="btn btn-primary btn-sm w-50"><i class="ph ph-funnel"></i> Filter</button>
@@ -468,4 +651,134 @@
         @endif
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const productSelect = document.getElementById('product_id_select');
+        const searchableProductSelect = document.getElementById('searchableProductSelect');
+        const productSelectTrigger = document.getElementById('productSelectTrigger');
+        const productSelectText = document.getElementById('productSelectText');
+        const productSelectDropdown = document.getElementById('productSelectDropdown');
+        const productSearchInput = document.getElementById('productSearchInput');
+        const productOptionsList = document.getElementById('productOptionsList');
+        const productEmptyMsg = document.getElementById('productEmptyMsg');
+
+        // Extract options from the native select
+        const optionsData = [];
+        for (let i = 0; i < productSelect.options.length; i++) {
+            const opt = productSelect.options[i];
+            optionsData.push({
+                value: opt.value,
+                text: opt.text,
+                code: opt.getAttribute('data-kode') || ''
+            });
+        }
+
+        // Render searchable list items
+        function renderOptions(filterText = '') {
+            productOptionsList.innerHTML = '';
+            const normalizedFilter = filterText.toLowerCase().trim();
+            let matches = 0;
+
+            optionsData.forEach(opt => {
+                const optTextLower = opt.text.toLowerCase();
+                const optCodeLower = opt.code.toLowerCase();
+
+                if (optTextLower.includes(normalizedFilter) || optCodeLower.includes(normalizedFilter)) {
+                    matches++;
+                    const li = document.createElement('li');
+                    li.setAttribute('data-value', opt.value);
+                    if (productSelect.value === opt.value) {
+                        li.className = 'active';
+                    }
+                    
+                    if (opt.value === '') {
+                        li.innerHTML = `<span class="opt-name fw-semibold" style="font-size: 0.8rem; color: #475569;">${opt.text}</span>`;
+                    } else {
+                        li.innerHTML = `
+                            <span class="opt-code">${opt.code}</span>
+                            <span class="opt-name">${opt.text.replace(opt.code + ' - ', '')}</span>
+                        `;
+                    }
+
+                    li.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        selectProduct(opt.value, opt.text);
+                    });
+                    productOptionsList.appendChild(li);
+                }
+            });
+
+            if (matches === 0) {
+                productEmptyMsg.style.display = 'flex';
+            } else {
+                productEmptyMsg.style.display = 'none';
+            }
+        }
+
+        // Handle Product Selection
+        function selectProduct(val, text) {
+            productSelect.value = val;
+
+            if (val) {
+                const optData = optionsData.find(o => o.value === val);
+                const cleanName = optData ? optData.text.replace(optData.code + ' - ', '') : text;
+                const displayHtml = optData && optData.code ? `<span class="opt-code me-1" style="font-size: 0.7rem; padding: 2px 5px; background: #e2e8f0; border-radius: 4px; color: #475569;">${optData.code}</span> <span class="fw-semibold text-dark" style="font-size: 0.8rem;">${cleanName}</span>` : `<span class="text-dark fw-semibold" style="font-size: 0.8rem;">${text}</span>`;
+                
+                productSelectText.innerHTML = displayHtml;
+                productSelectText.classList.add('has-value');
+            } else {
+                productSelectText.innerHTML = 'Semua Produk';
+                productSelectText.classList.remove('has-value');
+            }
+            closeProductDropdown();
+        }
+
+        // Open/Close dropdown
+        productSelectTrigger.addEventListener('click', function(e) {
+            e.stopPropagation();
+            const isOpen = searchableProductSelect.classList.contains('open');
+            if (isOpen) {
+                closeProductDropdown();
+            } else {
+                openProductDropdown();
+            }
+        });
+
+        function openProductDropdown() {
+            searchableProductSelect.classList.add('open');
+            productSearchInput.focus();
+            renderOptions(productSearchInput.value);
+        }
+
+        function closeProductDropdown() {
+            searchableProductSelect.classList.remove('open');
+        }
+
+        // Input filtering
+        productSearchInput.addEventListener('input', function() {
+            renderOptions(this.value);
+        });
+
+        // Close when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!searchableProductSelect.contains(e.target)) {
+                closeProductDropdown();
+            }
+        });
+
+        // Initialize state on page load
+        if (productSelect.value) {
+            const initialOpt = optionsData.find(o => o.value === productSelect.value);
+            if (initialOpt) {
+                selectProduct(initialOpt.value, initialOpt.text);
+            }
+        } else {
+            selectProduct('', 'Semua Produk');
+        }
+
+        // Initialize option list
+        renderOptions();
+    });
+</script>
 @endsection
