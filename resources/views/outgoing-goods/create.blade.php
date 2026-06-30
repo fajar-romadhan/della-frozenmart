@@ -70,7 +70,6 @@
         border: 1px solid rgba(0, 0, 0, 0.08);
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.01);
-        overflow: hidden;
     }
 
     .form-card-header {
