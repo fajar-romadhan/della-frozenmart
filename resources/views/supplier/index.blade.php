@@ -77,8 +77,8 @@
     }
     
     .search-input-wrapper input:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        border-color: rgba(37, 99, 235, 0.8);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22);
         outline: none;
     }
     
@@ -90,6 +90,16 @@
         color: #64748b;
         font-size: 1.15rem;
         pointer-events: none;
+        transition: color 0.3s;
+    }
+
+    @keyframes spin-loading {
+        from { transform: translateY(-50%) rotate(0deg); }
+        to { transform: translateY(-50%) rotate(360deg); }
+    }
+    .loading-spin {
+        animation: spin-loading 0.8s linear infinite !important;
+        color: #2563eb !important;
     }
     
     /* Stat Cards with Premium Hover Animations */
@@ -567,6 +577,10 @@
         let timeout = null;
         if (searchInput) {
             searchInput.addEventListener('input', function() {
+                const searchIcon = document.querySelector('.search-input-wrapper .search-icon');
+                if (searchIcon) {
+                    searchIcon.className = 'ph ph-circle-notch search-icon loading-spin';
+                }
                 clearTimeout(timeout);
                 timeout = setTimeout(function() {
                     document.getElementById('formFilterSupplier').submit();
@@ -574,9 +588,11 @@
             });
             // Focus at the end of text when search is submitted
             const val = searchInput.value;
-            searchInput.value = '';
-            searchInput.focus();
-            searchInput.value = val;
+            if (val !== '') {
+                searchInput.value = '';
+                searchInput.focus();
+                searchInput.value = val;
+            }
         }
     });
 </script>
