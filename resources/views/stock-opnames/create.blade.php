@@ -783,9 +783,14 @@
                     <a href="{{ route('stok-opname.index') }}" class="btn-cancel">
                         Batal
                     </a>
-                    <button type="button" class="btn-wizard-next" id="btnGoToStep3">
-                        Selanjutnya: Review Selisih <i class="ph ph-arrow-right" style="font-size: 1.1rem;"></i>
-                    </button>
+                    <div class="d-flex gap-2">
+                        <button type="button" class="btn-wizard-next" id="btnSimpanLangsung" style="background: #10b981; gap: 6px;">
+                            <i class="ph ph-floppy-disk" style="font-size: 1.1rem; vertical-align: middle;"></i> Simpan Langsung
+                        </button>
+                        <button type="button" class="btn-wizard-next" id="btnGoToStep3">
+                            Selanjutnya: Review Selisih <i class="ph ph-arrow-right" style="font-size: 1.1rem;"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1207,6 +1212,25 @@ document.addEventListener('DOMContentLoaded', function() {
         stepSimpan.style.display = 'none';
         
         window.scrollTo(0, 0);
+    });
+
+    // Direct submit from Step 2
+    document.getElementById('btnSimpanLangsung').addEventListener('click', function() {
+        let hasData = false;
+        document.querySelectorAll('#opnameTableBody .stok-fisik-input').forEach(input => {
+            if (input.value !== '' && !isNaN(parseInt(input.value))) {
+                hasData = true;
+            }
+        });
+
+        if (!hasData) {
+            alert('Silakan isi minimal satu produk dengan stok fisik sebelum menyimpan.');
+            return;
+        }
+
+        if (confirm('Apakah Anda yakin ingin langsung menyimpan hasil penyesuaian stok opname ini?')) {
+            document.getElementById('formOpname').submit();
+        }
     });
 
     // Go back to Step 2
