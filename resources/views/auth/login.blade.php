@@ -54,7 +54,10 @@
                     <span class="input-group-text bg-transparent border-end-0 text-secondary" style="border-radius: var(--radius-sm) 0 0 var(--radius-sm); border-color: var(--border-color);">
                         <i class="ph ph-lock" style="font-size: 1.1rem;"></i>
                     </span>
-                    <input type="password" name="password" class="form-control border-start-0" value="password" required style="border-radius: 0 var(--radius-sm) var(--radius-sm) 0;" placeholder="••••••••">
+                    <input type="password" name="password" id="passwordInput" class="form-control border-start-0 border-end-0" value="password" required style="border-radius: 0;" placeholder="••••••••">
+                    <button class="input-group-text bg-transparent border-start-0 text-secondary" type="button" id="btnTogglePassword" style="border-radius: 0 var(--radius-sm) var(--radius-sm) 0; border-color: var(--border-color); cursor: pointer;">
+                        <i class="ph ph-eye-slash" id="toggleIcon" style="font-size: 1.1rem;"></i>
+                    </button>
                 </div>
             </div>
 
@@ -66,5 +69,27 @@
 
     {{-- Bootstrap 5 JS --}}
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const passwordInput = document.getElementById('passwordInput');
+            const btnTogglePassword = document.getElementById('btnTogglePassword');
+            const toggleIcon = document.getElementById('toggleIcon');
+
+            if (passwordInput && btnTogglePassword && toggleIcon) {
+                btnTogglePassword.addEventListener('click', function() {
+                    if (passwordInput.type === 'password') {
+                        passwordInput.type = 'text';
+                        toggleIcon.classList.remove('ph-eye-slash');
+                        toggleIcon.classList.add('ph-eye');
+                    } else {
+                        passwordInput.type = 'password';
+                        toggleIcon.classList.remove('ph-eye');
+                        toggleIcon.classList.add('ph-eye-slash');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
