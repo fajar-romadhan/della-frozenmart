@@ -112,6 +112,9 @@ class OutgoingGoodController extends Controller
 
             $this->fifoService->deductStock($product->id, $request->jumlah, $outgoingGood->id);
             
+            // Refresh product instance to get the updated stok_saat_ini from the database
+            $product->refresh();
+            
             // Check if status changed
             $analysis = $this->safetyStockService->calculate($product);
             if ($analysis['status_stok'] === 'Warning' || $analysis['status_stok'] === 'Order') {
