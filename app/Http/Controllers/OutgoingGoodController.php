@@ -63,7 +63,7 @@ class OutgoingGoodController extends Controller
 
         $outgoingGoods = $query->paginate(10)->withQueryString();
         $products = Product::orderBy('nama_produk')->get();
-        $jenisKeluarOptions = ['penjualan', 'rusak', 'kedaluwarsa', 'penyesuaian'];
+        $jenisKeluarOptions = ['penjualan', 'rusak', 'kedaluwarsa'];
 
         return view('outgoing-goods.index', compact(
             'outgoingGoods', 

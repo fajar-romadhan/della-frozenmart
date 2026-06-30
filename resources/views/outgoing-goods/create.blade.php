@@ -213,7 +213,7 @@
     /* Jenis Keluar Option Cards */
     .jenis-options {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(3, 1fr);
         gap: 8px;
     }
 
@@ -476,15 +476,6 @@
                                 <div>
                                     <div class="jenis-option-text">Kedaluwarsa</div>
                                     <div class="jenis-option-desc">Produk expired</div>
-                                </div>
-                            </label>
-                            <label class="jenis-option {{ old('jenis_keluar') == 'penyesuaian' ? 'selected' : '' }}" data-value="penyesuaian">
-                                <input type="radio" name="jenis_keluar" value="penyesuaian" {{ old('jenis_keluar') == 'penyesuaian' ? 'checked' : '' }}>
-                                <span class="jenis-option-dot"></span>
-                                <span class="jenis-option-icon icon-penyesuaian"><i class="ph ph-arrows-clockwise"></i></span>
-                                <div>
-                                    <div class="jenis-option-text">Penyesuaian</div>
-                                    <div class="jenis-option-desc">Koreksi stok</div>
                                 </div>
                             </label>
                         </div>
