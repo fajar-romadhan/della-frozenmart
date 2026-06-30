@@ -296,29 +296,31 @@
     @endif
 
     {{-- Section 1: Upload Data Penjualan Harian --}}
-    <div class="section-card">
-        <h3 class="section-title">1. Upload Data Penjualan Harian</h3>
-        <p class="text-muted fs-7 mb-3" style="font-size: 0.85rem; margin-top: -8px;">Upload file penjualan harian (.xlsx, .xls, .csv). Pastikan format sesuai template.</p>
-        
-        <form action="{{ route('analisis.upload-sales') }}" method="POST" enctype="multipart/form-data" id="uploadSalesForm">
-            @csrf
-            <div class="upload-dropzone" id="dropzone">
-                <i class="ph ph-cloud-arrow-up upload-icon"></i>
-                <div class="upload-text" id="uploadText">Klik atau drag file di sini</div>
-                <div class="upload-subtext">Format: .xlsx, .xls, .csv</div>
-                <input type="file" name="file" id="fileInput" accept=".xlsx,.xls,.csv" required>
-            </div>
-        </form>
+    @if(auth()->user()->role !== 'admin')
+        <div class="section-card">
+            <h3 class="section-title">Upload Data Penjualan Harian</h3>
+            <p class="text-muted fs-7 mb-3" style="font-size: 0.85rem; margin-top: -8px;">Upload file penjualan harian (.xlsx, .xls, .csv). Pastikan format sesuai template.</p>
+            
+            <form action="{{ route('analisis.upload-sales') }}" method="POST" enctype="multipart/form-data" id="uploadSalesForm">
+                @csrf
+                <div class="upload-dropzone" id="dropzone">
+                    <i class="ph ph-cloud-arrow-up upload-icon"></i>
+                    <div class="upload-text" id="uploadText">Klik atau drag file di sini</div>
+                    <div class="upload-subtext">Format: .xlsx, .xls, .csv</div>
+                    <input type="file" name="file" id="fileInput" accept=".xlsx,.xls,.csv" required>
+                </div>
+            </form>
 
-        <div class="alert-banner mt-3">
-            <i class="ph ph-info-fill text-primary" style="font-size: 1.15rem;"></i>
-            <span>Format kolom data penjualan: <strong>Tanggal, Nama Barang, Jumlah</strong>. Header diletakkan pada baris pertama.</span>
+            <div class="alert-banner mt-3">
+                <i class="ph ph-info-fill text-primary" style="font-size: 1.15rem;"></i>
+                <span>Format kolom data penjualan: <strong>Tanggal, Nama Barang, Jumlah</strong>. Header diletakkan pada baris pertama.</span>
+            </div>
         </div>
-    </div>
+    @endif
 
     {{-- Section 2: Ringkasan Hasil Analisa --}}
     <div class="section-card" style="padding-bottom: 8px;">
-        <h3 class="section-title">2. Ringkasan Hasil Analisa</h3>
+        <h3 class="section-title">Ringkasan Hasil Analisa</h3>
         <div class="summary-stats-grid">
             {{-- Card 1: Total Dianalisis --}}
             <div class="summary-card border-blue-hover">
@@ -379,14 +381,16 @@
     <div class="section-card" style="padding: 0; border: none; background: transparent;">
         <div class="section-card" style="border-radius: 12px 12px 0 0; margin-bottom: 0; border-bottom: none;">
             <div class="d-flex justify-content-between align-items-center">
-                <h3 class="section-title mb-0">3. Hasil Perhitungan per Produk</h3>
+                <h3 class="section-title mb-0">Hasil Perhitungan per Produk</h3>
                 <div class="d-flex gap-2">
-                    <form action="{{ route('analisis.analyze-all') }}" method="POST" class="d-inline">
-                        @csrf
-                        <button type="submit" class="btn btn-primary btn-sm fw-bold px-3 py-2" style="border-radius: 8px;" onclick="return confirm('Proses ini akan menghitung ulang Safety Stock dan ROP untuk semua produk aktif berdasarkan data penjualan terbaru. Lanjutkan?')">
-                            <i class="ph ph-arrows-clockwise" style="font-size: 1rem; vertical-align: middle;"></i> Analisis Ulang Semua Produk
-                        </button>
-                    </form>
+                    @if(auth()->user()->role !== 'admin')
+                        <form action="{{ route('analisis.analyze-all') }}" method="POST" class="d-inline">
+                            @csrf
+                            <button type="submit" class="btn btn-primary btn-sm fw-bold px-3 py-2" style="border-radius: 8px;" onclick="return confirm('Proses ini akan menghitung ulang Safety Stock dan ROP untuk semua produk aktif berdasarkan data penjualan terbaru. Lanjutkan?')">
+                                <i class="ph ph-arrows-clockwise" style="font-size: 1rem; vertical-align: middle;"></i> Analisis Ulang Semua Produk
+                            </button>
+                        </form>
+                    @endif
                     <a href="{{ route('status-stok') }}" class="btn btn-light btn-sm border fw-bold px-3 py-2" style="border-radius: 8px;">
                         <i class="ph ph-chart-bar" style="font-size: 1rem; vertical-align: middle;"></i> Monitor Status Stok
                     </a>
