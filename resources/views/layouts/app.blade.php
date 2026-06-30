@@ -132,6 +132,16 @@
                             updateBadge(sidebarBadge);
                             updateBadge(topbarBadge);
 
+                            // Update topbar ping dot dynamically
+                            const topbarPing = document.getElementById('topbarNotifPing');
+                            if (topbarPing) {
+                                if (count > 0) {
+                                    topbarPing.style.display = 'inline-flex';
+                                } else {
+                                    topbarPing.style.display = 'none';
+                                }
+                            }
+
                             // Update status dot in dropdown header dynamically
                             const statusDot = document.getElementById('notifStatusDot');
                             if (statusDot) {

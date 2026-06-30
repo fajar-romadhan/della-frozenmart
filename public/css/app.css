@@ -797,6 +797,50 @@ h1, h2, h3, h4, h5, h6 {
     justify-content: center;
 }
 
+/* Pulse alert ring and dot for notifications */
+.topbar-notif-ping {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 9px;
+    height: 9px;
+    display: inline-flex;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.topbar-notif-ping-ring {
+    position: absolute;
+    display: inline-flex;
+    height: 100%;
+    width: 100%;
+    border-radius: 50%;
+    background-color: #fbbf24; /* Amber yellow */
+    opacity: 0.85;
+    animation: notif-pulse-ring 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+.topbar-notif-ping-dot {
+    position: relative;
+    display: inline-flex;
+    border-radius: 50%;
+    height: 9px;
+    width: 9px;
+    background-color: #eab308; /* Darker yellow */
+    border: 1.5px solid #ffffff;
+}
+
+@keyframes notif-pulse-ring {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    70%, 100% {
+        transform: scale(2.6);
+        opacity: 0;
+    }
+}
+
 /* ===== Notification Dropdown Widget ===== */
 .notif-dropdown-wrap {
     position: relative;
