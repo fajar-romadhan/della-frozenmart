@@ -95,10 +95,23 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 Illuminate\Support\Facades\DB::table('notifikasi')->truncate();
                 Illuminate\Support\Facades\DB::table('log_import')->truncate();
                 Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-                $logOutput .= "2b. Membersihkan data bawaan migrasi revisi (11 Produk & Transaksi): SUKSES (OK)\n";
+                
+                // Seed default categories
+                Illuminate\Support\Facades\Artisan::call('db:seed', [
+                    '--class' => 'Database\\Seeders\\CategorySeeder',
+                    '--force' => true
+                ]);
+
+                // Seed the 31 clean products list with 0 stock
+                Illuminate\Support\Facades\Artisan::call('db:seed', [
+                    '--class' => 'Database\\Seeders\\ProductSeeder',
+                    '--force' => true
+                ]);
+
+                $logOutput .= "2b. Membersihkan data bawaan migrasi revisi & memuat 31 Produk (0 Stok): SUKSES (OK)\n";
             } catch (\Exception $e) {
                 Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
-                $logOutput .= "2b. Membersihkan data bawaan migrasi revisi: GAGAL (" . $e->getMessage() . ")\n";
+                $logOutput .= "2b. Membersihkan data bawaan migrasi revisi & memuat 31 Produk: GAGAL (" . $e->getMessage() . ")\n";
             }
 
             // Clear caches
