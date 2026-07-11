@@ -24,7 +24,7 @@ class SafetyStockService
      */
     public function calculate(Product $product, int $leadTime = 3, ?string $startDate = null, ?string $endDate = null): array
     {
-        // Default analysis period: last 30 days of the latest sales record of this product, or today if no sales exist
+        // Determine end date: latest sales record date, or today if no sales exist
         if ($endDate) {
             $end = Carbon::parse($endDate);
         } else {
@@ -32,7 +32,21 @@ class SafetyStockService
             $end = $latestSale ? Carbon::parse($latestSale) : Carbon::today();
         }
 
-        $start = $startDate ? Carbon::parse($startDate) : $end->copy()->subDays(30);
+        // Determine start date: earliest sales record date, or 30 days prior to end date if no sales exist
+        if ($startDate) {
+            $start = Carbon::parse($startDate);
+        } else {
+            $earliestSale = Sale::where('product_id', $product->id)->min('tanggal_penjualan');
+            if ($earliestSale) {
+                $start = Carbon::parse($earliestSale);
+                // Safeguard: if start and end are the same day, set start to 30 days ago to avoid division by zero
+                if ($start->equalTo($end)) {
+                    $start = $end->copy()->subDays(30);
+                }
+            } else {
+                $start = $end->copy()->subDays(30);
+            }
+        }
 
         // Get sales data grouped by date
         $salesData = Sale::where('product_id', $product->id)
