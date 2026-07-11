@@ -78,6 +78,29 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
             $logOutput .= "2. Membuat Akun Login Default (Admin, Manager, Owner): " . ($seedExitCode === 0 ? "SUKSES (OK)\n" : "GAGAL (Code: $seedExitCode)\n");
             
+            // Explicitly truncate tables that might have been populated by revision migrations (e.g. 11 products revision)
+            try {
+                Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+                Illuminate\Support\Facades\DB::table('detail_barang_keluar')->truncate();
+                Illuminate\Support\Facades\DB::table('barang_keluar')->truncate();
+                Illuminate\Support\Facades\DB::table('batch_stok')->truncate();
+                Illuminate\Support\Facades\DB::table('barang_masuk')->truncate();
+                Illuminate\Support\Facades\DB::table('produk')->truncate();
+                Illuminate\Support\Facades\DB::table('supplier')->truncate();
+                Illuminate\Support\Facades\DB::table('kategori')->truncate();
+                Illuminate\Support\Facades\DB::table('stok_opname')->truncate();
+                Illuminate\Support\Facades\DB::table('penjualan')->truncate();
+                Illuminate\Support\Facades\DB::table('pemesanan_supplier')->truncate();
+                Illuminate\Support\Facades\DB::table('analisa_persediaan')->truncate();
+                Illuminate\Support\Facades\DB::table('notifikasi')->truncate();
+                Illuminate\Support\Facades\DB::table('log_import')->truncate();
+                Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+                $logOutput .= "2b. Membersihkan data bawaan migrasi revisi (11 Produk & Transaksi): SUKSES (OK)\n";
+            } catch (\Exception $e) {
+                Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+                $logOutput .= "2b. Membersihkan data bawaan migrasi revisi: GAGAL (" . $e->getMessage() . ")\n";
+            }
+
             // Clear caches
             Illuminate\Support\Facades\Artisan::call('cache:clear');
             Illuminate\Support\Facades\Artisan::call('config:clear');
