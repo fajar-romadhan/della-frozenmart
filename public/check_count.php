@@ -79,6 +79,9 @@ try {
     $supplierCount = App\Models\Supplier::count();
     $incomingCount = App\Models\IncomingGood::count();
     $outgoingCount = App\Models\OutgoingGood::count();
+    $saleCount = App\Models\Sale::count();
+    $minSaleDate = App\Models\Sale::min('tanggal_penjualan') ?? 'Tidak ada';
+    $maxSaleDate = App\Models\Sale::max('tanggal_penjualan') ?? 'Tidak ada';
     
     echo "
     <div class='count-item'>
@@ -100,6 +103,14 @@ try {
     <div class='count-item'>
         <span class='count-label'>Transaksi Barang Keluar</span>
         <span class='count-value'>{$outgoingCount} Record</span>
+    </div>
+    <div class='count-item'>
+        <span class='count-label'>Total Transaksi Penjualan (Excel)</span>
+        <span class='count-value'>{$saleCount} Record</span>
+    </div>
+    <div class='count-item'>
+        <span class='count-label'>Rentang Tanggal Penjualan</span>
+        <span class='count-value'>{$minSaleDate} s/d {$maxSaleDate}</span>
     </div>
     ";
     
