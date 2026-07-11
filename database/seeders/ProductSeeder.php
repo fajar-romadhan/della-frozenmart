@@ -6,7 +6,7 @@ use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 /**
- * ProductSeeder - Membuat 31 produk baru Della Frozen Mart sesuai daftar final Anda.
+ * ProductSeeder - Membuat 31 produk baru Della Frozen Mart sesuai nama konsisten manual Anda.
  *
  * Kode produk menggunakan format PRD-XXXX.
  * Category ID:
@@ -51,7 +51,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0005',
-                'nama_produk' => 'Chicken Nugget Stick 500g',
+                'nama_produk' => 'Okey Nugget Stik 500gr',
                 'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -75,7 +75,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0008',
-                'nama_produk' => 'Cireng Rujak 15gr',
+                'nama_produk' => 'Cireng Rujak',
                 'category_id' => 5, // Snack Frozen
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -99,7 +99,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0011',
-                'nama_produk' => 'Sosis okay 500g',
+                'nama_produk' => 'Okey Sosis 500GR',
                 'category_id' => 1, // Frozen Food
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -107,8 +107,8 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0012',
-                'nama_produk' => 'jamur enoki',
-                'category_id' => 1, // Frozen Food (Jamur Enoki)
+                'nama_produk' => 'Jamur enoki',
+                'category_id' => 1, // Frozen Food
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
                 'stok_minimum' => 10,
@@ -155,7 +155,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0018',
-                'nama_produk' => 'WARISAN ISI 50',
+                'nama_produk' => 'Warisan Isi 50',
                 'category_id' => 5, // Snack Frozen
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -195,7 +195,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0023',
-                'nama_produk' => 'Richees Nugget',
+                'nama_produk' => 'Richeese Nugget',
                 'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -219,7 +219,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0026',
-                'nama_produk' => 'Sallam Nugget 500 gr',
+                'nama_produk' => 'Sallam Nugget 500gr',
                 'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -235,7 +235,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0028',
-                'nama_produk' => 'Fiesta Karage 450 gr',
+                'nama_produk' => 'Fiesta chicken nugget 450gr',
                 'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -251,7 +251,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0030',
-                'nama_produk' => 'Belfood Sosis Isi 30',
+                'nama_produk' => 'Belfood Sosis isi 30',
                 'category_id' => 1, // Frozen Food
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
