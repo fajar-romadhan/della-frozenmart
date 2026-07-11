@@ -317,10 +317,6 @@
                 @php
                     $navUnreadCount = auth()->user()->notifications()->where('status_baca', false)->count();
                 @endphp
-                <span class="topbar-notif-ping" id="topbarNotifPing" style="display: {{ $navUnreadCount > 0 ? 'inline-flex' : 'none' }};">
-                    <span class="topbar-notif-ping-ring"></span>
-                    <span class="topbar-notif-ping-dot"></span>
-                </span>
                 <span class="topbar-notif-badge" style="display: {{ $navUnreadCount > 0 ? 'inline-flex' : 'none' }};">
                     {{ $navUnreadCount > 9 ? '9+' : $navUnreadCount }}
                 </span>
