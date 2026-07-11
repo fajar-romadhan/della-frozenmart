@@ -171,20 +171,20 @@ class NotificationController extends Controller
                 $status = 'Expired';
                 $judul = 'Sudah Kedaluwarsa';
                 $pesan = $product->nama_produk . ' sudah kedaluwarsa sejak ' . $product->tanggal_kedaluwarsa->translatedFormat('d M Y') . '.';
-                $icon = 'ph-warning-octagon';
+                $icon = 'ph-calendar-x';
                 $color = 'purple';
             } elseif ($isNearExpiry) {
                 $status = 'NearExpiry';
                 $judul = 'Akan Kedaluwarsa';
                 $days = $product->tanggal_kedaluwarsa->diffInDays($today);
                 $pesan = $product->nama_produk . ' akan kedaluwarsa dalam ' . $days . ' hari.';
-                $icon = 'ph-clock-countdown';
+                $icon = 'ph-clock';
                 $color = 'orange';
             } elseif ($analysis && $analysis->status_stok === 'Order') {
                 $status = 'Order';
                 $judul = 'Stok Habis';
                 $pesan = $product->nama_produk . ' tersisa ' . number_format($product->stok_saat_ini, 0, ',', '.') . ' pcs.';
-                $icon = 'ph-x-circle';
+                $icon = 'ph-x';
                 $color = 'red';
             } elseif ($analysis && $analysis->status_stok === 'Warning') {
                 $status = 'Warning';
@@ -208,11 +208,8 @@ class NotificationController extends Controller
             }
         }
 
-        // Sort by severity: Order (red) > Warning > NearExpiry > Expired, then by time
-        $statusOrder = ['Order' => 1, 'Warning' => 2, 'NearExpiry' => 3, 'Expired' => 4];
-        $items = $items->sortBy(function($item) use ($statusOrder) {
-            return $statusOrder[$item['status']] ?? 99;
-        })->values();
+        // Sort by time (newest first)
+        $items = $items->sortByDesc('created_at')->values();
 
         $totalCount = $items->count();
 

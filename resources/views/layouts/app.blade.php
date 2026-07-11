@@ -253,7 +253,7 @@
                     html += `
                         <a href="{{ route('notifikasi.index') }}" class="notif-dropdown-item ${unreadClass}">
                             <div class="notif-dropdown-icon" style="background: ${colors.bg}; border-color: ${colors.border};">
-                                <i class="ph ${item.icon}" style="color: ${colors.icon};"></i>
+                                <i class="ph-bold ${item.icon}" style="color: ${colors.icon};"></i>
                             </div>
                             <div class="notif-dropdown-content">
                                 <div class="notif-dropdown-item-title">${item.judul}${unreadDot}</div>
