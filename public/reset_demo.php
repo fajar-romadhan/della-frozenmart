@@ -208,16 +208,16 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $sheets = ['Januari', 'Februari', 'Maret', 'April', 'Mei'];
             $productMapping = [
-                'D' => 'Okey Sosis 500GR',
-                'E' => 'Fiesta Chicken Nugget 450GR',
-                'F' => 'Jamur Enoki',
-                'G' => 'Meru Lapis Bogor',
-                'H' => 'Okey Nugget Stik 500GR',
-                'I' => 'Cireng Rujak',
-                'J' => 'Salam Nugget 500GR',
-                'K' => 'Warisan Isi 50',
-                'L' => 'Belfood Sosis Isi 30',
-                'M' => 'Richeese Nugget'
+                'D' => 'Sosis okay 500g',                  // Excel: Okey Sosis 500GR
+                'E' => 'Fiesta Karage 450 gr',              // Excel: Fiesta Chicken Nugget 450GR
+                'F' => 'jamur enoki',                       // Excel: Jamur Enoki
+                'G' => 'Meru Lapis Bogor',                  // Excel: Meru Lapis Bogor
+                'H' => 'Chicken Nugget Stick 500g',         // Excel: Okey Nugget Stik 500GR
+                'I' => 'Cireng Rujak 15gr',                 // Excel: Cireng Rujak
+                'J' => 'Sallam Nugget 500 gr',              // Excel: Salam Nugget 500GR
+                'K' => 'WARISAN ISI 50',                    // Excel: Warisan Isi 50
+                'L' => 'Belfood Sosis Isi 30',              // Excel: Belfood Sosis Isi 30
+                'M' => 'Richees Nugget'                     // Excel: Richeese Nugget
             ];
             
             $productsCache = [];

@@ -6,7 +6,7 @@ use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 /**
- * ProductSeeder - Membuat 32 produk Della Frozen Mart (termasuk 10 produk dari Excel).
+ * ProductSeeder - Membuat 31 produk baru Della Frozen Mart sesuai daftar final Anda.
  *
  * Kode produk menggunakan format PRD-XXXX.
  * Category ID:
@@ -27,15 +27,15 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0002',
-                'nama_produk' => 'Cireng Rujak',
-                'category_id' => 5, // Snack Frozen
+                'nama_produk' => 'Nugget Ayam Crispy 400g',
+                'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
                 'stok_minimum' => 10,
             ],
             [
                 'kode_produk' => 'PRD-0003',
-                'nama_produk' => 'Fiesta Chicken Nugget 450GR',
+                'nama_produk' => 'Champ Nugget KombinasiI 450GR',
                 'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -51,7 +51,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0005',
-                'nama_produk' => 'Okey Nugget Stik 500GR',
+                'nama_produk' => 'Chicken Nugget Stick 500g',
                 'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -75,8 +75,8 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0008',
-                'nama_produk' => 'Spicy Chicken Wings 1 Kg',
-                'category_id' => 4, // Ayam
+                'nama_produk' => 'Cireng Rujak 15gr',
+                'category_id' => 5, // Snack Frozen
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
                 'stok_minimum' => 10,
@@ -99,7 +99,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0011',
-                'nama_produk' => 'Okey Sosis 500GR',
+                'nama_produk' => 'Sosis okay 500g',
                 'category_id' => 1, // Frozen Food
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -107,8 +107,8 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0012',
-                'nama_produk' => 'Sosis Bakar Ayam 500g',
-                'category_id' => 4, // Ayam
+                'nama_produk' => 'jamur enoki',
+                'category_id' => 1, // Frozen Food (Jamur Enoki)
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
                 'stok_minimum' => 10,
@@ -155,7 +155,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0018',
-                'nama_produk' => 'Warisan Isi 50',
+                'nama_produk' => 'WARISAN ISI 50',
                 'category_id' => 5, // Snack Frozen
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -195,7 +195,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0023',
-                'nama_produk' => 'Richeese Nugget',
+                'nama_produk' => 'Richees Nugget',
                 'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -219,7 +219,7 @@ class ProductSeeder extends Seeder
             ],
             [
                 'kode_produk' => 'PRD-0026',
-                'nama_produk' => 'Salam Nugget 500GR',
+                'nama_produk' => 'Sallam Nugget 500 gr',
                 'category_id' => 4, // Ayam
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
@@ -261,14 +261,6 @@ class ProductSeeder extends Seeder
                 'kode_produk' => 'PRD-0031',
                 'nama_produk' => 'Belfood chicken nugget 500gr',
                 'category_id' => 4, // Ayam
-                'satuan' => 'PCS',
-                'stok_saat_ini' => 0,
-                'stok_minimum' => 10,
-            ],
-            [
-                'kode_produk' => 'PRD-0032',
-                'nama_produk' => 'Jamur Enoki',
-                'category_id' => 1, // Frozen Food
                 'satuan' => 'PCS',
                 'stok_saat_ini' => 0,
                 'stok_minimum' => 10,
