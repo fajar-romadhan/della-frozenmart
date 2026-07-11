@@ -208,16 +208,17 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $sheets = ['Januari', 'Februari', 'Maret', 'April', 'Mei'];
             $productMapping = [
-                'D' => 'Okey Sosis 500GR',                  // Excel: Okey Sosis 500GR
-                'E' => 'Fiesta chicken nugget 450gr',       // Excel: Fiesta Chicken Nugget 450GR
-                'F' => 'Jamur enoki',                       // Excel: Jamur Enoki
-                'G' => 'Meru Lapis Bogor',                  // Excel: Meru Lapis Bogor
-                'H' => 'Okey Nugget Stik 500gr',            // Excel: Okey Nugget Stik 500GR
-                'I' => 'Cireng Rujak',                      // Excel: Cireng Rujak
-                'J' => 'Sallam Nugget 500gr',              // Excel: Salam Nugget 500GR
-                'K' => 'Warisan Isi 50',                    // Excel: Warisan Isi 50
-                'L' => 'Belfood Sosis isi 30',              // Excel: Belfood Sosis Isi 30
-                'M' => 'Richeese Nugget'                    // Excel: Richeese Nugget
+                // Kolom Excel => Nama produk PERSIS sesuai ProductSeeder & 31 produk resmi
+                'D' => 'Sosis okay 500g',         // Excel col D: Okey Sosis 500GR  → PRD-0011
+                'E' => 'Fiesta Karage 450 gr',    // Excel col E: Fiesta Nugget 450gr → PRD-0028
+                'F' => 'jamur enoki',             // Excel col F: Jamur Enoki         → PRD-0012
+                'G' => 'Meru Lapis Bogor',        // Excel col G: Meru Lapis Bogor    → PRD-0022
+                // 'H' => SKIP (Okey Nugget Stik - tidak ada di 31 produk resmi)
+                'I' => 'Cireng Rujak 15gr',       // Excel col I: Cireng Rujak         → PRD-0008
+                'J' => 'Sallam Nugget 500 gr',   // Excel col J: Sallam Nugget 500gr  → PRD-0026
+                'K' => 'WARISAN ISI 50',          // Excel col K: Warisan Isi 50        → PRD-0018
+                'L' => 'Belfood Sosis Isi 30',   // Excel col L: Belfood Sosis Isi 30 → PRD-0030
+                'M' => 'Richees Nugget',          // Excel col M: Richeese Nugget      → PRD-0023
             ];
             
             $productsCache = [];
