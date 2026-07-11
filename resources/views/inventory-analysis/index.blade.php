@@ -435,11 +435,11 @@
                                         {{ number_format($analysis->product->stok_saat_ini ?? 0, 0, ',', '.') }}
                                     </span>
                                 </td>
-                                <td class="text-center">{{ number_format($analysis->average_usage, 0, ',', '.') }}</td>
+                                <td class="text-center">{{ number_format($analysis->average_usage, 2, ',', '.') }}</td>
                                 <td class="text-center">{{ number_format($analysis->max_sales, 0, ',', '.') }}</td>
                                 <td class="text-center">{{ $analysis->lead_time }}</td>
-                                <td class="text-end fw-semibold" style="color: #475569;">{{ number_format($analysis->safety_stock, 0, ',', '.') }}</td>
-                                <td class="text-end fw-bold" style="color: #1e293b;">{{ number_format($analysis->reorder_point, 0, ',', '.') }}</td>
+                                <td class="text-end fw-semibold" style="color: #475569;">{{ number_format($analysis->safety_stock, 2, ',', '.') }}</td>
+                                <td class="text-end fw-bold" style="color: #1e293b;">{{ number_format($analysis->reorder_point, 2, ',', '.') }}</td>
                                 <td class="text-center">
                                     @if($analysis->status_stok == 'Aman')
                                         <span class="badge-status badge-status-aman">
