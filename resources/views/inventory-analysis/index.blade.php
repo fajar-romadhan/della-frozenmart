@@ -406,7 +406,7 @@
                             <th>NAMA PRODUK</th>
                             <th class="text-end">STOK SAAT INI (PCS)</th>
                             <th class="text-center">AU (PCS/HARI)</th>
-                            <th class="text-center">PENJUALAN MAKS (PCS/HARI)</th>
+                            <th class="text-center">MU (PCS/HARI)</th>
                             <th class="text-center">LEAD TIME (LT) (HARI)</th>
                             <th class="text-end">SAFETY STOCK (SS) (PCS)</th>
                             <th class="text-end">REORDER POINT (ROP) (PCS)</th>
