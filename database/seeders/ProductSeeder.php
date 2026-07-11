@@ -72,7 +72,7 @@ class ProductSeeder extends Seeder
             // No.27
             ['kode_produk' => 'PRD-0027', 'nama_produk' => 'Sallam Bakso Sapi 500 gr',     'category_id' => 3, 'satuan' => 'PCS', 'stok_saat_ini' => 0, 'stok_minimum' => 10],
             // No.28
-            ['kode_produk' => 'PRD-0028', 'nama_produk' => 'Fiesta Karage 450 gr',         'category_id' => 4, 'satuan' => 'PCS', 'stok_saat_ini' => 0, 'stok_minimum' => 10],
+            ['kode_produk' => 'PRD-0028', 'nama_produk' => 'Fiesta chicken nugget 450gr',   'category_id' => 4, 'satuan' => 'PCS', 'stok_saat_ini' => 0, 'stok_minimum' => 10],
             // No.29
             ['kode_produk' => 'PRD-0029', 'nama_produk' => 'Fiesta Kentang 500 gr',        'category_id' => 5, 'satuan' => 'PCS', 'stok_saat_ini' => 0, 'stok_minimum' => 10],
             // No.30

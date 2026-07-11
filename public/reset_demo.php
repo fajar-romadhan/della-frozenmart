@@ -210,7 +210,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $productMapping = [
                 // Kolom Excel => Nama produk PERSIS sesuai ProductSeeder & 31 produk resmi
                 'D' => 'Sosis okay 500g',         // Excel col D: Okey Sosis 500GR  → PRD-0011
-                'E' => 'Fiesta Karage 450 gr',    // Excel col E: Fiesta Nugget 450gr → PRD-0028
+                'E' => 'Fiesta chicken nugget 450gr',    // Excel col E: Fiesta Nugget 450gr → PRD-0028
                 'F' => 'jamur enoki',             // Excel col F: Jamur Enoki         → PRD-0012
                 'G' => 'Meru Lapis Bogor',        // Excel col G: Meru Lapis Bogor    → PRD-0022
                 // 'H' => SKIP (Okey Nugget Stik - tidak ada di 31 produk resmi)
