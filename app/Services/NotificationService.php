@@ -29,12 +29,21 @@ class NotificationService
               "Stok saat ini: {$product->stok_saat_ini} {$product->satuan}. Harap persiapkan pemesanan.";
 
         foreach ($users as $user) {
-            Notification::create([
-                'user_id' => $user->id,
-                'product_id' => $product->id,
-                'judul' => $judul,
-                'pesan' => $pesan,
-            ]);
+            // Check if there is already an unread notification of the same title for this product
+            $exists = Notification::where('user_id', $user->id)
+                ->where('product_id', $product->id)
+                ->where('judul', $judul)
+                ->where('status_baca', false)
+                ->exists();
+
+            if (!$exists) {
+                Notification::create([
+                    'user_id' => $user->id,
+                    'product_id' => $product->id,
+                    'judul' => $judul,
+                    'pesan' => $pesan,
+                ]);
+            }
         }
     }
 

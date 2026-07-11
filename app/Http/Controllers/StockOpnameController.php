@@ -149,6 +149,13 @@ class StockOpnameController extends Controller
                     }
                 }
                 $savedCount++;
+
+                // Recalculate Safety Stock & ROP immediately so the status is up to date
+                try {
+                    app(\App\Services\SafetyStockService::class)->calculate($product);
+                } catch (\Exception $e) {
+                    \Log::error('Failed to recalculate stock status on stock opname store: ' . $e->getMessage());
+                }
             }
 
             if ($savedCount === 0) {

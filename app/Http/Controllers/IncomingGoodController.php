@@ -135,6 +135,13 @@ class IncomingGoodController extends Controller
                 ]);
 
                 $product->increment('stok_saat_ini', $item['jumlah']);
+
+                // Recalculate Safety Stock & ROP immediately so the status is up to date
+                try {
+                    app(\App\Services\SafetyStockService::class)->calculate($product);
+                } catch (\Exception $e) {
+                    \Log::error('Failed to recalculate stock status on incoming good store: ' . $e->getMessage());
+                }
             }
         });
 

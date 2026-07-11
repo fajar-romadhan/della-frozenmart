@@ -24,8 +24,14 @@ class SafetyStockService
      */
     public function calculate(Product $product, int $leadTime = 3, ?string $startDate = null, ?string $endDate = null): array
     {
-        // Default analysis period: last 30 days
-        $end = $endDate ? Carbon::parse($endDate) : Carbon::today();
+        // Default analysis period: last 30 days of the latest sales record of this product, or today if no sales exist
+        if ($endDate) {
+            $end = Carbon::parse($endDate);
+        } else {
+            $latestSale = Sale::where('product_id', $product->id)->max('tanggal_penjualan');
+            $end = $latestSale ? Carbon::parse($latestSale) : Carbon::today();
+        }
+
         $start = $startDate ? Carbon::parse($startDate) : $end->copy()->subDays(30);
 
         // Get sales data grouped by date
@@ -117,6 +123,20 @@ class SafetyStockService
         ];
 
         \App\Models\InventoryAnalysis::create($result);
+
+        // Trigger notification if status is Warning or Order, or mark warning as read if Aman
+        try {
+            if ($statusStok === 'Warning' || $statusStok === 'Order') {
+                app(\App\Services\NotificationService::class)->createStockWarning($product, $statusStok);
+            } elseif ($statusStok === 'Aman') {
+                \App\Models\Notification::where('product_id', $product->id)
+                    ->whereIn('judul', ['Stok Harus Segera Dipesan', 'Peringatan Stok Menipis'])
+                    ->where('status_baca', false)
+                    ->update(['status_baca' => true]);
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to update stock notifications: ' . $e->getMessage());
+        }
 
         return array_merge($result, [
             'total_sales' => $totalSales,
