@@ -94,7 +94,6 @@
                             <th class="text-end" style="width: 140px;">TOTAL NILAI<br><span class="text-muted text-lowercase font-normal small" style="font-size: 0.65rem;">(Rp)</span></th>
                             <th style="width: 110px;">NO. BATCH</th>
                             <th class="text-center" style="width: 90px;">LOKASI</th>
-                            <th style="width: 140px;">KEDALUWARSA</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -118,34 +117,10 @@
                                 <td class="text-end fw-bold text-dark">Rp {{ number_format($totalBaris, 0, ',', '.') }}</td>
                                 <td><span class="badge bg-secondary bg-opacity-10 text-secondary font-monospace">{{ $item->batch_code ?? '-' }}</span></td>
                                 <td class="text-center"><span class="badge bg-light text-secondary border">{{ $item->id_lokasi ?? '-' }}</span></td>
-                                <td>
-                                    @if($item->tanggal_kedaluwarsa)
-                                        @php
-                                            $expiryDate = \Carbon\Carbon::parse($item->tanggal_kedaluwarsa);
-                                            $isExpired = $expiryDate->isPast();
-                                            $isNear = !$isExpired && $expiryDate->diffInDays(now()) <= 30;
-                                        @endphp
-                                        @if($isExpired)
-                                            <span class="text-danger fw-bold d-inline-flex align-items-center">
-                                                <i class="ph ph-warning-circle me-1"></i> {{ $expiryDate->translatedFormat('d/m/Y') }}
-                                            </span>
-                                        @elseif($isNear)
-                                            <span class="text-warning fw-semibold d-inline-flex align-items-center">
-                                                <i class="ph ph-warning me-1"></i> {{ $expiryDate->translatedFormat('d/m/Y') }}
-                                            </span>
-                                        @else
-                                            <span class="text-secondary">
-                                                {{ $expiryDate->translatedFormat('d/m/Y') }}
-                                            </span>
-                                        @endif
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="11" class="text-center py-5 text-muted">
+                                <td colspan="10" class="text-center py-5 text-muted">
                                     <i class="ph ph-inbox fs-1 d-block mb-2"></i>
                                     Tidak ada data barang masuk untuk filter ini.
                                 </td>

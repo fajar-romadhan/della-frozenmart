@@ -164,7 +164,6 @@
                 <th class="text-end" style="width: 110px;">TOTAL NILAI</th>
                 <th style="width: 90px;">NO. BATCH</th>
                 <th style="width: 70px;">LOKASI</th>
-                <th style="width: 90px;">KEDALUWARSA</th>
             </tr>
         </thead>
         <tbody>
@@ -188,20 +187,6 @@
                     <td class="text-end fw-semibold">Rp {{ number_format($totalBaris, 0, ',', '.') }}</td>
                     <td><span class="font-monospace text-secondary">{{ $item->batch_code ?? '-' }}</span></td>
                     <td class="text-center"><span class="badge bg-light text-dark border">{{ $item->id_lokasi ?? '-' }}</span></td>
-                    <td>
-                        @if($item->tanggal_kedaluwarsa)
-                            @php
-                                $expiryDate = \Carbon\Carbon::parse($item->tanggal_kedaluwarsa);
-                                $isExpired = $expiryDate->isPast();
-                                $isNear = !$isExpired && $expiryDate->diffInDays(now()) <= 30;
-                            @endphp
-                            <span class="@if($isExpired) text-expired @elseif($isNear) text-near-expired @else text-safe @endif">
-                                {{ $expiryDate->translatedFormat('d/m/Y') }}
-                            </span>
-                        @else
-                            -
-                        @endif
-                    </td>
                 </tr>
             @endforeach
         </tbody>
@@ -211,7 +196,7 @@
                 <td class="text-center text-success">{{ number_format($totalQty, 0, ',', '.') }}</td>
                 <td></td>
                 <td class="text-end text-dark">Rp {{ number_format($totalNilai, 0, ',', '.') }}</td>
-                <td colspan="3"></td>
+                <td colspan="2"></td>
             </tr>
         </tfoot>
     </table>
