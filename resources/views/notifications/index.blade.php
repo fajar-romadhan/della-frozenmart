@@ -86,7 +86,6 @@
                             <th class="text-center" style="width: 160px;">STOK SAAT INI<br><span class="text-muted text-lowercase font-normal small" style="font-size: 0.65rem;">(pcs)</span></th>
                             <th class="text-center" style="width: 180px;">SAFETY STOCK (SS)<br><span class="text-muted text-lowercase font-normal small" style="font-size: 0.65rem;">(pcs)</span></th>
                             <th class="text-center" style="width: 180px;">REORDER POINT (ROP)<br><span class="text-muted text-lowercase font-normal small" style="font-size: 0.65rem;">(pcs)</span></th>
-                            <th class="text-center" style="width: 240px;">TANGGAL EXPIRED</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -114,25 +113,13 @@
                                 <td class="text-center text-muted fw-semibold">
                                     {{ $item['reorder_point'] !== null ? number_format($item['reorder_point'], 0, ',', '.') : '-' }}
                                 </td>
-                                <td class="text-center">
-                                    @if($item['status'] === 'Expired' && $item['tanggal_kedaluwarsa'])
-                                        <div class="text-danger fw-semibold" style="font-size: 0.85rem;">
-                                            {{ $item['tanggal_kedaluwarsa']->translatedFormat('d M Y') }}
-                                        </div>
-                                        <div class="text-danger small font-normal" style="font-size: 0.75rem;">
-                                            ({{ $item['tanggal_kedaluwarsa']->diffForHumans() }})
-                                        </div>
-                                    @else
-                                        <span class="text-muted">-</span>
-                                    @endif
-                                </td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="7" class="text-center py-5 text-muted">
+                                <td colspan="6" class="text-center py-5 text-muted">
                                     <i class="ph ph-check-circle text-success fs-1 d-block mb-3"></i>
                                     <h5 class="fw-bold">Tidak ada notifikasi stok</h5>
-                                    <p class="mb-0 text-muted">Semua produk berada dalam kondisi aman dan tidak ada yang kedaluwarsa.</p>
+                                    <p class="mb-0 text-muted">Semua produk berada dalam kondisi aman.</p>
                                 </td>
                             </tr>
                         @endforelse
