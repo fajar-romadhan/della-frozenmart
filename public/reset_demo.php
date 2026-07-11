@@ -188,6 +188,114 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             
             $message = "Seluruh stok produk berhasil di-reset menjadi 0! Data produk, kategori, supplier, dan pengguna tetap aman.";
             $messageType = 'success';
+        } elseif ($action === 'import_sales') {
+            // Import sales from Della_FrozenMart_Jan-Mei_2026_Final.xlsx
+            $excelFile = $baseDir . '/Della_FrozenMart_Jan-Mei_2026_Final.xlsx';
+            if (!file_exists($excelFile)) {
+                throw new Exception("File Excel penjualan tidak ditemukan di server: " . $excelFile);
+            }
+            
+            // Disable foreign key checks temporarily and truncate penjualan and safety stock analyses
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            Illuminate\Support\Facades\DB::table('penjualan')->truncate();
+            Illuminate\Support\Facades\DB::table('analisa_persediaan')->truncate();
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            
+            // Load file
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($excelFile);
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($excelFile);
+            
+            $sheets = ['Januari', 'Februari', 'Maret', 'April', 'Mei'];
+            $productMapping = [
+                'D' => 'Okey Sosis 500GR',
+                'E' => 'Fiesta Chicken Nugget 450GR',
+                'F' => 'Jamur Enoki',
+                'G' => 'Meru Lapis Bogor',
+                'H' => 'Okey Nugget Stik 500GR',
+                'I' => 'Cireng Rujak',
+                'J' => 'Salam Nugget 500GR',
+                'K' => 'Warisan Isi 50',
+                'L' => 'Belfood Sosis Isi 30',
+                'M' => 'Richeese Nugget'
+            ];
+            
+            $productsCache = [];
+            foreach ($productMapping as $col => $name) {
+                $p = \App\Models\Product::where('nama_produk', $name)->first();
+                if ($p) {
+                    $productsCache[$col] = $p->id;
+                } else {
+                    $logOutput .= "Peringatan: Produk '$name' tidak ditemukan di database!\n";
+                }
+            }
+            
+            $insertCount = 0;
+            foreach ($sheets as $sheetName) {
+                $sheet = $spreadsheet->getSheetByName($sheetName);
+                if (!$sheet) {
+                    $logOutput .= "Peringatan: Sheet '$sheetName' tidak ditemukan!\n";
+                    continue;
+                }
+                
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 4; $row <= $highestRow; $row++) {
+                    $dateVal = $sheet->getCell('B' . $row)->getValue();
+                    if (empty($dateVal)) {
+                        continue;
+                    }
+                    
+                    // Convert Excel serial date to PHP DateTime
+                    if (is_numeric($dateVal)) {
+                        $parsedDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateVal);
+                        $dateStr = $parsedDate->format('Y-m-d');
+                    } else {
+                        try {
+                            $dateStr = \Carbon\Carbon::parse($dateVal)->format('Y-m-d');
+                        } catch (\Exception $ex) {
+                            continue; // skip invalid date
+                        }
+                    }
+                    
+                    foreach ($productMapping as $col => $name) {
+                        if (!isset($productsCache[$col])) {
+                            continue;
+                        }
+                        
+                        $qty = $sheet->getCell($col . $row)->getValue();
+                        $qty = ($qty !== null && $qty !== '') ? (int) $qty : 0;
+                        
+                        if ($qty > 0) {
+                            \App\Models\Sale::create([
+                                'product_id' => $productsCache[$col],
+                                'tanggal_penjualan' => $dateStr,
+                                'jumlah_terjual' => $qty,
+                                'sumber_import' => 'Excel',
+                                'nama_file_import' => 'Della_FrozenMart_Jan-Mei_2026_Final.xlsx',
+                                'user_id' => 1,
+                            ]);
+                            $insertCount++;
+                        }
+                    }
+                }
+            }
+            
+            // Trigger recalculation of Safety Stock / ROP for these 10 products
+            $safetyStockService = app(\App\Services\SafetyStockService::class);
+            $recalculatedCount = 0;
+            
+            foreach ($productsCache as $col => $prodId) {
+                $product = \App\Models\Product::find($prodId);
+                if ($product) {
+                    $safetyStockService->calculate($product, 3, '2026-01-01', '2026-05-31');
+                    $recalculatedCount++;
+                }
+            }
+            
+            $logOutput .= "1. Import data penjualan dari Excel: Berhasil ($insertCount baris dimasukkan)\n";
+            $logOutput .= "2. Kalkulasi ROP & Safety Stock untuk 10 produk: Berhasil ($recalculatedCount produk dianalisis)\n";
+            $message = "Sukses mengimpor data penjualan 5 bulan untuk 10 produk dari file Excel! ROP & Safety Stock otomatis dikalkulasi.";
+            $messageType = "success";
         }
     } catch (Exception $e) {
         $message = "Error: " . $e->getMessage();
@@ -461,6 +569,18 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin MERESET SEMUA STOK produk menjadi 0? Seluruh riwayat transaksi akan dihapus.');">
                     <input type="hidden" name="action" value="reset_stock">
                     <button type="submit" class="btn btn-danger" style="background-color: var(--accent-warning); box-shadow: none;">Reset Stok ke 0</button>
+                </form>
+            </div>
+
+            <!-- Opsi 4: Impor Data Penjualan dari Excel (10 Produk) -->
+            <div class="action-card">
+                <div class="action-info">
+                    <h3 class="action-title">4. Impor Data Penjualan 5 Bulan (10 Produk Utama)</h3>
+                    <p class="action-desc">Membaca file <code>Della_FrozenMart_Jan-Mei_2026_Final.xlsx</code>, mengimpor seluruh riwayat transaksi penjualan selama 5 bulan untuk 10 produk utama, dan menghitung otomatis ROP serta Safety Stock-nya.</p>
+                </div>
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor data penjualan 5 bulan dari file Excel?');">
+                    <input type="hidden" name="action" value="import_sales">
+                    <button type="submit" class="btn btn-info" style="background-color: var(--accent-success); box-shadow: none;">Impor Data Penjualan</button>
                 </form>
             </div>
         <?php endif; ?>
