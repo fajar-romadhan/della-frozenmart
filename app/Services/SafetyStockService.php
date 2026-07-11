@@ -107,10 +107,11 @@ class SafetyStockService
         // Current stock
         $stokSaatIni = $product->stok_saat_ini;
 
-        // Determine status
-        if ($stokSaatIni <= $reorderPoint) {
+        // Determine status (Aman, Warning, Order)
+        $ropInt = (int) round($reorderPoint);
+        if ($stokSaatIni < $ropInt) {
             $statusStok = 'Order';
-        } elseif ($stokSaatIni <= $reorderPoint + $safetyStock) {
+        } elseif ($stokSaatIni == $ropInt) {
             $statusStok = 'Warning';
         } else {
             $statusStok = 'Aman';

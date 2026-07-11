@@ -180,8 +180,8 @@
                 }, 5000);
             }
 
-            // Check notifications every 30 seconds
-            setInterval(checkNotifications, 30000);
+            // Check notifications every 5 seconds (realtime feeling)
+            setInterval(checkNotifications, 5000);
 
             // ===== NOTIFICATION DROPDOWN =====
             let notifDropdownLoaded = false;

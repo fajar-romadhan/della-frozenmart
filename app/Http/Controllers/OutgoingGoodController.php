@@ -115,11 +115,8 @@ class OutgoingGoodController extends Controller
             // Refresh product instance to get the updated stok_saat_ini from the database
             $product->refresh();
             
-            // Check if status changed
-            $analysis = $this->safetyStockService->calculate($product);
-            if ($analysis['status_stok'] === 'Warning' || $analysis['status_stok'] === 'Order') {
-                $this->notificationService->createStockWarning($product, $analysis['status_stok']);
-            }
+            // Recalculate stock analysis and update notifications dynamically
+            $this->safetyStockService->calculate($product);
 
             DB::commit();
 
