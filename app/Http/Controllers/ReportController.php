@@ -650,7 +650,7 @@ class ReportController extends Controller
             "Expires"             => "0"
         ];
 
-        $columns = ['NO', 'TANGGAL KELUAR', 'NO. TRANSAKSI', 'NAMA PRODUK', 'QTY KELUAR (PCS)', 'TUJUAN / KETERANGAN', 'TANGGAL MASUK (FIFO)', 'TOTAL NILAI (RP)'];
+        $columns = ['NO', 'TANGGAL KELUAR', 'NO. TRANSAKSI', 'NAMA PRODUK', 'QTY KELUAR (PCS)', 'TANGGAL MASUK (FIFO)', 'TOTAL NILAI (RP)'];
 
         $callback = function() use($processedOutgoing, $columns) {
             $file = fopen('php://output', 'w');
@@ -676,7 +676,6 @@ class ReportController extends Controller
                     $item['transaction_code'],
                     $item['nama_produk'],
                     (int)$item['jumlah'],
-                    $item['keterangan'] ?? ucfirst(str_replace('_', ' ', $item['jenis_keluar'])),
                     $item['tanggal_barang_masuk'],
                     (float)$item['nilai']
                 ], ';');
@@ -689,7 +688,6 @@ class ReportController extends Controller
                 '',
                 '',
                 $totalQty,
-                '',
                 '',
                 $totalNilai
             ], ';');

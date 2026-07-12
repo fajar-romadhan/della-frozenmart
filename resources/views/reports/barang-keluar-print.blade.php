@@ -131,7 +131,6 @@
                 <th>NO. TRANSAKSI</th>
                 <th>PRODUK</th>
                 <th class="text-center">QTY KELUAR</th>
-                <th>TUJUAN / KETERANGAN</th>
                 <th>TANGGAL MASUK (FIFO)</th>
                 <th class="text-end">TOTAL NILAI (Rp)</th>
             </tr>
@@ -144,13 +143,6 @@
                     <td><span class="fw-bold">{{ $item['transaction_code'] }}</span></td>
                     <td class="fw-bold">{{ $item['nama_produk'] }}</td>
                     <td class="text-center text-danger fw-bold">-{{ number_format($item['jumlah'], 0, ',', '.') }}</td>
-                    <td>
-                        @if($item['keterangan'])
-                            {{ $item['keterangan'] }}
-                        @else
-                            {{ ucfirst(str_replace('_', ' ', $item['jenis_keluar'])) }}
-                        @endif
-                    </td>
                     <td>{{ $item['tanggal_barang_masuk'] }}</td>
                     <td class="text-end fw-semibold">Rp {{ number_format($item['nilai'], 0, ',', '.') }}</td>
                 </tr>
@@ -160,7 +152,7 @@
             <tr class="fw-bold bg-light">
                 <td colspan="4" class="text-end">TOTAL</td>
                 <td class="text-center text-danger">-{{ number_format($totalQty, 0, ',', '.') }}</td>
-                <td colspan="2"></td>
+                <td colspan="1"></td>
                 <td class="text-end text-danger">Rp {{ number_format($totalNilai, 0, ',', '.') }}</td>
             </tr>
         </tfoot>

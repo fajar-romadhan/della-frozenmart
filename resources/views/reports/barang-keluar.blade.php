@@ -123,7 +123,6 @@
                             <th style="width: 140px;">NO. TRANSAKSI</th>
                             <th>PRODUK</th>
                             <th class="text-center" style="width: 130px;">QTY KELUAR<br><span class="text-muted text-lowercase font-normal small" style="font-size: 0.65rem;">(pcs)</span></th>
-                            <th style="width: 220px;">TUJUAN / KETERANGAN</th>
                             <th class="text-center" style="width: 160px;">TANGGAL MASUK<br><span class="text-muted font-normal small" style="font-size: 0.65rem;">(PENERAPAN FIFO)</span></th>
                             <th class="text-end" style="width: 160px;">TOTAL NILAI<br><span class="text-muted text-lowercase font-normal small" style="font-size: 0.65rem;">(Rp)</span></th>
                         </tr>
@@ -136,19 +135,12 @@
                                 <td><span class="badge bg-light text-dark border fw-bold">{{ $item['transaction_code'] }}</span></td>
                                 <td class="fw-bold text-dark">{{ $item['nama_produk'] }}</td>
                                 <td class="text-center text-success fw-bold">{{ number_format($item['jumlah']) }}</td>
-                                <td>
-                                    @if(strtolower($item['jenis_keluar']) === 'kedaluwarsa' || strtolower($item['keterangan']) === 'expired / kedaluwarsa')
-                                        <span class="text-danger fw-semibold">Expired / Kedaluwarsa</span>
-                                    @else
-                                        <span class="text-dark">{{ $item['keterangan'] ?? ucfirst(str_replace('_', ' ', $item['jenis_keluar'])) }}</span>
-                                    @endif
-                                </td>
                                 <td class="text-center text-muted small">{{ $item['tanggal_barang_masuk'] }}</td>
                                 <td class="text-end fw-bold text-dark">Rp {{ number_format($item['nilai'], 0, ',', '.') }}</td>
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="8" class="text-center py-5 text-muted">
+                                <td colspan="7" class="text-center py-5 text-muted">
                                     <i class="ph ph-inbox fs-1 d-block mb-2"></i>
                                     Tidak ada data barang keluar untuk filter ini.
                                 </td>
