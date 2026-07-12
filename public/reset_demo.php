@@ -426,6 +426,222 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $logOutput .= "2. Kalkulasi ROP & Safety Stock untuk 22 produk: Berhasil ($recalculatedCount produk dianalisis)\n";
             $message = "Sukses mengimpor data penjualan sisa 5 bulan untuk 22 produk tambahan! ROP & Safety Stock otomatis dikalkulasi.";
             $messageType = "success";
+        } elseif ($action === 'import_incoming_goods') {
+            $excelFile = $baseDir . '/DATA_SIMULASI_BARANG_MASUK_JAN-MEI_2026 (1).xlsx';
+            if (!file_exists($excelFile)) {
+                throw new Exception("File Excel barang masuk tidak ditemukan di server: " . $excelFile);
+            }
+            
+            // Perform rollback of previously imported items from this file to prevent duplicates
+            $oldGoods = Illuminate\Support\Facades\DB::table('barang_masuk')
+                ->where('nama_file_import', 'DATA_SIMULASI_BARANG_MASUK_JAN-MEI_2026 (1).xlsx')
+                ->get();
+                
+            $logOutput .= "Rollback: Ditemukan " . count($oldGoods) . " barang masuk lama dari file ini. Memulai pembersihan...\n";
+            
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            foreach ($oldGoods as $og) {
+                // Decrement stock in produk table
+                Illuminate\Support\Facades\DB::table('produk')
+                    ->where('id', $og->product_id)
+                    ->decrement('stok_saat_ini', $og->jumlah);
+                // Delete stock batch
+                Illuminate\Support\Facades\DB::table('batch_stok')
+                    ->where('incoming_good_id', $og->id)
+                    ->delete();
+            }
+            // Delete incoming goods
+            Illuminate\Support\Facades\DB::table('barang_masuk')
+                ->where('nama_file_import', 'DATA_SIMULASI_BARANG_MASUK_JAN-MEI_2026 (1).xlsx')
+                ->delete();
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            
+            $logOutput .= "Rollback: Pembersihan selesai.\n";
+
+            // Load file
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($excelFile);
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($excelFile);
+            
+            $sheets = ['Januari', 'Februari', 'Maret', 'April', 'Mei'];
+            
+            // Build cache maps for products and suppliers
+            $products = \App\Models\Product::all();
+            $productsCache = [];
+            foreach ($products as $p) {
+                $productsCache[strtolower(trim($p->nama_produk))] = $p;
+            }
+            // Add mapping for typo/spelling
+            if (isset($productsCache[strtolower('Champ Nugget KombinasiI 450GR')])) {
+                $productsCache[strtolower('Champ Nugget Kombinasi 450GR')] = $productsCache[strtolower('Champ Nugget KombinasiI 450GR')];
+            }
+            
+            $suppliersCache = [];
+            $suppliers = \App\Models\Supplier::all();
+            foreach ($suppliers as $s) {
+                $suppliersCache[strtolower(trim($s->nama_supplier))] = $s->id;
+            }
+            
+            // Specific location map for Snack Frozen
+            $snackLocationMap = [
+                strtolower('Fiesta Kentang 500 gr') => 'RAK-A',
+                strtolower('Kentang Goreng 500 gram') => 'RAK-B',
+                strtolower('Onion Ring Frozen 250g') => 'RAK-C',
+                strtolower('Onion Ring Frozen 500g') => 'RAK-D',
+                strtolower('WARISAN ISI 25') => 'RAK-A',
+            ];
+            
+            $adminUser = Illuminate\Support\Facades\DB::table('pengguna')->orderBy('id')->first();
+            $userId = $adminUser ? $adminUser->id : 1;
+            
+            $insertCount = 0;
+            $skippedCount = 0;
+            $todayCounts = [];
+            $productsToRecalculate = [];
+            
+            foreach ($sheets as $sheetName) {
+                $sheet = $spreadsheet->getSheetByName($sheetName);
+                if (!$sheet) {
+                    $logOutput .= "Peringatan: Sheet '$sheetName' tidak ditemukan!\n";
+                    continue;
+                }
+                
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 5; $row <= $highestRow; $row++) {
+                    $productName = $sheet->getCell('B' . $row)->getValue();
+                    $supplierName = $sheet->getCell('C' . $row)->getValue();
+                    
+                    if (empty($productName) || empty($supplierName)) {
+                        continue;
+                    }
+                    
+                    $productName = trim($productName);
+                    $supplierName = trim($supplierName);
+                    
+                    // Skip products not in the 31 official ones
+                    if (in_array(strtolower($productName), ['fiesta karage 450 gr', 'sosis bakar ayam 500g', 'spicy chicken wings 1 kg'])) {
+                        $skippedCount++;
+                        continue;
+                    }
+                    
+                    // Match product
+                    $product = $productsCache[strtolower($productName)] ?? null;
+                    if (!$product) {
+                        $logOutput .= "Peringatan: Produk '$productName' di Excel tidak terdaftar di database! Dilewati.\n";
+                        continue;
+                    }
+                    
+                    // Match or create supplier
+                    $supplierKey = strtolower($supplierName);
+                    if (!isset($suppliersCache[$supplierKey])) {
+                        $newSup = \App\Models\Supplier::create([
+                            'nama_supplier' => $supplierName,
+                            'status_aktif' => true
+                        ]);
+                        $suppliersCache[$supplierKey] = $newSup->id;
+                        $logOutput .= "Supplier: Membuat supplier baru '$supplierName'\n";
+                    }
+                    $supplierId = $suppliersCache[$supplierKey];
+                    
+                    // Read date, qty, and price
+                    $dateMasukVal = $sheet->getCell('E' . $row)->getValue(); // tanggal masuk
+                    $qtyVal = $sheet->getCell('G' . $row)->getValue();
+                    $priceVal = $sheet->getCell('H' . $row)->getValue();
+                    
+                    // Parse tanggal masuk
+                    if (is_numeric($dateMasukVal)) {
+                        $parsedDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateMasukVal);
+                        $dateStr = $parsedDate->format('Y-m-d');
+                    } else {
+                        try {
+                            $dateStr = \Carbon\Carbon::parse($dateMasukVal)->format('Y-m-d');
+                        } catch (\Exception $ex) {
+                            continue; // skip invalid date
+                        }
+                    }
+                    
+                    $qty = (int)$qtyVal;
+                    $price = (float)$priceVal;
+                    
+                    if ($qty <= 0) {
+                        continue;
+                    }
+                    
+                    // Determine storage location based on category
+                    $catId = $product->category_id;
+                    $idLokasi = 'RAK-A'; // default
+                    
+                    if ($catId === 1) { // Frozen Food
+                        $idLokasi = 'FRZ-01';
+                    } elseif ($catId === 2 || $catId === 3) { // Seafood / Daging
+                        $idLokasi = 'FRZ-02';
+                    } elseif ($catId === 4) { // Ayam
+                        $idLokasi = 'FRZ-03';
+                    } elseif ($catId === 5) { // Snack Frozen
+                        $pKey = strtolower($product->nama_produk);
+                        $idLokasi = $snackLocationMap[$pKey] ?? 'RAK-A';
+                    }
+                    
+                    // Generate unique batch code BM-YYYYMMDD-XXXX
+                    $dateKey = str_replace('-', '', $dateStr);
+                    if (!isset($todayCounts[$dateStr])) {
+                        $todayCounts[$dateStr] = \App\Models\IncomingGood::whereDate('tanggal_masuk', $dateStr)->count();
+                    }
+                    $todayCounts[$dateStr]++;
+                    $batchCode = 'BM-' . $dateKey . '-' . str_pad($todayCounts[$dateStr], 4, '0', STR_PAD_LEFT);
+                    
+                    // Expiry date default: 6 months after tanggal_masuk
+                    $expiry = \Carbon\Carbon::parse($dateStr)->addMonths(6)->toDateString();
+                    
+                    // Create incoming good
+                    $incomingGood = \App\Models\IncomingGood::create([
+                        'product_id' => $product->id,
+                        'supplier_id' => $supplierId,
+                        'tanggal_masuk' => $dateStr,
+                        'jumlah' => $qty,
+                        'satuan' => $product->satuan,
+                        'harga_beli' => $price,
+                        'tanggal_kedaluwarsa' => $expiry,
+                        'batch_code' => $batchCode,
+                        'sumber_import' => 'Excel Barang Masuk',
+                        'nama_file_import' => 'DATA_SIMULASI_BARANG_MASUK_JAN-MEI_2026 (1).xlsx',
+                        'id_lokasi' => $idLokasi,
+                        'keterangan' => 'Import Otomatis Data Jan-Mei 2026',
+                        'user_id' => $userId,
+                    ]);
+                    
+                    // Create Stock Batch
+                    \App\Models\StockBatch::create([
+                        'product_id' => $product->id,
+                        'incoming_good_id' => $incomingGood->id,
+                        'batch_code' => $batchCode,
+                        'tanggal_masuk' => $dateStr,
+                        'tanggal_kedaluwarsa' => $expiry,
+                        'jumlah_awal' => $qty,
+                        'jumlah_sisa' => $qty,
+                        'satuan' => $product->satuan,
+                    ]);
+                    
+                    // Increment product stock
+                    $product->increment('stok_saat_ini', $qty);
+                    $productsToRecalculate[$product->id] = $product;
+                    
+                    $insertCount++;
+                }
+            }
+            
+            // Recalculate ROP / Safety Stock
+            $safetyStockService = app(\App\Services\SafetyStockService::class);
+            $recalculatedCount = 0;
+            foreach ($productsToRecalculate as $p) {
+                $safetyStockService->calculate($p);
+                $recalculatedCount++;
+            }
+            
+            $logOutput .= "1. Impor data barang masuk dari Excel: Berhasil ($insertCount baris dimasukkan, $skippedCount produk non-resmi dilewati)\n";
+            $logOutput .= "2. Kalkulasi ROP & Safety Stock: Berhasil ($recalculatedCount produk dianalisis)\n";
+            $message = "Sukses mengimpor data barang masuk 5 bulan untuk 22 produk! Lokasi penyimpanan terpetakan secara otomatis dan stok berhasil diperbarui.";
+            $messageType = "success";
         }
     } catch (Exception $e) {
         $message = "Error: " . $e->getMessage();
@@ -723,6 +939,18 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor data penjualan sisa 5 bulan untuk 22 produk?');">
                     <input type="hidden" name="action" value="import_remaining_sales">
                     <button type="submit" class="btn btn-info" style="background-color: var(--accent-info); box-shadow: none;">Impor Penjualan Sisa</button>
+                </form>
+            </div>
+
+            <!-- Opsi 6: Impor Data Barang Masuk dari Excel (22 Produk) -->
+            <div class="action-card">
+                <div class="action-info">
+                    <h3 class="action-title">6. Impor Data Barang Masuk 5 Bulan (22 Produk)</h3>
+                    <p class="action-desc">Membaca file <code>DATA_SIMULASI_BARANG_MASUK_JAN-MEI_2026 (1).xlsx</code>, mengimpor seluruh transaksi barang masuk (5 bulan) untuk 22 produk resmi ke lokasi Rak A/B/C/D dan Freezer 1/2/3 secara otomatis, mengupdate stok, dan menghitung otomatis ROP/Safety Stock.</p>
+                </div>
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor data barang masuk 5 bulan untuk 22 produk?');">
+                    <input type="hidden" name="action" value="import_incoming_goods">
+                    <button type="submit" class="btn btn-info" style="background-color: var(--accent-success); box-shadow: none;">Impor Barang Masuk</button>
                 </form>
             </div>
         <?php endif; ?>
