@@ -648,10 +648,41 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 throw new Exception("File Excel penjualan sisa tidak ditemukan di server: " . $excelFile);
             }
             
-            // Delete previously imported outgoing goods from this file to prevent duplicates (make it idempotent)
+            // Delete previously imported outgoing goods and details to prevent duplicates (make it idempotent)
+            $oldOutgoings = Illuminate\Support\Facades\DB::table('barang_keluar')
+                ->where('keterangan', 'Dari import barang keluar sisa')
+                ->get();
+                
+            $logOutput .= "Rollback: Ditemukan " . count($oldOutgoings) . " barang keluar lama dari file ini. Memulai pemulihan stok...\n";
+            
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            foreach ($oldOutgoings as $oo) {
+                // Restore stock back to produk
+                Illuminate\Support\Facades\DB::table('produk')
+                    ->where('id', $oo->product_id)
+                    ->increment('stok_saat_ini', $oo->jumlah);
+                    
+                // Restore batch_stok levels from detail_barang_keluar
+                $details = Illuminate\Support\Facades\DB::table('detail_barang_keluar')
+                    ->where('outgoing_good_id', $oo->id)
+                    ->get();
+                foreach ($details as $d) {
+                    Illuminate\Support\Facades\DB::table('batch_stok')
+                        ->where('id', $d->stock_batch_id)
+                        ->increment('jumlah_sisa', $d->jumlah_diambil);
+                }
+                
+                // Delete details
+                Illuminate\Support\Facades\DB::table('detail_barang_keluar')
+                    ->where('outgoing_good_id', $oo->id)
+                    ->delete();
+            }
             Illuminate\Support\Facades\DB::table('barang_keluar')
                 ->where('keterangan', 'Dari import barang keluar sisa')
                 ->delete();
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            
+            $logOutput .= "Rollback: Pemulihan stok selesai.\n";
             
             // Load file
             $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($excelFile);
@@ -713,6 +744,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $userId = $adminUser ? $adminUser->id : 1;
             
             $insertCount = 0;
+            $productsToRecalculate = [];
             
             foreach ($sheets as $sheetName) {
                 $sheet = $spreadsheet->getSheetByName($sheetName);
@@ -748,22 +780,81 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                         $qty = ($qty !== null && $qty !== '') ? (int) $qty : 0;
                         
                         if ($qty > 0) {
-                            \App\Models\OutgoingGood::create([
-                                'product_id' => $productsCache[$col],
+                            $prodId = $productsCache[$col];
+                            
+                            $outgoingGood = \App\Models\OutgoingGood::create([
+                                'product_id' => $prodId,
                                 'tanggal_keluar' => $dateStr,
                                 'jumlah' => $qty,
                                 'jenis_keluar' => 'penjualan',
                                 'keterangan' => 'Dari import barang keluar sisa',
                                 'user_id' => $userId,
                             ]);
+                            
+                            // FIFO deduction
+                            $batches = \App\Models\StockBatch::where('product_id', $prodId)
+                                ->where('jumlah_sisa', '>', 0)
+                                ->orderByRaw('CASE WHEN tanggal_kedaluwarsa IS NULL THEN 1 ELSE 0 END')
+                                ->orderBy('tanggal_kedaluwarsa', 'asc')
+                                ->orderBy('tanggal_masuk', 'asc')
+                                ->get();
+                                
+                            $remaining = $qty;
+                            foreach ($batches as $batch) {
+                                if ($remaining <= 0) {
+                                    break;
+                                }
+                                $take = min($remaining, $batch->jumlah_sisa);
+                                
+                                \App\Models\OutgoingGoodDetail::create([
+                                    'outgoing_good_id' => $outgoingGood->id,
+                                    'stock_batch_id' => $batch->id,
+                                    'jumlah_diambil' => $take,
+                                ]);
+                                
+                                $batch->decrement('jumlah_sisa', $take);
+                                $remaining -= $take;
+                            }
+                            
+                            // Deficit support (goes negative on oldest batch)
+                            if ($remaining > 0) {
+                                $firstBatch = \App\Models\StockBatch::where('product_id', $prodId)
+                                    ->orderBy('tanggal_masuk', 'asc')
+                                    ->first();
+                                if ($firstBatch) {
+                                    \App\Models\OutgoingGoodDetail::create([
+                                        'outgoing_good_id' => $outgoingGood->id,
+                                        'stock_batch_id' => $firstBatch->id,
+                                        'jumlah_diambil' => $remaining,
+                                    ]);
+                                    $firstBatch->decrement('jumlah_sisa', $remaining);
+                                }
+                            }
+                            
+                            // Decrement product stock directly
+                            $product = \App\Models\Product::find($prodId);
+                            if ($product) {
+                                $product->decrement('stok_saat_ini', $qty);
+                                $productsToRecalculate[$prodId] = $product;
+                            }
+                            
                             $insertCount++;
                         }
                     }
                 }
             }
             
+            // Recalculate Safety Stock / ROP
+            $safetyStockService = app(\App\Services\SafetyStockService::class);
+            $recalculatedCount = 0;
+            foreach ($productsToRecalculate as $p) {
+                $safetyStockService->calculate($p);
+                $recalculatedCount++;
+            }
+            
             $logOutput .= "1. Impor data barang keluar dari Excel: Berhasil ($insertCount baris dimasukkan)\n";
-            $message = "Sukses mengimpor data barang keluar sisa 5 bulan untuk 22 produk tambahan! Data masuk ke tabel barang keluar tanpa memotong stok fisik.";
+            $logOutput .= "2. Kalkulasi ROP & Safety Stock: Berhasil ($recalculatedCount produk dianalisis)\n";
+            $message = "Sukses mengimpor dan menyinkronkan data barang keluar sisa 5 bulan untuk 22 produk tambahan dengan metode FIFO!";
             $messageType = "success";
         }
     } catch (Exception $e) {
@@ -1081,7 +1172,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             <div class="action-card">
                 <div class="action-info">
                     <h3 class="action-title">7. Impor Data Barang Keluar Sisa 5 Bulan (22 Produk)</h3>
-                    <p class="action-desc">Membaca file <code>Della_FrozenMart_24Produk_Tambahan_Jan-Mei_2026.xlsx</code>, mengimpor seluruh transaksi penjualan sebagai riwayat barang keluar (5 bulan) untuk 22 produk tambahan tanpa memotong stok fisik (agar stok tetap aman dan positif).</p>
+                    <p class="action-desc">Membaca file <code>Della_FrozenMart_24Produk_Tambahan_Jan-Mei_2026.xlsx</code>, mengimpor seluruh transaksi penjualan sebagai barang keluar (5 bulan) untuk 22 produk resmi, memotong stok fisik dan batch secara otomatis dengan metode FIFO (mendukung stok negatif jika terjadi defisit).</p>
                 </div>
                 <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor data barang keluar sisa 5 bulan untuk 22 produk?');">
                     <input type="hidden" name="action" value="import_remaining_outgoing">
