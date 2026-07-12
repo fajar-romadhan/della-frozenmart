@@ -230,7 +230,7 @@ class ReportController extends Controller
     /**
      * Get processed outgoing goods with FIFO calculations.
      */
-    private function getProcessedOutgoingData(Request $request)
+    private function getProcessedOutgoingData(Request $request, $includeFifoDetails = false)
     {
         $query = OutgoingGood::with(['product.incomingGoods', 'outgoingGoodDetails.stockBatch.incomingGood']);
         
@@ -277,7 +277,146 @@ class ReportController extends Controller
                 $batchDatesString = '-';
             }
 
-            // Prepare FIFO details for interactive dashboard panel
+            // Prepare FIFO details for interactive dashboard panel ONLY if requested
+            $fifoDetails = null;
+            if ($includeFifoDetails) {
+                $fifoDetails = [
+                    'transaction_code' => 'BK' . $item->created_at->format('ymd') . str_pad($item->id, 3, '0', STR_PAD_LEFT),
+                    'product_name' => $product->nama_produk,
+                    'qty_keluar' => $item->jumlah,
+                    'nilai_keluar_formatted' => 'Rp ' . number_format($value, 0, ',', '.'),
+                    'batches_used' => $item->outgoingGoodDetails->map(function($detail) {
+                        return [
+                            'batch_code' => $detail->stockBatch->batch_code ?? '-',
+                            'tanggal_masuk' => $detail->stockBatch->tanggal_masuk ? $detail->stockBatch->tanggal_masuk->translatedFormat('d M Y') : '-',
+                            'qty_terpakai' => $detail->jumlah_diambil,
+                            'sisa_setelah_dipakai' => $detail->stockBatch->jumlah_sisa
+                        ];
+                    }),
+                    'available_batches' => StockBatch::where('product_id', $product->id)
+                        ->where('tanggal_masuk', '<=', $item->tanggal_keluar)
+                        ->orderBy('tanggal_masuk', 'asc')
+                        ->get()
+                        ->map(function($batch) use ($item) {
+                            $consumedBefore = OutgoingGoodDetail::where('stock_batch_id', $batch->id)
+                                ->where('created_at', '<', $item->created_at)
+                                ->sum('jumlah_diambil');
+                            
+                            return [
+                                'tanggal_masuk' => $batch->tanggal_masuk ? $batch->tanggal_masuk->translatedFormat('d M Y') : '-',
+                                'batch_code' => $batch->batch_code ?? '-',
+                                'qty_masuk' => $batch->jumlah_awal,
+                                'sisa_sebelum' => $batch->jumlah_awal - $consumedBefore
+                            ];
+                        })
+                ];
+            }
+
+            $processedOutgoing->push([
+                'id' => $item->id,
+                'tanggal_keluar' => $item->tanggal_keluar,
+                'transaction_code' => 'BK' . $item->created_at->format('ymd') . str_pad($item->id, 3, '0', STR_PAD_LEFT),
+                'product' => $product,
+                'nama_produk' => $product->nama_produk,
+                'kode_produk' => $product->kode_produk,
+                'jumlah' => $item->jumlah,
+                'jenis_keluar' => $item->jenis_keluar,
+                'keterangan' => $item->keterangan,
+                'tanggal_barang_masuk' => $batchDatesString,
+                'nilai' => $value,
+                'fifo_details' => $fifoDetails
+            ]);
+        }
+
+        return $processedOutgoing;
+    }
+
+    public function barangKeluar(Request $request)
+    {
+        // 1. Build base query
+        $query = OutgoingGood::query();
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('tanggal_keluar', '>=', $request->tanggal_dari);
+        }
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('tanggal_keluar', '<=', $request->tanggal_sampai);
+        }
+        if ($request->filled('product_id')) {
+            $query->where('product_id', $request->product_id);
+        }
+
+        // 2. Fetch aggregates (lightning fast)
+        $totalTransaksi = $query->count();
+        $totalQty = (int)$query->sum('jumlah');
+        $totalProduk = $query->distinct('product_id')->count('product_id');
+
+        // Fast calculation of totalNilai
+        $outgoingIdsQuery = clone $query;
+        $outgoingIdsQuery = $outgoingIdsQuery->select('id');
+        
+        $totalNilaiDetails = \Illuminate\Support\Facades\DB::table('detail_barang_keluar')
+            ->join('batch_stok', 'detail_barang_keluar.stock_batch_id', '=', 'batch_stok.id')
+            ->join('barang_masuk', 'batch_stok.incoming_good_id', '=', 'barang_masuk.id')
+            ->whereIn('detail_barang_keluar.outgoing_good_id', $outgoingIdsQuery)
+            ->sum(\Illuminate\Support\Facades\DB::raw('detail_barang_keluar.jumlah_diambil * barang_masuk.harga_beli'));
+            
+        $outgoingsWithoutDetailsQuery = clone $query;
+        $outgoingsWithoutDetailsQuery->whereNotExists(function($subQuery) {
+            $subQuery->select(\Illuminate\Support\Facades\DB::raw(1))
+                ->from('detail_barang_keluar')
+                ->whereColumn('detail_barang_keluar.outgoing_good_id', 'barang_keluar.id');
+        });
+        
+        $outgoingsWithoutDetails = $outgoingsWithoutDetailsQuery->with('product.incomingGoods')->get();
+        $totalNilaiFallback = 0;
+        foreach ($outgoingsWithoutDetails as $item) {
+            $product = $item->product;
+            if ($product) {
+                $hargaBeli = $product->incomingGoods->avg('harga_beli') ?? 16000;
+                $totalNilaiFallback += $item->jumlah * $hargaBeli;
+            }
+        }
+        $totalNilai = $totalNilaiDetails + $totalNilaiFallback;
+
+        // 3. Paginate at database level (retrieve 10 items for current page)
+        $paginatedOutgoing = $query->latest('tanggal_keluar')
+            ->latest('id')
+            ->with(['product.incomingGoods', 'outgoingGoodDetails.stockBatch.incomingGood'])
+            ->paginate(10);
+
+        // 4. Transform the current page items only, including the heavy FIFO details
+        $pageItems = collect($paginatedOutgoing->items());
+        $processedPageItems = collect();
+        
+        foreach ($pageItems as $item) {
+            $product = $item->product;
+            if (!$product) continue;
+
+            $value = 0;
+            $batchDates = collect();
+            
+            if ($item->outgoingGoodDetails->count() > 0) {
+                foreach ($item->outgoingGoodDetails as $detail) {
+                    $hargaBeli = $detail->stockBatch->incomingGood->harga_beli ?? 0;
+                    if ($hargaBeli == 0) {
+                        $hargaBeli = $product->incomingGoods->avg('harga_beli') ?? 16000;
+                    }
+                    $value += $detail->jumlah_diambil * $hargaBeli;
+                    
+                    if ($detail->stockBatch->tanggal_masuk) {
+                        $batchDates->push($detail->stockBatch->tanggal_masuk->translatedFormat('d M Y'));
+                    }
+                }
+            } else {
+                $hargaBeli = $product->incomingGoods->avg('harga_beli') ?? 16000;
+                $value = $item->jumlah * $hargaBeli;
+            }
+
+            $batchDatesString = $batchDates->unique()->implode(', ');
+            if (empty($batchDatesString)) {
+                $batchDatesString = '-';
+            }
+
             $fifoDetails = [
                 'transaction_code' => 'BK' . $item->created_at->format('ymd') . str_pad($item->id, 3, '0', STR_PAD_LEFT),
                 'product_name' => $product->nama_produk,
@@ -309,7 +448,7 @@ class ReportController extends Controller
                     })
             ];
 
-            $processedOutgoing->push([
+            $processedPageItems->push([
                 'id' => $item->id,
                 'tanggal_keluar' => $item->tanggal_keluar,
                 'transaction_code' => 'BK' . $item->created_at->format('ymd') . str_pad($item->id, 3, '0', STR_PAD_LEFT),
@@ -325,26 +464,12 @@ class ReportController extends Controller
             ]);
         }
 
-        return $processedOutgoing;
-    }
-
-    public function barangKeluar(Request $request)
-    {
-        $processedOutgoing = $this->getProcessedOutgoingData($request);
-
-        $totalQty = $processedOutgoing->sum('jumlah');
-        $totalNilai = $processedOutgoing->sum('nilai');
-        $totalProduk = $processedOutgoing->pluck('product.id')->unique()->count();
-        $totalTransaksi = $processedOutgoing->count();
-
-        // Paginate manually
-        $page = $request->query('page', 1);
-        $perPage = 10;
+        // Build the LengthAwarePaginator using processed current page items
         $paginatedItems = new \Illuminate\Pagination\LengthAwarePaginator(
-            $processedOutgoing->forPage($page, $perPage),
-            $processedOutgoing->count(),
-            $perPage,
-            $page,
+            $processedPageItems,
+            $paginatedOutgoing->total(),
+            $paginatedOutgoing->perPage(),
+            $paginatedOutgoing->currentPage(),
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
