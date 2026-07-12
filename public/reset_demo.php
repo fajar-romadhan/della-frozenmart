@@ -568,7 +568,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     
                     // Determine storage location based on category
-                    $catId = $product->category_id;
+                    $catId = (int)$product->category_id;
                     $idLokasi = 'RAK-A'; // default
                     
                     if ($catId === 1) { // Frozen Food
