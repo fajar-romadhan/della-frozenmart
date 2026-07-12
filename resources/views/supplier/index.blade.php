@@ -443,7 +443,7 @@
 
     {{-- Statistics Cards Section --}}
     <div class="row mb-4 g-3">
-        <div class="col-md-6">
+        <div class="col-12">
             <div class="stat-card">
                 <div class="stat-icon-wrapper bg-primary-soft">
                     <i class="ph ph-users text-primary"></i>
@@ -452,18 +452,6 @@
                     <div class="stat-title">Total Supplier</div>
                     <div class="stat-value">{{ $totalSupplier }}</div>
                     <div class="stat-subtitle">Supplier Terdaftar</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6">
-            <div class="stat-card">
-                <div class="stat-icon-wrapper bg-success-soft">
-                    <i class="ph ph-handshake text-success"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-title">Supplier Aktif</div>
-                    <div class="stat-value">{{ $supplierAktif }}</div>
-                    <div class="stat-subtitle">Aktif</div>
                 </div>
             </div>
         </div>
@@ -481,7 +469,6 @@
                         <th class="col-telepon">Telepon</th>
                         <th class="col-email">Email</th>
                         <th class="col-alamat">Alamat</th>
-                        <th class="col-status">Status</th>
                         <th class="col-action">Aksi</th>
                     </tr>
                 </thead>
@@ -493,13 +480,6 @@
                         <td class="col-telepon">{{ $supplier->telepon ?? '-' }}</td>
                         <td class="col-email text-muted">{{ $supplier->email ?? '-' }}</td>
                         <td class="col-alamat text-muted">{{ $supplier->alamat ?? '-' }}</td>
-                        <td class="col-status">
-                            @if($supplier->status_aktif)
-                                <span class="badge badge-status-active">Aktif</span>
-                            @else
-                                <span class="badge badge-status-inactive">Nonaktif</span>
-                            @endif
-                        </td>
                         <td class="col-action">
                             <div class="dropdown">
                                 <button class="btn-edit-dropdown dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">
