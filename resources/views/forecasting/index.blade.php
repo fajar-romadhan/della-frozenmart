@@ -270,6 +270,48 @@
         </form>
     </div>
 
+    {{-- Card Tabel Perbandingan 10 Produk Utama --}}
+    <div class="glass-card mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+            <h5 class="fw-bold mb-0 text-slate-800" style="font-size: 1.05rem;">
+                <i class="ph ph-scales text-primary"></i> Tabel Perbandingan Proyeksi 10 Produk Utama
+            </h5>
+            <span class="badge bg-primary-light text-primary px-3 py-2" style="border-radius: 6px; font-weight: 600; font-size: 0.75rem;">
+                Parameter Standar: Pertumbuhan 10%, Lead Time 3 Hari, Service Level 95%
+            </span>
+        </div>
+        <div class="table-responsive">
+            <table class="table align-middle table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th width="50" class="text-center">No</th>
+                        <th>Kode</th>
+                        <th>Nama Produk</th>
+                        <th class="text-end">Total Penjualan (2026)</th>
+                        <th class="text-end">Rata-rata Bulanan</th>
+                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Total Rekomendasi (2027)</th>
+                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Rata-rata Rekomendasi</th>
+                        <th class="text-end text-primary fw-bold">Selisih Kenaikan</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($comparisonData as $index => $item)
+                        <tr>
+                            <td class="text-center fw-semibold text-muted">{{ $index + 1 }}</td>
+                            <td><span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 5px; font-size: 0.75rem; font-weight: 600;">{{ $item['kode'] }}</span></td>
+                            <td class="fw-bold text-slate-800">{{ $item['nama'] }}</td>
+                            <td class="text-end fw-medium">{{ number_format($item['sales_total']) }} pcs</td>
+                            <td class="text-end text-muted">{{ number_format($item['sales_avg']) }} pcs</td>
+                            <td class="text-end text-success fw-bold" style="background-color: #f0fdf4;">{{ number_format($item['rec_total']) }} pcs</td>
+                            <td class="text-end text-success text-muted" style="background-color: #f0fdf4;">{{ number_format($item['rec_avg']) }} pcs</td>
+                            <td class="text-end text-primary fw-bold">+{{ number_format($item['selisih']) }} pcs</td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+
     {{-- Loading Spinner --}}
     <div class="loading-spinner" id="loadingArea">
         <div class="spinner-border" role="status">
