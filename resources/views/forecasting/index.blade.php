@@ -224,6 +224,12 @@
                 {{-- Product Select --}}
                 <div class="col-md-4">
                     <label class="form-label-premium" for="product_id">Pilih Produk</label>
+                    <div class="input-group mb-2">
+                        <span class="input-group-text" style="background-color: #f8fafc; border-color: #cbd5e1; border-right: none; border-radius: 8px 0 0 8px;">
+                            <i class="ph ph-magnifying-glass text-muted"></i>
+                        </span>
+                        <input type="text" id="search_product" class="form-control" style="border-left: none; border-color: #cbd5e1; border-radius: 0 8px 8px 0; font-size: 0.85rem; padding: 10px 14px;" placeholder="Cari nama/kode produk...">
+                    </div>
                     <select class="form-select form-control-premium" id="product_id" name="product_id" required>
                         <option value="" disabled selected>-- Pilih Produk Frozen Food --</option>
                         @foreach($products as $p)
@@ -400,6 +406,38 @@
         const loadingArea = document.getElementById('loadingArea');
         const resultArea = document.getElementById('resultArea');
         let chartInstance = null;
+
+        // Dynamic Product Dropdown Search Filter
+        const searchProductInput = document.getElementById('search_product');
+        const selectProduct = document.getElementById('product_id');
+        const originalOptions = Array.from(selectProduct.options);
+
+        searchProductInput.addEventListener('input', function() {
+            const query = this.value.toLowerCase().trim();
+            
+            // Clear current options
+            selectProduct.innerHTML = '';
+            
+            // Re-add matching options
+            originalOptions.forEach(opt => {
+                if (opt.value === "" || opt.text.toLowerCase().includes(query)) {
+                    selectProduct.appendChild(opt.cloneNode(true));
+                }
+            });
+
+            // Auto-select the first non-placeholder option if search matches anything
+            if (query.length > 0 && selectProduct.options.length > 1) {
+                for (let i = 0; i < selectProduct.options.length; i++) {
+                    if (!selectProduct.options[i].disabled && selectProduct.options[i].value !== "") {
+                        selectProduct.options[i].selected = true;
+                        break;
+                    }
+                }
+            } else if (query.length === 0) {
+                // If search is cleared, select the placeholder
+                selectProduct.value = "";
+            }
+        });
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
