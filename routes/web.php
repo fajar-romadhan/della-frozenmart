@@ -192,6 +192,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('notifikasi/count', [NotificationController::class, 'count'])->name('notifikasi.count');
         Route::get('notifikasi/latest-dropdown', [NotificationController::class, 'latestDropdown'])->name('notifikasi.latest-dropdown');
         
+        // Peramalan
+        Route::get('peramalan', [App\Http\Controllers\ForecastingController::class, 'index'])->name('peramalan.index');
+        Route::post('peramalan/calculate', [App\Http\Controllers\ForecastingController::class, 'calculate'])->name('peramalan.calculate');
+        
         // Pemesanan Supplier (read actions for all)
         Route::resource('pemesanan-supplier', PurchaseOrderController::class)->only(['index', 'show'])->parameters([
             'pemesanan-supplier' => 'purchaseOrder'
