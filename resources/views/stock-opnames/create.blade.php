@@ -552,49 +552,17 @@
 
 <div class="container-fluid py-2">
     {{-- Header --}}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <div>
-            <h1 class="page-title-main mb-1" style="font-size: 1.8rem; font-weight: 800;">Stok Opname</h1>
+    <div class="d-flex align-items-center mb-4">
+        <a href="{{ route('stok-opname.index') }}" class="btn btn-outline-secondary me-3" style="border-radius: 8px; padding: 8px 12px; display: inline-flex; align-items: center; gap: 6px;">
+            <i class="ph ph-arrow-left" style="font-size: 1.1rem; font-weight: bold;"></i> Kembali
+        </a>
+        <div class="flex-grow-1">
+            <h1 class="page-title-main mb-1" style="font-size: 1.8rem; font-weight: 800; display: inline-block;">Stok Opname</h1>
             <p class="page-subtitle mb-0">Kelola pencocokan stok fisik dengan stok pada sistem.</p>
         </div>
         <a href="{{ route('stok-opname.index') }}" class="btn-history-opname" id="btnHistoryOpname">
             <i class="ph ph-clock" style="font-size: 1.2rem;"></i> Riwayat Stok Opname
         </a>
-    </div>
-
-    {{-- Stepper (Wizard) --}}
-    <div class="stepper-container">
-        <div class="step-item">
-            <div class="step-circle completed" id="circle-1"><i class="ph ph-check-bold" style="font-size: 1rem;"></i></div>
-            <div class="step-text">
-                <span class="step-label">1 &nbsp; Pilih Tanggal</span>
-                <span class="step-sublabel completed" id="sublabel-1">Selesai</span>
-            </div>
-        </div>
-        <div class="step-line completed" id="line-1"></div>
-        <div class="step-item">
-            <div class="step-circle active" id="circle-2">2</div>
-            <div class="step-text">
-                <span class="step-label">Hitung Stok Fisik</span>
-                <span class="step-sublabel active" id="sublabel-2">Aktif</span>
-            </div>
-        </div>
-        <div class="step-line pending" id="line-2"></div>
-        <div class="step-item">
-            <div class="step-circle pending" id="circle-3">3</div>
-            <div class="step-text">
-                <span class="step-label">Review Selisih</span>
-                <span class="step-sublabel" id="sublabel-3">Belum Aktif</span>
-            </div>
-        </div>
-        <div class="step-line pending" id="line-3"></div>
-        <div class="step-item">
-            <div class="step-circle pending" id="circle-4">4</div>
-            <div class="step-text">
-                <span class="step-label">Simpan Penyesuaian</span>
-                <span class="step-sublabel" id="sublabel-4">Belum Aktif</span>
-            </div>
-        </div>
     </div>
 
     {{-- Stats Cards Row --}}
@@ -690,12 +658,6 @@
         <!-- WIZARD STEP 2: HITUNG STOK FISIK           -->
         <!-- ========================================== -->
         <div id="step-hitung-container">
-            <div class="info-banner" style="background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%); border: 1px solid rgba(37, 99, 235, 0.15); color: #1e40af; border-radius: 12px; padding: 14px 18px; margin-bottom: 24px;">
-                <i class="ph ph-lightbulb-filament text-primary" style="font-size: 1.4rem;"></i>
-                <div>
-                    <strong>Petunjuk:</strong> Masukkan jumlah stok fisik yang Anda hitung secara nyata pada kolom "Stok Fisik". Sistem akan otomatis menghitung selisih dan menentukan status. Klik "Selanjutnya: Review Selisih" untuk melanjutkan.
-                </div>
-            </div>
 
             <div class="form-card">
                 {{-- Filter bar --}}
