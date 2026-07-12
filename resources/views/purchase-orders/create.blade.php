@@ -48,7 +48,7 @@
         </div>
 
         {{-- Section 2: Detail Pemesanan --}}
-        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.08) !important;">
+        <div class="card border-0 shadow-sm mb-4" style="border-radius: 12px; border: 1px solid rgba(0, 0, 0, 0.08) !important; overflow: visible !important;">
             <div class="card-header bg-white border-0 pt-3 pb-0">
                 <h6 class="fw-bold mb-0 text-dark"><i class="ph ph-shopping-bag me-2 text-primary"></i>Detail Pemesanan</h6>
             </div>
