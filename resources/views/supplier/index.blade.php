@@ -443,7 +443,7 @@
 
     {{-- Statistics Cards Section --}}
     <div class="row mb-4 g-3">
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="stat-card">
                 <div class="stat-icon-wrapper bg-primary-soft">
                     <i class="ph ph-users text-primary"></i>
@@ -455,7 +455,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-6">
             <div class="stat-card">
                 <div class="stat-icon-wrapper bg-success-soft">
                     <i class="ph ph-handshake text-success"></i>
@@ -464,18 +464,6 @@
                     <div class="stat-title">Supplier Aktif</div>
                     <div class="stat-value">{{ $supplierAktif }}</div>
                     <div class="stat-subtitle">Aktif</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="stat-card">
-                <div class="stat-icon-wrapper bg-warning-soft">
-                    <i class="ph ph-pause text-warning"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-title">Supplier Nonaktif</div>
-                    <div class="stat-value">{{ $supplierNonaktif }}</div>
-                    <div class="stat-subtitle">Nonaktif</div>
                 </div>
             </div>
         </div>

@@ -59,13 +59,14 @@ class SupplierController extends Controller
             'email' => ['nullable', 'email', 'max:255'],
             'alamat' => ['nullable', 'string', 'max:1000'],
             'keterangan' => ['nullable', 'string', 'max:1000'],
-            'status_aktif' => ['required', 'boolean'],
+            'status_aktif' => ['nullable', 'boolean'],
         ], [
             'nama_supplier.required' => 'Nama supplier wajib diisi.',
             'nama_supplier.max' => 'Nama supplier maksimal 255 karakter.',
             'email.email' => 'Format email tidak valid.',
-            'status_aktif.required' => 'Status aktif wajib dipilih.',
         ]);
+
+        $validated['status_aktif'] = $request->has('status_aktif') ? (bool)$request->status_aktif : true;
 
         $supplier = Supplier::create($validated);
         LogActivity::log('create', 'Tambah Supplier Baru', "Menambahkan supplier baru '{$supplier->nama_supplier}'.");
