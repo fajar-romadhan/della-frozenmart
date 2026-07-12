@@ -407,13 +407,6 @@
         </form>
     </div>
 
-    {{-- Table Section --}}
-    <h2 class="section-title">Riwayat Barang Keluar (Metode FIFO)</h2>
-    <div class="section-subtitle">
-        <i class="ph ph-info-fill"></i>
-        <span>Stok dikurangi secara otomatis dari batch paling lama masuk sesuai metode FIFO.</span>
-    </div>
-    
     <div class="outgoing-table-card">
         <div class="table-responsive">
             <table class="table align-middle outgoing-table" id="tableBarangKeluar">
@@ -424,7 +417,6 @@
                         <th class="col-product">Produk</th>
                         <th class="col-qty">Jumlah</th>
                         <th class="col-jenis">Jenis</th>
-                        <th class="col-keterangan">Keterangan</th>
                         <th class="col-user">Oleh</th>
                         <th class="col-action">Aksi</th>
                     </tr>
@@ -463,7 +455,6 @@
                                 {{ ucfirst($item->jenis_keluar) }}
                             </span>
                         </td>
-                        <td class="col-keterangan text-muted">{{ Str::limit($item->keterangan, 35) ?? '-' }}</td>
                         <td class="col-user text-muted">{{ $item->user->name ?? '-' }}</td>
                         <td class="col-action text-center">
                             <a href="{{ route('barang-keluar.show', $item) }}" class="btn btn-sm btn-light border p-1" style="border-radius: 6px;" title="Detail Transaksi">
@@ -473,7 +464,7 @@
                     </tr>
                     @empty
                     <tr>
-                        <td colspan="8" class="text-center py-5 text-muted">
+                        <td colspan="7" class="text-center py-5 text-muted">
                             <i class="ph ph-info fs-1 d-block mb-2"></i>
                             Belum ada data transaksi barang keluar yang cocok.
                         </td>
