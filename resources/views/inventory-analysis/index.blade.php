@@ -295,28 +295,7 @@
         </div>
     @endif
 
-    {{-- Section 1: Upload Data Penjualan Harian --}}
-    @if(auth()->user()->role !== 'admin')
-        <div class="section-card">
-            <h3 class="section-title">Upload Data Penjualan Harian</h3>
-            <p class="text-muted fs-7 mb-3" style="font-size: 0.85rem; margin-top: -8px;">Upload file penjualan harian (.xlsx, .xls, .csv). Pastikan format sesuai template.</p>
-            
-            <form action="{{ route('analisis.upload-sales') }}" method="POST" enctype="multipart/form-data" id="uploadSalesForm">
-                @csrf
-                <div class="upload-dropzone" id="dropzone">
-                    <i class="ph ph-cloud-arrow-up upload-icon"></i>
-                    <div class="upload-text" id="uploadText">Klik atau drag file di sini</div>
-                    <div class="upload-subtext">Format: .xlsx, .xls, .csv</div>
-                    <input type="file" name="file" id="fileInput" accept=".xlsx,.xls,.csv" required>
-                </div>
-            </form>
 
-            <div class="alert-banner mt-3">
-                <i class="ph ph-info-fill text-primary" style="font-size: 1.15rem;"></i>
-                <span>Format kolom data penjualan: <strong>Tanggal, Nama Barang, Jumlah</strong>. Header diletakkan pada baris pertama.</span>
-            </div>
-        </div>
-    @endif
 
     {{-- Section 2: Ringkasan Hasil Analisa --}}
     <div class="section-card" style="padding-bottom: 8px;">
