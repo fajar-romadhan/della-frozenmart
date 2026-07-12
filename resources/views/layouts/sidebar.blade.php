@@ -73,10 +73,7 @@
                 <span class="sidebar-text">Stok Opname</span>
             </a>
 
-            <a href="{{ route('import-penjualan.index') }}" class="sidebar-icon {{ request()->routeIs('import-penjualan.*') ? 'active' : '' }}">
-                <i class="ph ph-file-arrow-up"></i>
-                <span class="sidebar-text">Import Penjualan</span>
-            </a>
+
         @endif
 
 
