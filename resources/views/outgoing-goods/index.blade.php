@@ -321,7 +321,7 @@
 
     {{-- Statistics Cards Section --}}
     <div class="row mb-4 g-3">
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-icon-wrapper bg-danger-soft">
                     <i class="ph ph-arrow-square-up text-danger"></i>
@@ -333,7 +333,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-icon-wrapper bg-success-soft">
                     <i class="ph ph-package text-success"></i>
@@ -345,7 +345,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
+        <div class="col-md-4">
             <div class="stat-card">
                 <div class="stat-icon-wrapper bg-warning-soft">
                     <i class="ph ph-shopping-cart text-warning"></i>
@@ -354,18 +354,6 @@
                     <div class="stat-title">Total Penjualan</div>
                     <div class="stat-value">{{ number_format($totalPenjualan) }}</div>
                     <div class="stat-subtitle">Pcs terjual</div>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon-wrapper bg-orange-soft">
-                    <i class="ph ph-warning-octagon text-orange"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-title">Total Expired</div>
-                    <div class="stat-value">{{ number_format($totalExpired) }}</div>
-                    <div class="stat-subtitle">Pcs kedaluwarsa</div>
                 </div>
             </div>
         </div>

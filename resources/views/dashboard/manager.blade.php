@@ -64,8 +64,8 @@
 
     <!-- Main Grid -->
     <div class="row">
-        <!-- Left Side (8 Columns) -->
-        <div class="col-lg-8">
+        <!-- Left Side (12 Columns) -->
+        <div class="col-lg-12">
             <!-- 1. Statistik Penjualan (AJAX Chart) -->
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white d-flex justify-content-between align-items-center">
@@ -262,135 +262,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-
-        <!-- Right Side (4 Columns) -->
-        <div class="col-lg-4">
-            <!-- 1. Quick Actions -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold"><i class="ph ph-lightning text-primary me-1"></i> Akses Cepat Manager</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-grid gap-3">
-                        <a href="{{ route('import-penjualan.index') }}" class="btn btn-outline-success text-start p-3 rounded-3 d-flex align-items-center">
-                            <i class="ph ph-upload-simple fs-3 me-3"></i>
-                            <div>
-                                <h6 class="mb-0 fw-bold">Import Data Penjualan</h6>
-                                <small class="text-muted">Import transaksi penjualan bulanan</small>
-                            </div>
-                        </a>
-                        <a href="{{ route('import-faktur.index') }}" class="btn btn-outline-primary text-start p-3 rounded-3 d-flex align-items-center">
-                            <i class="ph ph-file-earmark-spreadsheet fs-3 me-3"></i>
-                            <div>
-                                <h6 class="mb-0 fw-bold">Import Faktur Pembelian</h6>
-                                <small class="text-muted">Upload faktur barang masuk</small>
-                            </div>
-                        </a>
-                        <a href="{{ route('analisis.index') }}" class="btn btn-outline-info text-start p-3 rounded-3 d-flex align-items-center">
-                            <i class="ph ph-graph fs-3 me-3"></i>
-                            <div>
-                                <h6 class="mb-0 fw-bold">Safety Stock & ROP</h6>
-                                <small class="text-muted">Hitung safety stock & reorder point</small>
-                            </div>
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 2. Store Profile Widget -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="ph ph-storefront text-primary me-1"></i> Profil Toko</h5>
-                    <button class="btn btn-sm btn-light py-1" style="font-size: 0.8rem" data-bs-toggle="modal" data-bs-target="#modalEditStore">
-                        <i class="ph ph-pencil-simple"></i> Edit
-                    </button>
-                </div>
-                <div class="card-body">
-                    <div class="store-profile-card">
-                        <div class="store-logo-wrapper">
-                            <div class="store-logo">DF</div>
-                            <span class="store-status-badge">
-                                <span class="pulse-status"></span> Operasional
-                            </span>
-                        </div>
-                        <h5 class="fw-bold store-name-val mb-0 mt-2">Della Frozen Mart</h5>
-                        <div class="store-branch-badge store-branch-val">-</div>
-                        <div class="store-rating-badge"><i class="ph ph-star-fill"></i> <span class="store-rating-val">-</span> Google Rating</div>
-                        <p class="text-muted small store-tagline-val mb-3">-</p>
-
-                        <div class="store-info-details">
-                            <div class="store-info-item">
-                                <i class="ph ph-map-pin"></i>
-                                <div class="store-info-text">
-                                    <span class="store-info-label">Alamat Utama</span>
-                                    <span class="store-address-val">-</span>
-                                </div>
-                            </div>
-                            <div class="store-info-item">
-                                <i class="ph ph-phone"></i>
-                                <div class="store-info-text">
-                                    <span class="store-info-label">Nomor Telepon</span>
-                                    <span class="store-phone-val">-</span>
-                                </div>
-                            </div>
-                            <div class="store-info-item">
-                                <i class="ph ph-clock"></i>
-                                <div class="store-info-text">
-                                    <span class="store-info-label">Jam Buka</span>
-                                    <span class="store-hours-val">-</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Social Media Grid -->
-                        <div class="store-socials-grid">
-                            <a href="https://instagram.com/della_frozen_mart" target="_blank" class="store-social-item instagram">
-                                <i class="ph ph-instagram-logo"></i>
-                                <div class="store-social-info">
-                                    <span class="store-social-label">Instagram</span>
-                                    <span class="store-instagram-val store-social-val">-</span>
-                                    <span class="store-instagram-detail-val store-social-detail">-</span>
-                                </div>
-                            </a>
-                            <a href="https://tiktok.com/@dellafrozenmart" target="_blank" class="store-social-item tiktok">
-                                <i class="ph ph-tiktok-logo"></i>
-                                <div class="store-social-info">
-                                    <span class="store-social-label">TikTok</span>
-                                    <span class="store-tiktok-val store-social-val">-</span>
-                                </div>
-                            </a>
-                            <a href="#" class="store-social-item facebook">
-                                <i class="ph ph-facebook-logo"></i>
-                                <div class="store-social-info">
-                                    <span class="store-social-label">Facebook</span>
-                                    <span class="store-facebook-val store-social-val">-</span>
-                                </div>
-                            </a>
-                            <a href="#" class="store-social-item shopee">
-                                <i class="ph ph-shopping-bag"></i>
-                                <div class="store-social-info">
-                                    <span class="store-social-label">Shopee</span>
-                                    <span class="store-shopee-val store-social-val">-</span>
-                                </div>
-                            </a>
-                        </div>
-
-                        <!-- Products and Services Info -->
-                        <div class="store-products-services d-none">
-                            <div class="store-ps-item">
-                                <span class="store-ps-title"><i class="ph ph-package text-primary"></i> Katalog Produk</span>
-                                <span class="store-products-val store-ps-content">-</span>
-                            </div>
-                            <div class="store-ps-item">
-                                <span class="store-ps-title"><i class="ph ph-certificate text-primary"></i> Layanan Kemitraan</span>
-                                <span class="store-services-val store-ps-content">-</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
         </div>
     </div>
 
