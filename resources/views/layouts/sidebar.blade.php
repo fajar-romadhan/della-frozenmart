@@ -50,9 +50,9 @@
         @endif
 
         {{-- ============================================================ --}}
-        {{-- TRANSAKSI --}}
+        {{-- TRANSAKSI (Admin Only) --}}
         {{-- ============================================================ --}}
-        @if($role === 'admin' || $role === 'manager')
+        @if($role === 'admin')
             <div class="sidebar-category">
                 <span class="category-text">Transaksi</span>
                 <div class="category-line"></div>
@@ -68,19 +68,15 @@
                 <span class="sidebar-text">Barang Keluar</span>
             </a>
 
-            @if($role === 'admin')
             <a href="{{ route('stok-opname.index') }}" class="sidebar-icon {{ request()->routeIs('stok-opname.*') ? 'active' : '' }}">
                 <i class="ph ph-clipboard-text"></i>
                 <span class="sidebar-text">Stok Opname</span>
             </a>
-            @endif
 
-            @if($role === 'manager')
-                <a href="{{ route('import-penjualan.index') }}" class="sidebar-icon {{ request()->routeIs('import-penjualan.*') ? 'active' : '' }}">
-                    <i class="ph ph-file-arrow-up"></i>
-                    <span class="sidebar-text">Import Penjualan</span>
-                </a>
-            @endif
+            <a href="{{ route('import-penjualan.index') }}" class="sidebar-icon {{ request()->routeIs('import-penjualan.*') ? 'active' : '' }}">
+                <i class="ph ph-file-arrow-up"></i>
+                <span class="sidebar-text">Import Penjualan</span>
+            </a>
         @endif
 
 

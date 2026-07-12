@@ -148,8 +148,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('pemesanan-supplier/{purchaseOrder}/create-incoming', [PurchaseOrderController::class, 'createIncomingFromOrder'])->name('pemesanan.create-incoming');
     });
 
-    // Manager only routes
-    Route::middleware(['role:manager'])->group(function () {
+    // Admin only routes
+    Route::middleware(['role:admin'])->group(function () {
         // Import Penjualan
         Route::get('import-penjualan', [ImportPenjualanController::class, 'index'])->name('import-penjualan.index');
         Route::post('import-penjualan/preview', [ImportPenjualanController::class, 'preview'])->name('import-penjualan.preview');
