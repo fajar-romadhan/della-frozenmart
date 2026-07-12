@@ -93,7 +93,7 @@
         </div>
 
         @php
-            $isAnalisaActive = request()->routeIs('analisis.*') || request()->routeIs('notifikasi.*') || request()->routeIs('status-stok*');
+            $isAnalisaActive = request()->routeIs('analisis.*') || request()->routeIs('notifikasi.*') || request()->routeIs('status-stok*') || request()->routeIs('peramalan.*');
             $unreadCount = auth()->user()->notifications()->where('status_baca', false)->count();
         @endphp
         <div class="sidebar-dropdown">
@@ -122,6 +122,13 @@
                         <a href="{{ route('status-stok') }}" class="sidebar-submenu-item {{ request()->routeIs('status-stok*') ? 'active' : '' }}">
                             <i class="ph ph-circle"></i>
                             <span class="sidebar-text">Status Stok</span>
+                        </a>
+                    @endif
+
+                    @if($role === 'admin' || $role === 'manager' || $role === 'owner')
+                        <a href="{{ route('peramalan.index') }}" class="sidebar-submenu-item {{ request()->routeIs('peramalan.*') ? 'active' : '' }}">
+                            <i class="ph ph-circle"></i>
+                            <span class="sidebar-text">Peramalan Stok</span>
                         </a>
                     @endif
 
