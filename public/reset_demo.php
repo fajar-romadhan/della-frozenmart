@@ -642,6 +642,129 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $logOutput .= "2. Kalkulasi ROP & Safety Stock: Berhasil ($recalculatedCount produk dianalisis)\n";
             $message = "Sukses mengimpor data barang masuk 5 bulan untuk 22 produk! Lokasi penyimpanan terpetakan secara otomatis dan stok berhasil diperbarui.";
             $messageType = "success";
+        } elseif ($action === 'import_remaining_outgoing') {
+            $excelFile = $baseDir . '/Della_FrozenMart_24Produk_Tambahan_Jan-Mei_2026.xlsx';
+            if (!file_exists($excelFile)) {
+                throw new Exception("File Excel penjualan sisa tidak ditemukan di server: " . $excelFile);
+            }
+            
+            // Delete previously imported outgoing goods from this file to prevent duplicates (make it idempotent)
+            Illuminate\Support\Facades\DB::table('barang_keluar')
+                ->where('keterangan', 'Dari import barang keluar sisa')
+                ->delete();
+            
+            // Load file
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($excelFile);
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($excelFile);
+            
+            $sheets = ['Januari', 'Februari', 'Maret', 'April', 'Mei'];
+            
+            // We will dynamically map columns by reading Row 3 (headings) of the first sheet
+            $firstSheet = $spreadsheet->getSheetByName($sheets[0]);
+            if (!$firstSheet) {
+                throw new Exception("Sheet 'Januari' tidak ditemukan di file Excel!");
+            }
+            
+            $productMapping = []; // Excel col letter => Product name in DB
+            $productsCache = [];  // Excel col letter => Product ID in DB
+            
+            $highestColumn = $firstSheet->getHighestColumn();
+            $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
+            
+            // Build products cache maps
+            $products = \App\Models\Product::all();
+            $dbProductsCache = [];
+            foreach ($products as $p) {
+                $dbProductsCache[strtolower(trim($p->nama_produk))] = $p->id;
+            }
+            // Add mapping for typo/spelling
+            if (isset($dbProductsCache[strtolower('Champ Nugget KombinasiI 450GR')])) {
+                $dbProductsCache[strtolower('Champ Nugget Kombinasi 450GR')] = $dbProductsCache[strtolower('Champ Nugget KombinasiI 450GR')];
+            }
+            
+            for ($colIndex = 4; $colIndex <= $highestColumnIndex; $colIndex++) {
+                $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+                $productName = $firstSheet->getCell($colLetter . '3')->getValue();
+                
+                if (empty($productName)) {
+                    continue;
+                }
+                
+                $productName = trim($productName);
+                if (in_array(strtolower($productName), ['total qty', 'total penjualan (rp)', 'total penjualan'])) {
+                    continue;
+                }
+                
+                // Skip the 2 products that are not in the 31 official products:
+                if (in_array(strtolower($productName), ['spicy chicken wings 1 kg', 'sosis bakar ayam 500g'])) {
+                    continue;
+                }
+                
+                // Find matching product in database
+                $prodId = $dbProductsCache[strtolower($productName)] ?? null;
+                if ($prodId) {
+                    $productMapping[$colLetter] = $productName;
+                    $productsCache[$colLetter] = $prodId;
+                }
+            }
+            
+            $adminUser = Illuminate\Support\Facades\DB::table('pengguna')->orderBy('id')->first();
+            $userId = $adminUser ? $adminUser->id : 1;
+            
+            $insertCount = 0;
+            
+            foreach ($sheets as $sheetName) {
+                $sheet = $spreadsheet->getSheetByName($sheetName);
+                if (!$sheet) {
+                    continue;
+                }
+                
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 4; $row <= $highestRow; $row++) {
+                    $dateVal = $sheet->getCell('B' . $row)->getValue();
+                    if (empty($dateVal)) {
+                        continue;
+                    }
+                    
+                    // Convert Excel serial date to PHP DateTime
+                    if (is_numeric($dateVal)) {
+                        $parsedDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateVal);
+                        $dateStr = $parsedDate->format('Y-m-d');
+                    } else {
+                        try {
+                            $dateStr = \Carbon\Carbon::parse($dateVal)->format('Y-m-d');
+                        } catch (\Exception $ex) {
+                            continue; // skip invalid date
+                        }
+                    }
+                    
+                    foreach ($productMapping as $col => $name) {
+                        if (!isset($productsCache[$col])) {
+                            continue;
+                        }
+                        
+                        $qty = $sheet->getCell($col . $row)->getValue();
+                        $qty = ($qty !== null && $qty !== '') ? (int) $qty : 0;
+                        
+                        if ($qty > 0) {
+                            \App\Models\OutgoingGood::create([
+                                'product_id' => $productsCache[$col],
+                                'tanggal_keluar' => $dateStr,
+                                'jumlah' => $qty,
+                                'jenis_keluar' => 'penjualan',
+                                'keterangan' => 'Dari import barang keluar sisa',
+                                'user_id' => $userId,
+                            ]);
+                            $insertCount++;
+                        }
+                    }
+                }
+            }
+            
+            $logOutput .= "1. Impor data barang keluar dari Excel: Berhasil ($insertCount baris dimasukkan)\n";
+            $message = "Sukses mengimpor data barang keluar sisa 5 bulan untuk 22 produk tambahan! Data masuk ke tabel barang keluar tanpa memotong stok fisik.";
+            $messageType = "success";
         }
     } catch (Exception $e) {
         $message = "Error: " . $e->getMessage();
@@ -951,6 +1074,18 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor data barang masuk 5 bulan untuk 22 produk?');">
                     <input type="hidden" name="action" value="import_incoming_goods">
                     <button type="submit" class="btn btn-info" style="background-color: var(--accent-success); box-shadow: none;">Impor Barang Masuk</button>
+                </form>
+            </div>
+
+            <!-- Opsi 7: Impor Data Barang Keluar Sisa dari Excel (22 Produk) -->
+            <div class="action-card">
+                <div class="action-info">
+                    <h3 class="action-title">7. Impor Data Barang Keluar Sisa 5 Bulan (22 Produk)</h3>
+                    <p class="action-desc">Membaca file <code>Della_FrozenMart_24Produk_Tambahan_Jan-Mei_2026.xlsx</code>, mengimpor seluruh transaksi penjualan sebagai riwayat barang keluar (5 bulan) untuk 22 produk tambahan tanpa memotong stok fisik (agar stok tetap aman dan positif).</p>
+                </div>
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor data barang keluar sisa 5 bulan untuk 22 produk?');">
+                    <input type="hidden" name="action" value="import_remaining_outgoing">
+                    <button type="submit" class="btn btn-info" style="background-color: var(--accent-info); box-shadow: none;">Impor Barang Keluar Sisa</button>
                 </form>
             </div>
         <?php endif; ?>
