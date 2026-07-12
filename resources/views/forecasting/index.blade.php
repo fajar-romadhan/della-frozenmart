@@ -287,10 +287,8 @@
                         <th width="50" class="text-center">No</th>
                         <th>Kode</th>
                         <th>Nama Produk</th>
-                        <th class="text-end">Total Penjualan (2026)</th>
-                        <th class="text-end">Rata-rata Bulanan</th>
-                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Total Rekomendasi (2027)</th>
-                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Rata-rata Rekomendasi</th>
+                        <th class="text-end">Stok Sebelumnya (Penjualan 2026)</th>
+                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Stok Rekomendasi (2027)</th>
                         <th class="text-end text-primary fw-bold">Selisih Kenaikan</th>
                     </tr>
                 </thead>
@@ -301,9 +299,7 @@
                             <td><span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 5px; font-size: 0.75rem; font-weight: 600;">{{ $item['kode'] }}</span></td>
                             <td class="fw-bold text-slate-800">{{ $item['nama'] }}</td>
                             <td class="text-end fw-medium">{{ number_format($item['sales_total']) }} pcs</td>
-                            <td class="text-end text-muted">{{ number_format($item['sales_avg']) }} pcs</td>
                             <td class="text-end text-success fw-bold" style="background-color: #f0fdf4;">{{ number_format($item['rec_total']) }} pcs</td>
-                            <td class="text-end text-success text-muted" style="background-color: #f0fdf4;">{{ number_format($item['rec_avg']) }} pcs</td>
                             <td class="text-end text-primary fw-bold">+{{ number_format($item['selisih']) }} pcs</td>
                         </tr>
                     @endforeach
