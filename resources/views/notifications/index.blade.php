@@ -7,13 +7,13 @@
     {{-- Header Section --}}
     <div class="mb-4">
         <h4 class="fw-bold text-primary mb-1">Notifikasi Stok</h4>
-        <p class="text-muted mb-0">Menampilkan produk dengan status Warning, Order, dan Expired yang memerlukan perhatian.</p>
+        <p class="text-muted mb-0">Menampilkan produk dengan status Warning dan Order yang memerlukan perhatian.</p>
     </div>
 
     {{-- Stats Cards Row --}}
     <div class="row mb-4">
         {{-- Card 1: Total Notifikasi --}}
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-4">
             <div class="card border-0 shadow-sm card-total-notif">
                 <div class="card-body d-flex align-items-center">
                     <div class="stat-icon-new icon-total-notif me-3">
@@ -28,7 +28,7 @@
         </div>
 
         {{-- Card 2: Status Warning --}}
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-4">
             <div class="card border-0 shadow-sm card-status-warning">
                 <div class="card-body d-flex align-items-center">
                     <div class="stat-icon-new icon-status-warning me-3">
@@ -43,7 +43,7 @@
         </div>
 
         {{-- Card 3: Status Order --}}
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-4">
             <div class="card border-0 shadow-sm card-status-order">
                 <div class="card-body d-flex align-items-center">
                     <div class="stat-icon-new icon-status-order me-3">
@@ -52,21 +52,6 @@
                     <div>
                         <span class="text-muted-dark small d-block">Status Order</span>
                         <h3 class="fw-bold mb-0 mt-1 text-danger-dark">{{ $totalOrder }} <span class="fs-6 fw-normal text-muted">Produk</span></h3>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        {{-- Card 4: Status Expired --}}
-        <div class="col-md-6 col-lg-3">
-            <div class="card border-0 shadow-sm card-status-expired">
-                <div class="card-body d-flex align-items-center">
-                    <div class="stat-icon-new icon-status-expired me-3">
-                        <i class="ph ph-calendar-blank"></i>
-                    </div>
-                    <div>
-                        <span class="text-muted-dark small d-block">Status Expired</span>
-                        <h3 class="fw-bold mb-0 mt-1 text-purple-dark">{{ $totalExpired }} <span class="fs-6 fw-normal text-muted">Produk</span></h3>
                     </div>
                 </div>
             </div>
@@ -101,8 +86,6 @@
                                         <span class="text-warning-custom fw-bold fs-5">{{ number_format($item['stok_saat_ini'], 0, ',', '.') }}</span>
                                     @elseif($item['status'] === 'Order')
                                         <span class="text-danger-custom fw-bold fs-5">{{ number_format($item['stok_saat_ini'], 0, ',', '.') }}</span>
-                                    @elseif($item['status'] === 'Expired')
-                                        <span class="text-purple fw-bold fs-5">{{ number_format($item['stok_saat_ini'], 0, ',', '.') }}</span>
                                     @else
                                         <span class="text-dark fw-bold fs-5">{{ number_format($item['stok_saat_ini'], 0, ',', '.') }}</span>
                                     @endif
@@ -133,7 +116,6 @@
     <div class="alert alert-info-custom border-0 d-flex align-items-center mb-4 shadow-sm" role="alert">
         <i class="ph ph-info-semibold text-primary fs-4 me-3"></i>
         <div class="d-flex align-items-center flex-wrap gap-2">
-            <span>Notifikasi diperbarui otomatis setelah proses analisa persediaan terakhir dilakukan.</span> 
             <span class="fw-semibold">Terakhir dihitung:</span> 
             <span class="badge bg-teal-badge text-teal-dark py-1 px-2 fw-semibold" style="font-size: 0.78rem;">
                 {{ $terakhirDihitung ? $terakhirDihitung->translatedFormat('d M Y H:i') . ' WIB' : 'Belum pernah dihitung' }}

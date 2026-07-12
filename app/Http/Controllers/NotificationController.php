@@ -32,14 +32,9 @@ class NotificationController extends Controller
         foreach ($allProducts as $product) {
             $analysis = $latestAnalyses->get($product->id);
             
-            // Check if expired
-            $isExpired = $product->tanggal_kedaluwarsa && $product->tanggal_kedaluwarsa->lte($today);
-            
             // Check if status is Warning or Order
             $status = 'Aman';
-            if ($isExpired) {
-                $status = 'Expired';
-            } elseif ($analysis) {
+            if ($analysis) {
                 if ($analysis->status_stok === 'Order') {
                     $status = 'Order';
                 } elseif ($analysis->status_stok === 'Warning') {
@@ -55,19 +50,18 @@ class NotificationController extends Controller
                     'nama_produk' => $product->nama_produk,
                     'short_code' => $product->short_code,
                     'stok_saat_ini' => $product->stok_saat_ini,
-                    'safety_stock' => $isExpired ? null : ($analysis ? $analysis->safety_stock : null),
-                    'reorder_point' => $isExpired ? null : ($analysis ? $analysis->reorder_point : null),
+                    'safety_stock' => $analysis ? $analysis->safety_stock : null,
+                    'reorder_point' => $analysis ? $analysis->reorder_point : null,
                     'tanggal_kedaluwarsa' => $product->tanggal_kedaluwarsa,
                     'status' => $status,
                 ]);
             }
         }
 
-        // Sort: Expired first, then Order, then Warning
+        // Sort: Order first, then Warning
         $statusOrderMap = [
-            'Expired' => 1,
-            'Order' => 2,
-            'Warning' => 3
+            'Order' => 1,
+            'Warning' => 2
         ];
         $notificationProducts = $notificationProducts->sortBy(function($item) use ($statusOrderMap) {
             return $statusOrderMap[$item['status']] ?? 99;
@@ -77,7 +71,7 @@ class NotificationController extends Controller
         $totalNotif = $notificationProducts->count();
         $totalWarning = $notificationProducts->where('status', 'Warning')->count();
         $totalOrder = $notificationProducts->where('status', 'Order')->count();
-        $totalExpired = $notificationProducts->where('status', 'Expired')->count();
+        $totalExpired = 0;
 
         // Latest calculation time
         $terakhirDihitungObj = \App\Models\InventoryAnalysis::max('created_at');
@@ -158,29 +152,13 @@ class NotificationController extends Controller
         foreach ($allProducts as $product) {
             $analysis = $latestAnalyses->get($product->id);
 
-            $isExpired = $product->tanggal_kedaluwarsa && $product->tanggal_kedaluwarsa->lte($today);
-            $isNearExpiry = !$isExpired && $product->tanggal_kedaluwarsa && $product->tanggal_kedaluwarsa->diffInDays($today) <= 7;
-
             $status = null;
             $judul = '';
             $pesan = '';
             $icon = '';
             $color = '';
 
-            if ($isExpired) {
-                $status = 'Expired';
-                $judul = 'Sudah Kedaluwarsa';
-                $pesan = $product->nama_produk . ' sudah kedaluwarsa sejak ' . $product->tanggal_kedaluwarsa->translatedFormat('d M Y') . '.';
-                $icon = 'ph-calendar-x';
-                $color = 'purple';
-            } elseif ($isNearExpiry) {
-                $status = 'NearExpiry';
-                $judul = 'Akan Kedaluwarsa';
-                $days = $product->tanggal_kedaluwarsa->diffInDays($today);
-                $pesan = $product->nama_produk . ' akan kedaluwarsa dalam ' . $days . ' hari.';
-                $icon = 'ph-clock';
-                $color = 'orange';
-            } elseif ($analysis && $analysis->status_stok === 'Order') {
+            if ($analysis && $analysis->status_stok === 'Order') {
                 $status = 'Order';
                 $judul = 'Stok Habis';
                 $pesan = $product->nama_produk . ' tersisa ' . number_format($product->stok_saat_ini, 0, ',', '.') . ' pcs.';
