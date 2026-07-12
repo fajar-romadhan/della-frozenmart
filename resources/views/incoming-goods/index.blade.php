@@ -377,12 +377,6 @@
     </div>
 
     {{-- Table Section --}}
-    <h2 class="section-title">Daftar Barang Masuk (Metode FIFO)</h2>
-    <div class="section-subtitle">
-        <i class="ph ph-info-fill"></i>
-        <span>Barang baru akan ditempatkan di akhir urutan (FIFO). Barang keluar akan diambil dari stok paling lama masuk.</span>
-    </div>
-    
     <div class="incoming-table-card">
         <div class="table-responsive">
             <table class="table align-middle incoming-table" id="tableBarangMasuk">
