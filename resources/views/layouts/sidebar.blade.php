@@ -118,7 +118,7 @@
                         </a>
                     @endif
 
-                    @if($role === 'admin' || $role === 'manager' || $role === 'owner')
+                    @if($role === 'manager')
                         <a href="{{ route('peramalan.index') }}" class="sidebar-submenu-item {{ request()->routeIs('peramalan.*') ? 'active' : '' }}">
                             <i class="ph ph-circle"></i>
                             <span class="sidebar-text">Peramalan Stok</span>

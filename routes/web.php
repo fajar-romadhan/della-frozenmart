@@ -156,6 +156,13 @@ Route::middleware(['auth'])->group(function () {
         Route::post('import-penjualan/store', [ImportPenjualanController::class, 'store'])->name('import-penjualan.store');
     });
 
+    // Manager only routes
+    Route::middleware(['role:manager'])->group(function () {
+        // Peramalan
+        Route::get('peramalan', [App\Http\Controllers\ForecastingController::class, 'index'])->name('peramalan.index');
+        Route::post('peramalan/calculate', [App\Http\Controllers\ForecastingController::class, 'calculate'])->name('peramalan.calculate');
+    });
+
     // Admin + Owner + Manager routes
     Route::middleware(['role:admin,owner,manager'])->group(function () {
         // Status Stok
@@ -191,10 +198,6 @@ Route::middleware(['auth'])->group(function () {
         Route::post('notifikasi/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifikasi.read-all');
         Route::get('notifikasi/count', [NotificationController::class, 'count'])->name('notifikasi.count');
         Route::get('notifikasi/latest-dropdown', [NotificationController::class, 'latestDropdown'])->name('notifikasi.latest-dropdown');
-        
-        // Peramalan
-        Route::get('peramalan', [App\Http\Controllers\ForecastingController::class, 'index'])->name('peramalan.index');
-        Route::post('peramalan/calculate', [App\Http\Controllers\ForecastingController::class, 'calculate'])->name('peramalan.calculate');
         
         // Pemesanan Supplier (read actions for all)
         Route::resource('pemesanan-supplier', PurchaseOrderController::class)->only(['index', 'show'])->parameters([
