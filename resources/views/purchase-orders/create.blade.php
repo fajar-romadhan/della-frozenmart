@@ -94,13 +94,6 @@
                         </div>
                         @error('jumlah_pesan') <div class="invalid-feedback">{{ $message }}</div> @enderror
                     </div>
-                </div>
-                <div class="row mt-3">
-                    <div class="col-12">
-                        <label for="keterangan" class="form-label small fw-bold text-muted">Keterangan Tambahan (Opsional)</label>
-                        <textarea name="keterangan" id="keterangan" rows="2" class="form-control" style="border-radius: 8px;" placeholder="Tulis catatan pemesanan jika ada...">{{ old('keterangan') }}</textarea>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -110,15 +103,6 @@
             <button type="submit" class="btn btn-primary px-4 fw-semibold" style="border-radius: 8px;"><i class="ph ph-floppy-disk me-1"></i> Simpan Pesanan</button>
         </div>
     </form>
-
-    {{-- Info Banner (Keterangan) --}}
-    <div class="alert alert-info border-0 d-flex align-items-start shadow-sm mb-4" role="alert" style="background-color: #f0fdfa; color: #0f766e; border-radius: 12px;">
-        <i class="ph ph-info fs-5 me-3" style="color: #0d9488 !important; margin-top: 2px;"></i>
-        <div>
-            <span class="fw-bold small d-block mb-1 text-teal-dark">Keterangan:</span>
-            <span class="small">Halaman ini digunakan untuk membuat pemesanan produk kepada supplier. Pilih produk, masukkan jumlah yang diinginkan, pilih supplier penyedia, lalu simpan pesanan untuk dicatat sebagai draf pemesanan.</span>
-        </div>
-    </div>
 </div>
 
 <style>
