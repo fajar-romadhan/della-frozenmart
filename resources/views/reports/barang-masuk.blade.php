@@ -24,7 +24,7 @@
         <div class="card-body">
             <form method="GET" action="{{ route('laporan.barang-masuk') }}" class="row g-3 align-items-end" id="formFilterBarangMasuk">
                 {{-- Periode Tanggal --}}
-                <div class="col-md-4 col-lg-3">
+                <div class="col-md-5 col-lg-5">
                     <label class="form-label small fw-bold text-muted">Periode Tanggal</label>
                     <div class="input-group">
                         <input type="date" name="tanggal_dari" class="form-control" value="{{ request('tanggal_dari') }}" min="2026-01-01">
@@ -34,7 +34,7 @@
                 </div>
 
                 {{-- Pencarian Produk --}}
-                <div class="col-md-4 col-lg-3">
+                <div class="col-md-4 col-lg-4">
                     <label class="form-label small fw-bold text-muted">Produk</label>
                     <select name="product_id" class="form-select">
                         <option value="">Semua Produk</option>
@@ -46,23 +46,10 @@
                     </select>
                 </div>
 
-                {{-- Pencarian Supplier --}}
-                <div class="col-md-4 col-lg-3">
-                    <label class="form-label small fw-bold text-muted">Supplier</label>
-                    <select name="supplier_id" class="form-select">
-                        <option value="">Semua Supplier</option>
-                        @foreach($suppliers as $sup)
-                            <option value="{{ $sup->id }}" {{ request('supplier_id') == $sup->id ? 'selected' : '' }}>
-                                {{ $sup->nama_supplier }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
                 {{-- Action Buttons --}}
-                <div class="col-md-12 col-lg-3 d-flex gap-2">
+                <div class="col-md-3 col-lg-3 d-flex gap-2">
                     <button type="submit" class="btn btn-primary w-100"><i class="ph ph-funnel me-2"></i> Filter</button>
-                    @if(request()->filled('tanggal_dari') || request()->filled('tanggal_sampai') || request()->filled('product_id') || request()->filled('supplier_id'))
+                    @if(request()->filled('tanggal_dari') || request()->filled('tanggal_sampai') || request()->filled('product_id'))
                         <a href="{{ route('laporan.barang-masuk') }}" class="btn btn-outline-secondary"><i class="ph ph-arrow-counter-clockwise"></i></a>
                     @endif
                 </div>
