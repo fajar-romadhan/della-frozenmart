@@ -717,9 +717,18 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($products as $p) {
                 $dbProductsCache[strtolower(trim($p->nama_produk))] = $p->id;
             }
-            // Add mapping for typo/spelling
-            if (isset($dbProductsCache[strtolower('Champ Nugget KombinasiI 450GR')])) {
-                $dbProductsCache[strtolower('Champ Nugget Kombinasi 450GR')] = $dbProductsCache[strtolower('Champ Nugget KombinasiI 450GR')];
+            // Add mapping for typo/spelling & renames
+            $aliases = [
+                'champ nugget kombinasi 450gr' => 'champ nugget kombinasii 450gr',
+                'chicken nugget stick 250g' => 'okey nugget stik 250gr',
+                'chicken nugget stick 500g' => 'okey nugget stik 500gr',
+                'sallam nugget 250 gr' => 'salam nugget 250gr',
+                'sallam bakso sapi 500 gr' => 'salam bakso sapi 500gr',
+            ];
+            foreach ($aliases as $from => $to) {
+                if (isset($dbProductsCache[$to])) {
+                    $dbProductsCache[$from] = $dbProductsCache[$to];
+                }
             }
             
             for ($colIndex = 4; $colIndex <= $highestColumnIndex; $colIndex++) {

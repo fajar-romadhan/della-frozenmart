@@ -348,7 +348,7 @@ class ReportController extends Controller
         // 2. Fetch aggregates (lightning fast)
         $totalTransaksi = $query->count();
         $totalQty = (int)$query->sum('jumlah');
-        $totalProduk = $query->distinct('product_id')->count('product_id');
+        $totalProduk = (clone $query)->distinct('product_id')->count('product_id');
 
         // Fast calculation of totalNilai
         $outgoingIdsQuery = clone $query;
