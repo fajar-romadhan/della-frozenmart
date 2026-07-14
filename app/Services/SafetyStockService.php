@@ -4,8 +4,10 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\Sale;
+use App\Models\OutgoingGood;
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Support\Facades\DB;
 
 class SafetyStockService
 {
@@ -24,21 +26,29 @@ class SafetyStockService
      */
     public function calculate(Product $product, int $leadTime = 3, ?string $startDate = null, ?string $endDate = null): array
     {
-        // Determine end date: latest sales record date, or today if no sales exist
+        // Determine end date: check BOTH penjualan and barang_keluar tables
         if ($endDate) {
             $end = Carbon::parse($endDate);
         } else {
             $latestSale = Sale::where('product_id', $product->id)->max('tanggal_penjualan');
-            $end = $latestSale ? Carbon::parse($latestSale) : Carbon::today();
+            $latestOutgoing = OutgoingGood::where('product_id', $product->id)
+                ->where('jenis_keluar', 'penjualan')
+                ->max('tanggal_keluar');
+            $latestDate = max(array_filter([$latestSale, $latestOutgoing]));
+            $end = $latestDate ? Carbon::parse($latestDate) : Carbon::today();
         }
 
-        // Determine start date: earliest sales record date, or 30 days prior to end date if no sales exist
+        // Determine start date: check BOTH penjualan and barang_keluar tables
         if ($startDate) {
             $start = Carbon::parse($startDate);
         } else {
             $earliestSale = Sale::where('product_id', $product->id)->min('tanggal_penjualan');
-            if ($earliestSale) {
-                $start = Carbon::parse($earliestSale);
+            $earliestOutgoing = OutgoingGood::where('product_id', $product->id)
+                ->where('jenis_keluar', 'penjualan')
+                ->min('tanggal_keluar');
+            $dates = array_filter([$earliestSale, $earliestOutgoing]);
+            if (!empty($dates)) {
+                $start = Carbon::parse(min($dates));
                 // Safeguard: if start and end are the same day, set start to 30 days ago to avoid division by zero
                 if ($start->equalTo($end)) {
                     $start = $end->copy()->subDays(30);
@@ -48,15 +58,29 @@ class SafetyStockService
             }
         }
 
-        // Get sales data grouped by date
-        $salesData = Sale::where('product_id', $product->id)
-            ->whereBetween('tanggal_penjualan', [$start->format('Y-m-d'), $end->format('Y-m-d')])
-            ->selectRaw('tanggal_penjualan, SUM(jumlah_terjual) as total_terjual')
-            ->groupBy('tanggal_penjualan')
+        // Get sales data from BOTH sources using UNION:
+        // 1. Tabel penjualan (Sale) - dari Import Penjualan Excel
+        // 2. Tabel barang_keluar (OutgoingGood) jenis 'penjualan' - dari input manual Barang Keluar
+        $startStr = $start->format('Y-m-d');
+        $endStr = $end->format('Y-m-d');
+
+        $salesFromPenjualan = DB::table('penjualan')
+            ->where('product_id', $product->id)
+            ->whereBetween('tanggal_penjualan', [$startStr, $endStr])
+            ->select('tanggal_penjualan as tanggal', 'jumlah_terjual as jumlah');
+
+        $salesFromBarangKeluar = DB::table('barang_keluar')
+            ->where('product_id', $product->id)
+            ->where('jenis_keluar', 'penjualan')
+            ->whereBetween('tanggal_keluar', [$startStr, $endStr])
+            ->select('tanggal_keluar as tanggal', 'jumlah');
+
+        $salesData = DB::query()
+            ->fromSub($salesFromPenjualan->unionAll($salesFromBarangKeluar), 'combined_sales')
+            ->selectRaw('tanggal, SUM(jumlah) as total_terjual')
+            ->groupBy('tanggal')
             ->get()
-            ->keyBy(function ($item) {
-                return Carbon::parse($item->tanggal_penjualan)->format('Y-m-d');
-            });
+            ->keyBy('tanggal');
 
         // Generate all dates in the period
         $period = CarbonPeriod::create($start, $end);
