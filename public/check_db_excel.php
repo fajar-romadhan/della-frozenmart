@@ -42,10 +42,17 @@ if (!isset($_GET['key']) || $_GET['key'] !== $secureKey) {
 $baseDir = dirname(__DIR__);
 require $baseDir . '/vendor/autoload.php';
 
-// Bootstrap Laravel
-$app = require_once $baseDir . '/bootstrap/app.php';
-$kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-$kernel->bootstrap();
+// Bootstrap Laravel safely
+if (!isset($app) || !is_object($app)) {
+    $app = require $baseDir . '/bootstrap/app.php';
+    if ($app === true) {
+        // Fallback to app helper if require returned true
+        $app = app();
+    } else {
+        $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+        $kernel->bootstrap();
+    }
+}
 
 use App\Models\Product;
 use App\Models\Sale;
@@ -70,31 +77,6 @@ foreach ($dbProducts as $p) {
 function resolveDbProduct($excelName, $dbProductsByName) {
     $name = trim($excelName);
     $lower = strtolower($name);
-    
-    $aliases = [
-        'champ nugget kombinasi 450gr' => 'champ nugget kombinasii 450gr',
-        'chicken nugget stick 250g' => 'okey nugget stik 250gr',
-        'chicken nugget stick 500g' => 'okey nugget stik 500gr',
-        'sallam nugget 250 gr' => 'salam nugget 250gr',
-        'sallam bakso sapi 500 gr' => 'salam bakso sapi 500gr',
-        'sosis ayam besar 360g' => 'sosis ayam besar 360g',
-        'sosis sapi jumbo 500g' => 'sosis sapi jumbo 500g',
-        'sosis kanzler beef 500g' => 'sosis kanzler beef 500g',
-        'sosis kanzler cheese 300g' => 'sosis kanzler cheese 300g',
-        'sosis kanzler cheese 500g' => 'sosis kanzler cheese 500g',
-        'bakso sapi jumbo 500g' => 'bakso sapi jumbo 500g',
-        'onion ring frozen 250g' => 'onion ring frozen 250g',
-        'onion ring frozen 500g' => 'onion ring frozen 500g',
-        'champ sosis sapi 375 gr' => 'champ sosis sapi 375 gr',
-        'belfood chicken nugget 500gr' => 'belfood chicken nugget 500gr',
-        'okey nugget stik 500gr' => 'okey nugget stik 500gr',
-        'cireng rujak' => 'cireng rujak',
-    ];
-    
-    if (isset($aliases[$lower])) {
-        $lower = strtolower($aliases[$lower]);
-    }
-    
     if (isset($dbProductsByName[$lower])) {
         return $dbProductsByName[$lower];
     }

@@ -34,18 +34,6 @@ class ImportPenjualanController extends Controller
             // Check if product exists
             foreach($validRows as $k => $row) {
                 $searchName = $row['nama_barang'];
-                $aliasMapping = [
-                    'chicken nugget stick 250g' => 'Okey Nugget Stik 250GR',
-                    'chicken nugget stick 500g' => 'Okey Nugget Stik 500GR',
-                    'sallam nugget 250 gr' => 'Salam Nugget 250GR',
-                    'sallam bakso sapi 500 gr' => 'Salam Bakso Sapi 500GR',
-                    'champ nugget kombinasi 450gr' => 'Champ Nugget KombinasiI 450GR',
-                ];
-                
-                $normalizedKey = strtolower(trim(preg_replace('/\s+/', ' ', $searchName)));
-                if (isset($aliasMapping[$normalizedKey])) {
-                    $searchName = $aliasMapping[$normalizedKey];
-                }
 
                 $product = Product::whereRaw('LOWER(nama_produk) = ?', [strtolower($searchName)])
                     ->orWhere('kode_produk', strtoupper($searchName))

@@ -60,11 +60,17 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
     
     try {
-        // Bootstrap Laravel
+        // Bootstrap Laravel safely
         require $baseDir . '/vendor/autoload.php';
-        $app = require_once $baseDir . '/bootstrap/app.php';
-        $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
-        $kernel->bootstrap();
+        if (!isset($app) || !is_object($app)) {
+            $app = require $baseDir . '/bootstrap/app.php';
+            if ($app === true) {
+                $app = app();
+            } else {
+                $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
+                $kernel->bootstrap();
+            }
+        }
         
         if ($action === 'clear') {
             // Fresh migration to empty all tables
@@ -347,19 +353,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     continue;
                 }
                 
-                // Naming mapping logic (handling DB typos/casing)
                 $dbName = $productName;
-                if ($productName === 'Champ Nugget Kombinasi 450GR') {
-                    $dbName = 'Champ Nugget KombinasiI 450GR'; // database typo with double I
-                } elseif ($productName === 'Chicken Nugget Stick 250g') {
-                    $dbName = 'Okey Nugget Stik 250GR';
-                } elseif ($productName === 'Chicken Nugget Stick 500g') {
-                    $dbName = 'Okey Nugget Stik 500GR';
-                } elseif ($productName === 'Sallam Nugget 250 gr') {
-                    $dbName = 'Salam Nugget 250GR';
-                } elseif ($productName === 'Sallam Bakso Sapi 500 gr') {
-                    $dbName = 'Salam Bakso Sapi 500GR';
-                }
                 
                 $product = \App\Models\Product::whereRaw('LOWER(nama_produk) = ?', [strtolower($dbName)])->first();
                 
@@ -717,19 +711,6 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             foreach ($products as $p) {
                 $dbProductsCache[strtolower(trim($p->nama_produk))] = $p->id;
             }
-            // Add mapping for typo/spelling & renames
-            $aliases = [
-                'champ nugget kombinasi 450gr' => 'champ nugget kombinasii 450gr',
-                'chicken nugget stick 250g' => 'okey nugget stik 250gr',
-                'chicken nugget stick 500g' => 'okey nugget stik 500gr',
-                'sallam nugget 250 gr' => 'salam nugget 250gr',
-                'sallam bakso sapi 500 gr' => 'salam bakso sapi 500gr',
-            ];
-            foreach ($aliases as $from => $to) {
-                if (isset($dbProductsCache[$to])) {
-                    $dbProductsCache[$from] = $dbProductsCache[$to];
-                }
-            }
             
             for ($colIndex = 4; $colIndex <= $highestColumnIndex; $colIndex++) {
                 $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
@@ -925,17 +906,6 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
                 
                 $dbName = $productName;
-                if ($productName === 'Champ Nugget Kombinasi 450GR') {
-                    $dbName = 'Champ Nugget KombinasiI 450GR';
-                } elseif ($productName === 'Chicken Nugget Stick 250g') {
-                    $dbName = 'Okey Nugget Stik 250GR';
-                } elseif ($productName === 'Chicken Nugget Stick 500g') {
-                    $dbName = 'Okey Nugget Stik 500GR';
-                } elseif ($productName === 'Sallam Nugget 250 gr') {
-                    $dbName = 'Salam Nugget 250GR';
-                } elseif ($productName === 'Sallam Bakso Sapi 500 gr') {
-                    $dbName = 'Salam Bakso Sapi 500GR';
-                }
                 
                 $product = \App\Models\Product::whereRaw('LOWER(nama_produk) = ?', [strtolower($dbName)])->first();
                 if ($product) {
@@ -1042,11 +1012,6 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $productName = trim((string) $janSheet->getCell($colLetter . '3')->getValue());
                 if (empty($productName) || in_array(strtolower($productName), ['total qty', 'total penjualan (rp)', 'total penjualan', 'total'])) continue;
                 $dbName = $productName;
-                if ($productName === 'Champ Nugget Kombinasi 450GR')   $dbName = 'Champ Nugget KombinasiI 450GR';
-                elseif ($productName === 'Chicken Nugget Stick 250g')  $dbName = 'Okey Nugget Stik 250GR';
-                elseif ($productName === 'Chicken Nugget Stick 500g')  $dbName = 'Okey Nugget Stik 500GR';
-                elseif ($productName === 'Sallam Nugget 250 gr')       $dbName = 'Salam Nugget 250GR';
-                elseif ($productName === 'Sallam Bakso Sapi 500 gr')   $dbName = 'Salam Bakso Sapi 500GR';
                 $product = \App\Models\Product::whereRaw('LOWER(nama_produk) = ?', [strtolower($dbName)])->first();
                 if ($product) $productColumns[$colLetter] = $product->id;
             }
