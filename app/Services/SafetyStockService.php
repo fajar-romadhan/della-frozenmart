@@ -12,6 +12,16 @@ use Illuminate\Support\Facades\DB;
 class SafetyStockService
 {
     /**
+     * Fixed baseline period for AU (Average Usage) calculation.
+     *
+     * AU is intentionally LOCKED to this historical 5-month period so that
+     * new incoming/outgoing transactions do NOT shift the average.
+     * Safety Stock and ROP remain stable unless an explicit date range is passed.
+     */
+    const BASELINE_START = '2026-01-01';
+    const BASELINE_END   = '2026-05-31';
+
+    /**
      * Calculate Safety Stock and ROP for a product.
      *
      * Formula:
@@ -20,42 +30,23 @@ class SafetyStockService
      *
      * @param Product $product
      * @param int $leadTime Lead time in days (default 3)
-     * @param string|null $startDate Start of analysis period (Y-m-d)
-     * @param string|null $endDate End of analysis period (Y-m-d)
+     * @param string|null $startDate Start of analysis period (Y-m-d). If null, uses fixed baseline.
+     * @param string|null $endDate End of analysis period (Y-m-d). If null, uses fixed baseline.
      * @return array Calculated values including SS, ROP, status, recommendation
      */
     public function calculate(Product $product, int $leadTime = 3, ?string $startDate = null, ?string $endDate = null): array
     {
-        // Determine end date: check BOTH penjualan and barang_keluar tables
-        if ($endDate) {
-            $end = Carbon::parse($endDate);
-        } else {
-            $latestSale = Sale::where('product_id', $product->id)->max('tanggal_penjualan');
-            $latestOutgoing = OutgoingGood::where('product_id', $product->id)
-                ->where('jenis_keluar', 'penjualan')
-                ->max('tanggal_keluar');
-            $latestDate = max(array_filter([$latestSale, $latestOutgoing]));
-            $end = $latestDate ? Carbon::parse($latestDate) : Carbon::today();
-        }
+        // ─── FIXED BASELINE LOCK ─────────────────────────────────────────────────
+        // When called without explicit dates (e.g. triggered automatically by
+        // barang keluar / barang masuk / stock opname), always use the fixed
+        // historical baseline so AU does NOT shift with each new transaction.
+        // ─────────────────────────────────────────────────────────────────────────
+        $start = Carbon::parse($startDate ?? self::BASELINE_START);
+        $end   = Carbon::parse($endDate   ?? self::BASELINE_END);
 
-        // Determine start date: check BOTH penjualan and barang_keluar tables
-        if ($startDate) {
-            $start = Carbon::parse($startDate);
-        } else {
-            $earliestSale = Sale::where('product_id', $product->id)->min('tanggal_penjualan');
-            $earliestOutgoing = OutgoingGood::where('product_id', $product->id)
-                ->where('jenis_keluar', 'penjualan')
-                ->min('tanggal_keluar');
-            $dates = array_filter([$earliestSale, $earliestOutgoing]);
-            if (!empty($dates)) {
-                $start = Carbon::parse(min($dates));
-                // Safeguard: if start and end are the same day, set start to 30 days ago to avoid division by zero
-                if ($start->equalTo($end)) {
-                    $start = $end->copy()->subDays(30);
-                }
-            } else {
-                $start = $end->copy()->subDays(30);
-            }
+        // Guard: avoid division by zero if start === end
+        if ($start->equalTo($end)) {
+            $start = $end->copy()->subDays(30);
         }
 
         // Get sales data from BOTH sources using UNION:
