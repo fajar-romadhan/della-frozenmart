@@ -49,29 +49,48 @@ class SafetyStockService
             $start = $end->copy()->subDays(30);
         }
 
-        // Get sales data from BOTH sources using UNION:
-        // 1. Tabel penjualan (Sale) - dari Import Penjualan Excel
-        // 2. Tabel barang_keluar (OutgoingGood) jenis 'penjualan' - dari input manual Barang Keluar
+        // ─── SALES DATA QUERY ────────────────────────────────────────────────────
+        // BASELINE MODE (no explicit dates):
+        //   AU is sourced ONLY from tabel penjualan (Excel import data).
+        //   Manual barang_keluar entries are intentionally excluded so that
+        //   day-to-day stock movements never shift the historical average.
+        //
+        // EXPLICIT DATE MODE (called with startDate / endDate):
+        //   Both penjualan AND barang_keluar are combined for full accuracy.
+        //   Used by manual analysis, reset scripts, etc.
+        // ─────────────────────────────────────────────────────────────────────────
         $startStr = $start->format('Y-m-d');
-        $endStr = $end->format('Y-m-d');
+        $endStr   = $end->format('Y-m-d');
+        $isBaselineMode = ($startDate === null && $endDate === null);
 
         $salesFromPenjualan = DB::table('penjualan')
             ->where('product_id', $product->id)
             ->whereBetween('tanggal_penjualan', [$startStr, $endStr])
             ->select('tanggal_penjualan as tanggal', 'jumlah_terjual as jumlah');
 
-        $salesFromBarangKeluar = DB::table('barang_keluar')
-            ->where('product_id', $product->id)
-            ->where('jenis_keluar', 'penjualan')
-            ->whereBetween('tanggal_keluar', [$startStr, $endStr])
-            ->select('tanggal_keluar as tanggal', 'jumlah');
+        if ($isBaselineMode) {
+            // Baseline: penjualan only — AU stays locked to Excel data
+            $salesData = DB::query()
+                ->fromSub($salesFromPenjualan, 'combined_sales')
+                ->selectRaw('tanggal, SUM(jumlah) as total_terjual')
+                ->groupBy('tanggal')
+                ->get()
+                ->keyBy('tanggal');
+        } else {
+            // Explicit range: union penjualan + barang_keluar for full picture
+            $salesFromBarangKeluar = DB::table('barang_keluar')
+                ->where('product_id', $product->id)
+                ->where('jenis_keluar', 'penjualan')
+                ->whereBetween('tanggal_keluar', [$startStr, $endStr])
+                ->select('tanggal_keluar as tanggal', 'jumlah');
 
-        $salesData = DB::query()
-            ->fromSub($salesFromPenjualan->unionAll($salesFromBarangKeluar), 'combined_sales')
-            ->selectRaw('tanggal, SUM(jumlah) as total_terjual')
-            ->groupBy('tanggal')
-            ->get()
-            ->keyBy('tanggal');
+            $salesData = DB::query()
+                ->fromSub($salesFromPenjualan->unionAll($salesFromBarangKeluar), 'combined_sales')
+                ->selectRaw('tanggal, SUM(jumlah) as total_terjual')
+                ->groupBy('tanggal')
+                ->get()
+                ->keyBy('tanggal');
+        }
 
         // Generate all dates in the period
         $period = CarbonPeriod::create($start, $end);

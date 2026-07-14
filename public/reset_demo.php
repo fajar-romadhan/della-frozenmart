@@ -1009,6 +1009,87 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $logOutput .= "2. Kalkulasi ROP & Safety Stock untuk seluruh produk: Berhasil ($recalculatedCount produk dianalisis)\n";
             $message = "Sukses mengimpor data penjualan 5 bulan untuk 31 produk dari Excel Gabungan! ROP & Safety Stock otomatis dikalkulasi.";
             $messageType = "success";
+        } elseif ($action === 'full_reset_demo') {
+            // ─── STEP 1: Wipe all transaction data ───────────────────────────────
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            Illuminate\Support\Facades\DB::table('outgoing_good_details')->truncate();
+            Illuminate\Support\Facades\DB::table('barang_keluar')->truncate();
+            Illuminate\Support\Facades\DB::table('stock_batches')->truncate();
+            Illuminate\Support\Facades\DB::table('barang_masuk')->truncate();
+            Illuminate\Support\Facades\DB::table('penjualan')->truncate();
+            Illuminate\Support\Facades\DB::table('analisa_persediaan')->truncate();
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            // Reset stok_saat_ini to 0 for all products
+            \App\Models\Product::query()->update(['stok_saat_ini' => 0]);
+            $logOutput .= "1. Wipe seluruh data transaksi (barang masuk, keluar, stok batch, penjualan, analisa): SUKSES\n";
+            $logOutput .= "2. Reset stok semua produk ke 0: SUKSES\n";
+
+            // ─── STEP 2: Reimport penjualan from Gabungan Excel ──────────────────
+            $excelFile = $baseDir . '/data produk/Della_FrozenMart_31Produk_Jan-Mei_2026_Gabungan (1).xlsx';
+            if (!file_exists($excelFile)) {
+                throw new Exception("File Excel penjualan gabungan tidak ditemukan: " . $excelFile);
+            }
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($excelFile);
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($excelFile);
+            $sheets = ['Januari', 'Februari', 'Maret', 'April', 'Mei'];
+            $janSheet = $spreadsheet->getSheetByName('Januari');
+            if (!$janSheet) throw new Exception("Sheet 'Januari' tidak ditemukan!");
+            $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($janSheet->getHighestColumn());
+            $productColumns = [];
+            for ($colIndex = 4; $colIndex <= $highestColumnIndex; $colIndex++) {
+                $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+                $productName = trim((string) $janSheet->getCell($colLetter . '3')->getValue());
+                if (empty($productName) || in_array(strtolower($productName), ['total qty', 'total penjualan (rp)', 'total penjualan', 'total'])) continue;
+                $dbName = $productName;
+                if ($productName === 'Champ Nugget Kombinasi 450GR')   $dbName = 'Champ Nugget KombinasiI 450GR';
+                elseif ($productName === 'Chicken Nugget Stick 250g')  $dbName = 'Okey Nugget Stik 250GR';
+                elseif ($productName === 'Chicken Nugget Stick 500g')  $dbName = 'Okey Nugget Stik 500GR';
+                elseif ($productName === 'Sallam Nugget 250 gr')       $dbName = 'Salam Nugget 250GR';
+                elseif ($productName === 'Sallam Bakso Sapi 500 gr')   $dbName = 'Salam Bakso Sapi 500GR';
+                $product = \App\Models\Product::whereRaw('LOWER(nama_produk) = ?', [strtolower($dbName)])->first();
+                if ($product) $productColumns[$colLetter] = $product->id;
+            }
+            $insertCount = 0;
+            foreach ($sheets as $sheetName) {
+                $sheet = $spreadsheet->getSheetByName($sheetName);
+                if (!$sheet) { $logOutput .= "Peringatan: Sheet '$sheetName' tidak ditemukan!\n"; continue; }
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 4; $row <= $highestRow; $row++) {
+                    $dateVal = $sheet->getCell('B' . $row)->getValue();
+                    if (empty($dateVal)) continue;
+                    $dateStr = is_numeric($dateVal)
+                        ? \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateVal)->format('Y-m-d')
+                        : \Carbon\Carbon::parse($dateVal)->format('Y-m-d');
+                    foreach ($productColumns as $col => $prodId) {
+                        $qty = (int) ($sheet->getCell($col . $row)->getValue() ?? 0);
+                        if ($qty > 0) {
+                            \App\Models\Sale::create([
+                                'product_id'        => $prodId,
+                                'tanggal_penjualan' => $dateStr,
+                                'jumlah_terjual'    => $qty,
+                                'sumber_import'     => 'Excel Gabungan',
+                                'nama_file_import'  => 'Della_FrozenMart_31Produk_Jan-Mei_2026_Gabungan (1).xlsx',
+                                'user_id'           => 1,
+                            ]);
+                            $insertCount++;
+                        }
+                    }
+                }
+            }
+            $logOutput .= "3. Reimport penjualan dari Excel Gabungan: Berhasil ($insertCount baris dimasukkan)\n";
+
+            // ─── STEP 3: Recalculate AU for all products (locked baseline) ───────
+            $safetyStockService = app(\App\Services\SafetyStockService::class);
+            $recalculatedCount  = 0;
+            foreach (array_unique(array_values($productColumns)) as $prodId) {
+                $product = \App\Models\Product::find($prodId);
+                if ($product) { $safetyStockService->calculate($product); $recalculatedCount++; }
+            }
+            $logOutput .= "4. Kalkulasi ulang AU / ROP / Safety Stock (baseline terkunci): Berhasil ($recalculatedCount produk)\n";
+
+            $message     = "Reset Bersih Selesai! Semua data uji dihapus, penjualan 31 produk 5 bulan berhasil diimpor ulang, dan AU sudah terkunci ke baseline Jan–Mei 2026.";
+            $messageType = "success";
         }
     } catch (Exception $e) {
         $message = "Error: " . $e->getMessage();
@@ -1344,7 +1425,25 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     <button type="submit" class="btn btn-info" style="background-color: #0284c7; box-shadow: none;">Impor Penjualan Gabungan</button>
                 </form>
             </div>
+
+            <!-- Opsi 9: Full Reset Demo – Bersihkan Semua Data Uji + Reimport -->
+            <div class="action-card" style="border: 2px solid rgba(239, 68, 68, 0.5); background-color: rgba(239, 68, 68, 0.06);">
+                <div class="action-info">
+                    <h3 class="action-title" style="color: #f87171;">9. ⚠️ Reset Bersih + Reimport Lengkap (31 Produk)</h3>
+                    <p class="action-desc">
+                        <strong style="color:#fca5a5;">HAPUS SEMUA data transaksi</strong> (barang masuk, barang keluar, stok batch, penjualan, analisa) lalu reimport otomatis seluruh data penjualan 31 produk 5 bulan dari Excel Gabungan.
+                        AU dikalkulasi ulang menggunakan baseline terkunci (Jan–Mei 2026).
+                        Gunakan ini untuk membersihkan data uji dan kembali ke kondisi demo yang bersih.
+                    </p>
+                </div>
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('⚠️ PERINGATAN: Seluruh data barang masuk, barang keluar, stok, dan penjualan akan DIHAPUS dan diimpor ulang dari Excel. Lanjutkan?');">
+                    <input type="hidden" name="action" value="full_reset_demo">
+                    <button type="submit" class="btn btn-danger" style="background-color: #dc2626; box-shadow: none;">Reset Bersih &amp; Reimport</button>
+                </form>
+            </div>
         <?php endif; ?>
+
+
 
         <?php if (!empty($logOutput)): ?>
             <div class="log-section">
