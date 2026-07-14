@@ -1090,6 +1090,249 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $message     = "Reset Bersih Selesai! Semua data uji dihapus, penjualan 31 produk 5 bulan berhasil diimpor ulang, dan AU sudah terkunci ke baseline Jan–Mei 2026.";
             $messageType = "success";
+        } elseif ($action === 'import_barang_masuk') {
+            // ─── Import Barang Masuk (10 produk, 5 bulan) dari data DOCX ─────────
+            // Lokasi dirotasi merata: FRZ-01, FRZ-02, FRZ-03, RAK-A, RAK-B, RAK-C, RAK-D
+            $lokasiPool = ['FRZ-01','FRZ-02','FRZ-03','RAK-A','RAK-B','RAK-C','RAK-D'];
+            $lokasiIdx  = 0;
+            $inserted   = 0;
+            $skipped    = 0;
+
+            // Helper: get or create supplier
+            $getSupplier = function(string $nama) {
+                $s = \App\Models\Supplier::where('nama_supplier', $nama)->first();
+                if (!$s) {
+                    $s = \App\Models\Supplier::create([
+                        'nama_supplier' => $nama,
+                        'kontak'        => '-',
+                        'alamat'        => '-',
+                    ]);
+                }
+                return $s;
+            };
+
+            // Helper: find product (flexible name matching)
+            $getProduct = function(string $nama) {
+                $map = [
+                    'okay sosis 500gr'                  => 'Okey Sosis 500GR',
+                    'okey sosis 500gr'                  => 'Okey Sosis 500GR',
+                    'fiesta chicken nugget 400 gr'      => 'Nugget Ayam Crispy 400g',
+                    'fiesta chicken nugget 400gr'       => 'Nugget Ayam Crispy 400g',
+                    'fiesta chicken nugget 450 gr'      => 'Nugget Ayam Crispy 400g',
+                    'fiesta chicken nugget 450gr'       => 'Nugget Ayam Crispy 400g',
+                    'jamur enoki'                       => 'Jamur Enoki',
+                    'meru lapis bogor'                  => 'Meru Lapis Bogor',
+                    'okey nugget stik 500gr'            => 'Okey Nugget Stik 500GR',
+                    'cireng rujak'                      => 'Cireng Rujak',
+                    'salam nugget 500gr'                => 'Salam Nugget 500GR',
+                    'warisan isi 50'                    => 'Warisan Isi 50',
+                    'belfood sosis isi 30'              => 'Belfood Sosis Isi 30',
+                    'richeese nugget'                   => 'Richeese Nugget',
+                ];
+                $key = strtolower(trim($nama));
+                $targetName = $map[$key] ?? null;
+                if (!$targetName) return null;
+                return \App\Models\Product::whereRaw('LOWER(nama_produk) = ?', [strtolower($targetName)])->first();
+            };
+
+            // ── RAW DATA (from DOCX) ─────────────────────────────────────────────
+            // Format: [tanggal, nama_produk, jumlah, harga_beli, nama_supplier]
+            $rawData = [
+                // JANUARI 2026
+                ['2026-01-03','Okay Sosis 500GR',180,18000,'CV Sony Frozen Food'],
+                ['2026-01-14','Okey Sosis 500GR',145,18000,'CV Sony Frozen Food'],
+                ['2026-01-27','Okey Sosis 500GR',175,18000,'CV Sony Frozen Food'],
+                ['2026-01-06','Fiesta Chicken Nugget 400 gr',185,42000,'PT Champ Citra Mandiri'],
+                ['2026-01-21','Fiesta Chicken Nugget 400 gr',215,42000,'PT Champ Citra Mandiri'],
+                ['2026-01-05','Jamur Enoki',140,5000,'Hijrafood'],
+                ['2026-01-16','Jamur Enoki',110,5000,'Hijrafood'],
+                ['2026-01-29','Jamur Enoki',150,5000,'Hijrafood'],
+                ['2026-01-08','Meru Lapis Bogor',90,35000,'CV Susan Wilson Reseller'],
+                ['2026-01-25','Meru Lapis Bogor',110,35000,'CV Susan Wilson Reseller'],
+                ['2026-01-04','Okey Nugget Stik 500GR',170,18000,'CV Sony Frozen Food'],
+                ['2026-01-18','Okey Nugget Stik 500GR',160,18000,'CV Sony Frozen Food'],
+                ['2026-01-30','Okey Nugget Stik 500GR',170,18000,'CV Sony Frozen Food'],
+                ['2026-01-07','Cireng Rujak',175,13000,'CV Roker Jaya Frozen'],
+                ['2026-01-24','Cireng Rujak',225,13000,'CV Roker Jaya Frozen'],
+                ['2026-01-02','Salam Nugget 500GR',190,18000,'CV Sony Frozen Food'],
+                ['2026-01-15','Salam Nugget 500GR',140,18000,'CV Sony Frozen Food'],
+                ['2026-01-28','Salam Nugget 500GR',170,18000,'CV Sony Frozen Food'],
+                ['2026-01-09','Warisan Isi 50',260,28000,'CV Kylafood Nusantara'],
+                ['2026-01-26','Warisan Isi 50',240,28000,'CV Kylafood Nusantara'],
+                ['2026-01-10','Belfood Sosis Isi 30',130,18000,'PT Belfoods'],
+                ['2026-01-20','Belfood Sosis Isi 30',120,18000,'PT Belfoods'],
+                ['2026-01-31','Belfood Sosis Isi 30',150,18000,'PT Belfoods'],
+                ['2026-01-05','Richeese Nugget',210,18000,'PT Siomy Makmur'],
+                ['2026-01-17','Richeese Nugget',250,18000,'PT Siomy Makmur'],
+                ['2026-01-29','Richeese Nugget',240,18000,'PT Siomy Makmur'],
+                // FEBRUARI 2026
+                ['2026-02-01','Okey Sosis 500GR',120,18000,'CV Sony Frozen Food'],
+                ['2026-02-16','Okey Sosis 500GR',100,18000,'CV Sony Frozen Food'],
+                ['2026-02-04','Fiesta Chicken Nugget 400 gr',150,42000,'PT Champ Citra Mandiri'],
+                ['2026-02-20','Fiesta Chicken Nugget 400 gr',120,42000,'PT Champ Citra Mandiri'],
+                ['2026-02-02','Jamur Enoki',90,5000,'Hijrafood'],
+                ['2026-02-14','Jamur Enoki',80,5000,'Hijrafood'],
+                ['2026-02-26','Jamur Enoki',100,5000,'Hijrafood'],
+                ['2026-02-05','Meru Lapis Bogor',70,35000,'CV Susan Wilson Reseller'],
+                ['2026-02-22','Meru Lapis Bogor',80,35000,'CV Susan Wilson Reseller'],
+                ['2026-02-03','Okey Nugget Stik 500GR',110,18000,'CV Sony Frozen Food'],
+                ['2026-02-18','Okey Nugget Stik 500GR',120,18000,'CV Sony Frozen Food'],
+                ['2026-02-06','Cireng Rujak',140,13000,'CV Roker Jaya Frozen'],
+                ['2026-02-24','Cireng Rujak',120,13000,'CV Roker Jaya Frozen'],
+                ['2026-02-01','Salam Nugget 500GR',130,18000,'CV Sony Frozen Food'],
+                ['2026-02-17','Salam Nugget 500GR',110,18000,'CV Sony Frozen Food'],
+                ['2026-02-08','Warisan Isi 50',180,28000,'CV Kylafood Nusantara'],
+                ['2026-02-25','Warisan Isi 50',150,28000,'CV Kylafood Nusantara'],
+                ['2026-02-09','Belfood Sosis Isi 30',100,18000,'PT Belfoods'],
+                ['2026-02-19','Belfood Sosis Isi 30',90,18000,'PT Belfoods'],
+                ['2026-02-27','Belfood Sosis Isi 30',80,18000,'PT Belfoods'],
+                ['2026-02-07','Richeese Nugget',180,18000,'PT Siomy Makmur'],
+                ['2026-02-19','Richeese Nugget',300,18000,'PT Siomy Makmur'],
+                // MARET 2026
+                ['2026-03-01','Okey Sosis 500GR',150,18000,'CV Sony Frozen Food'],
+                ['2026-03-05','Okey Sosis 500GR',150,18000,'CV Sony Frozen Food'],
+                ['2026-03-10','Okey Sosis 500GR',300,18500,'CV Sony Frozen Food'],
+                ['2026-03-02','Fiesta Chicken Nugget 450 gr',200,42000,'PT Champ Citra Mandiri'],
+                ['2026-03-05','Fiesta Chicken Nugget 450 gr',240,42000,'PT Champ Citra Mandiri'],
+                ['2026-03-10','Fiesta Chicken Nugget 450 gr',100,42000,'PT Champ Citra Mandiri'],
+                ['2026-03-02','Jamur Enoki',170,5000,'Hijrafood'],
+                ['2026-03-05','Jamur Enoki',100,5000,'Hijrafood'],
+                ['2026-03-10','Jamur Enoki',300,5000,'Hijrafood'],
+                ['2026-03-03','Meru Lapis Bogor',140,35000,'CV Susan Wilson Reseller'],
+                ['2026-03-08','Meru Lapis Bogor',210,35000,'CV Susan Wilson Reseller'],
+                ['2026-03-14','Meru Lapis Bogor',100,35000,'CV Susan Wilson Reseller'],
+                ['2026-03-01','Okey Nugget Stik 500GR',180,18000,'CV Sony Frozen Food'],
+                ['2026-03-10','Okey Nugget Stik 500GR',300,18000,'CV Sony Frozen Food'],
+                ['2026-03-30','Okey Nugget Stik 500GR',250,18000,'CV Sony Frozen Food'],
+                ['2026-03-05','Cireng Rujak',180,13000,'CV Roker Jaya Frozen'],
+                ['2026-03-13','Cireng Rujak',220,13000,'CV Roker Jaya Frozen'],
+                ['2026-03-28','Cireng Rujak',100,13000,'CV Roker Jaya Frozen'],
+                ['2026-03-02','Salam Nugget 500GR',190,18000,'CV Sony Frozen Food'],
+                ['2026-03-10','Salam Nugget 500GR',300,18000,'CV Sony Frozen Food'],
+                ['2026-03-29','Salam Nugget 500GR',260,18000,'CV Sony Frozen Food'],
+                ['2026-03-01','Warisan Isi 50',150,28000,'CV Kylafood Nusantara'],
+                ['2026-03-06','Warisan Isi 50',170,28000,'CV Kylafood Nusantara'],
+                ['2026-03-12','Warisan Isi 50',300,28000,'CV Kylafood Nusantara'],
+                ['2026-03-02','Belfood Sosis Isi 30',140,18000,'PT Belfoods'],
+                ['2026-03-10','Belfood Sosis Isi 30',300,18000,'PT Belfoods'],
+                ['2026-03-29','Belfood Sosis Isi 30',220,18000,'PT Belfoods'],
+                ['2026-03-02','Richeese Nugget',170,18000,'PT Siomy Makmur'],
+                ['2026-03-09','Richeese Nugget',400,18000,'PT Siomy Makmur'],
+                // APRIL 2026
+                ['2026-04-02','Okey Sosis 500GR',170,18000,'CV Sony Frozen Food'],
+                ['2026-04-16','Okey Sosis 500GR',130,18000,'CV Sony Frozen Food'],
+                ['2026-04-28','Okey Sosis 500GR',150,18000,'CV Sony Frozen Food'],
+                ['2026-04-04','Fiesta Chicken Nugget 450 gr',170,42000,'PT Champ Citra Mandiri'],
+                ['2026-04-22','Fiesta Chicken Nugget 450 gr',180,42000,'PT Champ Citra Mandiri'],
+                ['2026-04-03','Jamur Enoki',120,5000,'Hijrafood'],
+                ['2026-04-15','Jamur Enoki',100,5000,'Hijrafood'],
+                ['2026-04-27','Jamur Enoki',110,5000,'Hijrafood'],
+                ['2026-04-07','Meru Lapis Bogor',110,35000,'CV Susan Wilson Reseller'],
+                ['2026-04-24','Meru Lapis Bogor',100,35000,'CV Susan Wilson Reseller'],
+                ['2026-04-05','Okey Nugget Stik 500GR',180,18000,'CV Sony Frozen Food'],
+                ['2026-04-19','Okey Nugget Stik 500GR',140,18000,'CV Sony Frozen Food'],
+                ['2026-04-30','Okey Nugget Stik 500GR',130,18000,'CV Sony Frozen Food'],
+                ['2026-04-06','Cireng Rujak',160,13000,'CV Roker Jaya Frozen'],
+                ['2026-04-23','Cireng Rujak',170,13000,'CV Roker Jaya Frozen'],
+                ['2026-04-01','Salam Nugget 500GR',170,18000,'CV Sony Frozen Food'],
+                ['2026-04-17','Salam Nugget 500GR',150,18000,'CV Sony Frozen Food'],
+                ['2026-04-29','Salam Nugget 500GR',130,18000,'CV Sony Frozen Food'],
+                ['2026-04-09','Warisan Isi 50',210,28000,'CV Kylafood Nusantara'],
+                ['2026-04-25','Warisan Isi 50',190,28000,'CV Kylafood Nusantara'],
+                ['2026-04-10','Belfood Sosis Isi 30',120,18000,'PT Belfoods'],
+                ['2026-04-18','Belfood Sosis Isi 30',130,18000,'PT Belfoods'],
+                ['2026-04-30','Belfood Sosis Isi 30',110,18000,'PT Belfoods'],
+                ['2026-04-08','Richeese Nugget',220,18000,'PT Siomy Makmur'],
+                ['2026-04-21','Richeese Nugget',180,18000,'PT Siomy Makmur'],
+                // MEI 2026
+                ['2026-05-02','Okey Sosis 500GR',200,18000,'CV Sony Frozen Food'],
+                ['2026-05-08','Okey Sosis 500GR',180,18000,'CV Sony Frozen Food'],
+                ['2026-05-14','Okey Sosis 500GR',220,18500,'CV Sony Frozen Food'],
+                ['2026-05-20','Okey Sosis 500GR',300,18500,'CV Sony Frozen Food'],
+                ['2026-05-04','Fiesta Chicken Nugget 450 gr',200,42000,'PT Champ Citra Mandiri'],
+                ['2026-05-21','Fiesta Chicken Nugget 450 gr',220,42000,'PT Champ Citra Mandiri'],
+                ['2026-05-03','Jamur Enoki',140,5000,'Hijrafood'],
+                ['2026-05-12','Jamur Enoki',130,5000,'Hijrafood'],
+                ['2026-05-21','Jamur Enoki',250,5000,'Hijrafood'],
+                ['2026-05-06','Meru Lapis Bogor',130,35000,'CV Susan Wilson Reseller'],
+                ['2026-05-24','Meru Lapis Bogor',150,35000,'CV Susan Wilson Reseller'],
+                ['2026-05-05','Okey Nugget Stik 500GR',190,18000,'CV Sony Frozen Food'],
+                ['2026-05-18','Okey Nugget Stik 500GR',270,18000,'CV Sony Frozen Food'],
+                ['2026-05-30','Okey Nugget Stik 500GR',190,18000,'CV Sony Frozen Food'],
+                ['2026-05-03','Cireng Rujak',180,13000,'CV Roker Jaya Frozen'],
+                ['2026-05-11','Cireng Rujak',180,13000,'CV Roker Jaya Frozen'],
+                ['2026-05-20','Cireng Rujak',200,13000,'CV Roker Jaya Frozen'],
+                ['2026-05-01','Salam Nugget 500GR',190,18000,'CV Sony Frozen Food'],
+                ['2026-05-11','Salam Nugget 500GR',180,18000,'CV Sony Frozen Food'],
+                ['2026-05-21','Salam Nugget 500GR',180,18000,'CV Sony Frozen Food'],
+                ['2026-05-02','Warisan Isi 50',160,28000,'CV Kylafood Nusantara'],
+                ['2026-05-08','Warisan Isi 50',100,28000,'CV Kylafood Nusantara'],
+                ['2026-05-14','Warisan Isi 50',250,28000,'CV Kylafood Nusantara'],
+                ['2026-05-20','Warisan Isi 50',250,28000,'CV Kylafood Nusantara'],
+                ['2026-05-03','Belfood Sosis Isi 30',300,18000,'PT Belfoods'],
+                ['2026-05-20','Belfood Sosis Isi 30',300,18900,'PT Belfoods'],
+                ['2026-05-31','Belfood Sosis Isi 30',150,18000,'PT Belfoods'],
+                ['2026-05-08','Richeese Nugget',250,18000,'PT Siomy Makmur'],
+                ['2026-05-19','Richeese Nugget',400,18000,'PT Siomy Makmur'],
+                ['2026-05-31','Richeese Nugget',260,18000,'PT Siomy Makmur'],
+            ];
+
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+
+            foreach ($rawData as $row) {
+                [$tgl, $namaProduk, $jumlah, $hargaBeli, $namaSupplier] = $row;
+
+                $product  = $getProduct($namaProduk);
+                if (!$product) { $skipped++; $logOutput .= "SKIP: Produk '$namaProduk' tidak ditemukan di DB\n"; continue; }
+
+                $supplier = $getSupplier($namaSupplier);
+
+                // Assign lokasi merata (rotate)
+                $lokasi = $lokasiPool[$lokasiIdx % count($lokasiPool)];
+                $lokasiIdx++;
+
+                // Generate batch code
+                $dateClean  = str_replace('-', '', $tgl);
+                $countToday = \App\Models\IncomingGood::whereDate('tanggal_masuk', $tgl)->count() + 1;
+                $batchCode  = 'BM-' . $dateClean . '-' . str_pad($countToday, 4, '0', STR_PAD_LEFT);
+                $expiry     = \Carbon\Carbon::parse($tgl)->addMonths(6)->toDateString();
+
+                $incoming = \App\Models\IncomingGood::create([
+                    'product_id'           => $product->id,
+                    'supplier_id'          => $supplier->id,
+                    'tanggal_masuk'        => $tgl,
+                    'jumlah'               => $jumlah,
+                    'satuan'               => $product->satuan,
+                    'harga_beli'           => $hargaBeli,
+                    'tanggal_kedaluwarsa'  => $expiry,
+                    'batch_code'           => $batchCode,
+                    'sumber_import'        => 'Import Demo DOCX',
+                    'id_lokasi'            => $lokasi,
+                    'keterangan'           => 'Import otomatis dari DATA_BARANG_MASUK_MARET_2026_REVISI.docx',
+                    'user_id'              => 1,
+                ]);
+
+                \App\Models\StockBatch::create([
+                    'product_id'           => $product->id,
+                    'incoming_good_id'     => $incoming->id,
+                    'batch_code'           => $batchCode,
+                    'tanggal_masuk'        => $tgl,
+                    'tanggal_kedaluwarsa'  => $expiry,
+                    'jumlah_awal'          => $jumlah,
+                    'jumlah_sisa'          => $jumlah,
+                    'satuan'               => $product->satuan,
+                ]);
+
+                $product->increment('stok_saat_ini', $jumlah);
+                $inserted++;
+            }
+
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+
+            $logOutput .= "Import Barang Masuk: $inserted transaksi berhasil diimpor, $skipped dilewati\n";
+            $logOutput .= "Lokasi dirotasi merata: FRZ-01, FRZ-02, FRZ-03, RAK-A, RAK-B, RAK-C, RAK-D\n";
+            $message     = "Sukses import $inserted data Barang Masuk (10 produk, 5 bulan, Jan–Mei 2026) dari DOCX! Lokasi merata di semua freezer & rak.";
+            $messageType = "success";
         }
     } catch (Exception $e) {
         $message = "Error: " . $e->getMessage();
@@ -1439,6 +1682,18 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('⚠️ PERINGATAN: Seluruh data barang masuk, barang keluar, stok, dan penjualan akan DIHAPUS dan diimpor ulang dari Excel. Lanjutkan?');">
                     <input type="hidden" name="action" value="full_reset_demo">
                     <button type="submit" class="btn btn-danger" style="background-color: #dc2626; box-shadow: none;">Reset Bersih &amp; Reimport</button>
+                </form>
+            </div>
+
+            <!-- Opsi 10: Impor Data Barang Masuk dari DOCX (10 Produk) -->
+            <div class="action-card" style="border: 2px solid rgba(16, 185, 129, 0.4); background-color: rgba(16, 185, 129, 0.05);">
+                <div class="action-info">
+                    <h3 class="action-title" style="color: #10b981;">10. Impor Data Barang Masuk 5 Bulan (10 Produk Utama - DOCX)</h3>
+                    <p class="action-desc">Mengimpor seluruh riwayat barang masuk dari data <code>DATA_BARANG_MASUK_MARET_2026_REVISI.docx</code> selama 5 bulan untuk 10 produk utama. Lokasi penyimpanan akan didistribusikan secara seimbang/merata ke <code>FRZ-01, FRZ-02, FRZ-03, RAK-A, RAK-B, RAK-C, RAK-D</code> agar data laporan rapi dan seimbang.</p>
+                </div>
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor data barang masuk 5 bulan dari data DOCX?');">
+                    <input type="hidden" name="action" value="import_barang_masuk">
+                    <button type="submit" class="btn btn-success" style="background-color: #059669; box-shadow: none;">Impor Barang Masuk DOCX</button>
                 </form>
             </div>
         <?php endif; ?>
