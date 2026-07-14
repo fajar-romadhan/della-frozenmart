@@ -351,6 +351,14 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 $dbName = $productName;
                 if ($productName === 'Champ Nugget Kombinasi 450GR') {
                     $dbName = 'Champ Nugget KombinasiI 450GR'; // database typo with double I
+                } elseif ($productName === 'Chicken Nugget Stick 250g') {
+                    $dbName = 'Okey Nugget Stik 250GR';
+                } elseif ($productName === 'Chicken Nugget Stick 500g') {
+                    $dbName = 'Okey Nugget Stik 500GR';
+                } elseif ($productName === 'Sallam Nugget 250 gr') {
+                    $dbName = 'Salam Nugget 250GR';
+                } elseif ($productName === 'Sallam Bakso Sapi 500 gr') {
+                    $dbName = 'Salam Bakso Sapi 500GR';
                 }
                 
                 $product = \App\Models\Product::whereRaw('LOWER(nama_produk) = ?', [strtolower($dbName)])->first();
