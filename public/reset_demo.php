@@ -1012,7 +1012,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
         } elseif ($action === 'full_reset_demo') {
             // ─── STEP 1: Wipe all transaction data ───────────────────────────────
             Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
-            Illuminate\Support\Facades\DB::table('outgoing_good_details')->truncate();
+            Illuminate\Support\Facades\DB::table('detail_barang_keluar')->truncate();
             Illuminate\Support\Facades\DB::table('barang_keluar')->truncate();
             Illuminate\Support\Facades\DB::table('stock_batches')->truncate();
             Illuminate\Support\Facades\DB::table('barang_masuk')->truncate();
