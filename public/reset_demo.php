@@ -873,6 +873,142 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             $logOutput .= "2. Kalkulasi ROP & Safety Stock: Berhasil ($recalculatedCount produk dianalisis)\n";
             $message = "Sukses mengimpor dan menyinkronkan data barang keluar sisa 5 bulan untuk 22 produk tambahan dengan metode FIFO!";
             $messageType = "success";
+        } elseif ($action === 'import_combined_sales') {
+            $excelFile = $baseDir . '/data produk/Della_FrozenMart_31Produk_Jan-Mei_2026_Gabungan (1).xlsx';
+            if (!file_exists($excelFile)) {
+                throw new Exception("File Excel penjualan gabungan tidak ditemukan di server: " . $excelFile);
+            }
+            
+            // Truncate penjualan and safety stock analyses
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
+            Illuminate\Support\Facades\DB::table('penjualan')->truncate();
+            Illuminate\Support\Facades\DB::table('analisa_persediaan')->truncate();
+            Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=1;');
+            
+            // Load file
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($excelFile);
+            $reader->setReadDataOnly(true);
+            $spreadsheet = $reader->load($excelFile);
+            
+            $sheets = ['Januari', 'Februari', 'Maret', 'April', 'Mei'];
+            
+            // Retrieve all products
+            $dbProducts = \App\Models\Product::all();
+            $dbProductsByName = [];
+            foreach ($dbProducts as $p) {
+                $dbProductsByName[strtolower(trim($p->nama_produk))] = $p;
+            }
+            
+            // We map columns from the 'Januari' sheet Row 3
+            $janSheet = $spreadsheet->getSheetByName('Januari');
+            if (!$janSheet) {
+                throw new Exception("Sheet 'Januari' tidak ditemukan!");
+            }
+            
+            $highestColumn = $janSheet->getHighestColumn();
+            $highestColumnIndex = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($highestColumn);
+            
+            $productColumns = []; // Col Letter => Product ID
+            $resolvedNames = [];
+            
+            for ($colIndex = 4; $colIndex <= $highestColumnIndex; $colIndex++) {
+                $colLetter = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::stringFromColumnIndex($colIndex);
+                $productName = $janSheet->getCell($colLetter . '3')->getValue();
+                
+                if (empty($productName)) {
+                    continue;
+                }
+                
+                $productName = trim($productName);
+                if (in_array(strtolower($productName), ['total qty', 'total penjualan (rp)', 'total penjualan', 'total'])) {
+                    continue;
+                }
+                
+                $dbName = $productName;
+                if ($productName === 'Champ Nugget Kombinasi 450GR') {
+                    $dbName = 'Champ Nugget KombinasiI 450GR';
+                } elseif ($productName === 'Chicken Nugget Stick 250g') {
+                    $dbName = 'Okey Nugget Stik 250GR';
+                } elseif ($productName === 'Chicken Nugget Stick 500g') {
+                    $dbName = 'Okey Nugget Stik 500GR';
+                } elseif ($productName === 'Sallam Nugget 250 gr') {
+                    $dbName = 'Salam Nugget 250GR';
+                } elseif ($productName === 'Sallam Bakso Sapi 500 gr') {
+                    $dbName = 'Salam Bakso Sapi 500GR';
+                }
+                
+                $product = \App\Models\Product::whereRaw('LOWER(nama_produk) = ?', [strtolower($dbName)])->first();
+                if ($product) {
+                    $productColumns[$colLetter] = $product->id;
+                    $resolvedNames[$colLetter] = $product->nama_produk;
+                } else {
+                    $logOutput .= "Peringatan: Produk '$productName' di Excel tidak ditemukan di database!\n";
+                }
+            }
+            
+            $insertCount = 0;
+            foreach ($sheets as $sheetName) {
+                $sheet = $spreadsheet->getSheetByName($sheetName);
+                if (!$sheet) {
+                    $logOutput .= "Peringatan: Sheet '$sheetName' tidak ditemukan!\n";
+                    continue;
+                }
+                
+                $highestRow = $sheet->getHighestRow();
+                for ($row = 4; $row <= $highestRow; $row++) {
+                    $dateVal = $sheet->getCell('B' . $row)->getValue();
+                    if (empty($dateVal)) {
+                        continue;
+                    }
+                    
+                    // Convert Excel serial date to PHP DateTime
+                    if (is_numeric($dateVal)) {
+                        $parsedDate = \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($dateVal);
+                        $dateStr = $parsedDate->format('Y-m-d');
+                    } else {
+                        try {
+                            $dateStr = \Carbon\Carbon::parse($dateVal)->format('Y-m-d');
+                        } catch (\Exception $ex) {
+                            continue; // skip invalid date
+                        }
+                    }
+                    
+                    foreach ($productColumns as $col => $prodId) {
+                        $qty = $sheet->getCell($col . $row)->getValue();
+                        $qty = ($qty !== null && $qty !== '') ? (int) $qty : 0;
+                        
+                        if ($qty > 0) {
+                            \App\Models\Sale::create([
+                                'product_id' => $prodId,
+                                'tanggal_penjualan' => $dateStr,
+                                'jumlah_terjual' => $qty,
+                                'sumber_import' => 'Excel Gabungan',
+                                'nama_file_import' => 'Della_FrozenMart_31Produk_Jan-Mei_2026_Gabungan (1).xlsx',
+                                'user_id' => 1,
+                            ]);
+                            $insertCount++;
+                        }
+                    }
+                }
+            }
+            
+            // Trigger recalculation of Safety Stock / ROP for all products
+            $safetyStockService = app(\App\Services\SafetyStockService::class);
+            $recalculatedCount = 0;
+            
+            $uniqueProductIds = array_unique(array_values($productColumns));
+            foreach ($uniqueProductIds as $prodId) {
+                $product = \App\Models\Product::find($prodId);
+                if ($product) {
+                    $safetyStockService->calculate($product, 3, '2026-01-01', '2026-05-31');
+                    $recalculatedCount++;
+                }
+            }
+            
+            $logOutput .= "1. Import data penjualan gabungan dari Excel: Berhasil ($insertCount baris dimasukkan)\n";
+            $logOutput .= "2. Kalkulasi ROP & Safety Stock untuk seluruh produk: Berhasil ($recalculatedCount produk dianalisis)\n";
+            $message = "Sukses mengimpor data penjualan 5 bulan untuk 31 produk dari Excel Gabungan! ROP & Safety Stock otomatis dikalkulasi.";
+            $messageType = "success";
         }
     } catch (Exception $e) {
         $message = "Error: " . $e->getMessage();
@@ -1194,6 +1330,18 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor data barang keluar sisa 5 bulan untuk 22 produk?');">
                     <input type="hidden" name="action" value="import_remaining_outgoing">
                     <button type="submit" class="btn btn-info" style="background-color: var(--accent-info); box-shadow: none;">Impor Barang Keluar Sisa</button>
+                </form>
+            </div>
+
+            <!-- Opsi 8: Impor Data Penjualan Gabungan 31 Produk dari Excel -->
+            <div class="action-card" style="border: 2px solid rgba(56, 189, 248, 0.4); background-color: rgba(56, 189, 248, 0.05);">
+                <div class="action-info">
+                    <h3 class="action-title" style="color: #38bdf8;">8. Impor Data Penjualan Gabungan 5 Bulan (31 Produk)</h3>
+                    <p class="action-desc">Membaca file gabungan terbaru <code>data produk/Della_FrozenMart_31Produk_Jan-Mei_2026_Gabungan (1).xlsx</code>, mengosongkan seluruh riwayat penjualan lama, lalu mengimpor seluruh data penjualan 31 produk sekaligus untuk sinkronisasi sempurna.</p>
+                </div>
+                <form method="POST" action="?key=<?php echo htmlspecialchars($secureKey); ?>" onsubmit="return confirm('Apakah Anda yakin ingin mengimpor seluruh data penjualan gabungan 31 produk? Seluruh data penjualan lama akan di-reset.');">
+                    <input type="hidden" name="action" value="import_combined_sales">
+                    <button type="submit" class="btn btn-info" style="background-color: #0284c7; box-shadow: none;">Impor Penjualan Gabungan</button>
                 </form>
             </div>
         <?php endif; ?>
