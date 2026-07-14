@@ -49,7 +49,7 @@
 
                         <div class="mb-3">
                             <label for="tanggal_kedaluwarsa" class="form-label fw-semibold">Tanggal Kedaluwarsa</label>
-                            <input type="date" name="tanggal_kedaluwarsa" id="tanggal_kedaluwarsa" class="form-control @error('tanggal_kedaluwarsa') is-invalid @enderror" value="{{ old('tanggal_kedaluwarsa') }}">
+                            <input type="date" name="tanggal_kedaluwarsa" id="tanggal_kedaluwarsa" class="form-control @error('tanggal_kedaluwarsa') is-invalid @enderror" value="{{ old('tanggal_kedaluwarsa') }}" min="2026-01-01">
                             @error('tanggal_kedaluwarsa') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         </div>
 

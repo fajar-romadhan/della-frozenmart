@@ -664,7 +664,7 @@
                 <div class="opname-filter-row">
                     <div class="filter-group" style="width: 25%;">
                         <label class="form-label-custom">Tanggal Opname</label>
-                        <input type="date" class="form-control" id="tanggalOpname" value="{{ date('Y-m-d') }}">
+                        <input type="date" class="form-control" id="tanggalOpname" value="{{ date('Y-m-d') }}" min="2026-01-01">
                     </div>
                     <div class="filter-group" style="width: 25%;">
                         <label class="form-label-custom">ID Lokasi</label>

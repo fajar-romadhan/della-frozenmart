@@ -473,7 +473,7 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="tanggal_masuk" class="form-label-custom">Tanggal <span class="text-danger">*</span></label>
-                        <input type="date" name="tanggal_masuk" id="tanggal_masuk" class="form-control form-control-custom @error('tanggal_masuk') is-invalid @enderror" value="{{ old('tanggal_masuk', date('Y-m-d')) }}" required>
+                        <input type="date" name="tanggal_masuk" id="tanggal_masuk" class="form-control form-control-custom @error('tanggal_masuk') is-invalid @enderror" value="{{ old('tanggal_masuk', date('Y-m-d')) }}" required min="2026-01-01">
                         @error('tanggal_masuk') <div class="invalid-feedback">{{ $message }}</div> @enderror
                         <div class="lock-indicator" id="dateLockIndicator">
                             <i class="ph ph-lock-key"></i> Kunci aktif karena terdapat item di tabel.

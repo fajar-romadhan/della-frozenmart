@@ -534,10 +534,9 @@
                                 <label class="form-label-custom">
                                     <i class="ph ph-calendar-blank text-muted" style="font-size: 1rem;"></i>
                                     Tanggal Keluar <span class="text-danger">*</span>
-                                </label>
                                 <input type="date" name="tanggal_keluar" id="tanggal_keluar" 
                                     class="form-control @error('tanggal_keluar') is-invalid @enderror" 
-                                    value="{{ old('tanggal_keluar', date('Y-m-d')) }}" required>
+                                    value="{{ old('tanggal_keluar', date('Y-m-d')) }}" required min="2026-01-01">
                                 @error('tanggal_keluar') <div class="invalid-feedback">{{ $message }}</div> @enderror
                             </div>
                             <div class="col-md-6">
