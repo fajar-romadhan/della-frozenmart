@@ -495,13 +495,7 @@
         </div>
     </div>
 
-    {{-- Info Banner --}}
-    <div class="info-banner">
-        <i class="ph ph-lightbulb-filament"></i>
-        <div>
-            <strong>Metode FIFO Aktif.</strong> Stok akan otomatis dikurangi dari batch yang paling awal masuk (First In, First Out). Pastikan jumlah barang keluar tidak melebihi stok yang tersedia.
-        </div>
-    </div>
+
 
     {{-- Error Display --}}
     @if($errors->any())
@@ -651,15 +645,7 @@
                         </div>
                         @error('jenis_keluar') <div class="text-danger" style="font-size: 0.82rem; margin-top: -8px; margin-bottom: 12px;">{{ $message }}</div> @enderror
 
-                        <label class="form-label-custom mt-1">
-                            <i class="ph ph-note-pencil text-muted" style="font-size: 1rem;"></i>
-                            Keterangan / Tujuan
-                        </label>
-                        <textarea name="keterangan" id="keterangan" rows="3" 
-                            class="form-control" 
-                            placeholder="Contoh: Dijual ke toko cabang Jl. Melati..."
-                            maxlength="255">{{ old('keterangan') }}</textarea>
-                        <div class="char-counter"><span id="charCount">0</span>/255 karakter</div>
+                        <input type="hidden" name="keterangan" id="keterangan" value="">
                     </div>
                 </div>
             </div>
@@ -893,10 +879,12 @@ document.addEventListener('DOMContentLoaded', function() {
     tanggalInput.addEventListener('change', updateSummary);
 
     // Character counter
-    keteranganInput.addEventListener('input', function() {
-        charCount.textContent = this.value.length;
-    });
-    charCount.textContent = keteranganInput.value.length;
+    if (keteranganInput && charCount) {
+        keteranganInput.addEventListener('input', function() {
+            charCount.textContent = this.value.length;
+        });
+        charCount.textContent = keteranganInput.value.length;
+    }
 
     function updateSummary() {
         // Date

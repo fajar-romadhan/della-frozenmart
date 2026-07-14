@@ -4,13 +4,7 @@
 
 @section('content')
 <div class="container-fluid">
-    {{-- Info Alert Banner --}}
-    <div class="alert alert-info border-0 d-flex align-items-center mb-4 shadow-sm" role="alert" style="background-color: #f0fdfa; color: #0f766e;">
-        <i class="ph ph-info-semibold fs-4 me-3" style="color: #0d9488 !important;"></i>
-        <div class="small fw-semibold">
-            Laporan barang keluar dibuat secara otomatis oleh sistem setiap kali admin mencatat barang yang keluar.
-        </div>
-    </div>
+
 
     {{-- Filter Panel --}}
     <div class="card border-0 shadow-sm mb-4 no-print">
@@ -233,10 +227,7 @@
         </div>
     </div>
 
-    {{-- Bottom Branded Banner --}}
-    <div class="text-muted text-center small mt-4 no-print">
-        <i class="ph ph-info-semibold me-1"></i> Data pada laporan ini diambil secara otomatis oleh sistem saat admin mencatat barang keluar.
-    </div>
+
 </div>
 
 <style>
