@@ -364,11 +364,11 @@
         <form method="GET" action="{{ route('barang-keluar.index') }}" class="row g-3" id="formFilterBarangKeluar">
             <div class="col-md-2">
                 <label class="filter-label">Dari Tanggal</label>
-                <input type="date" name="tanggal_dari" class="form-control form-control-sm" value="{{ request('tanggal_dari') }}">
+                <input type="date" name="tanggal_dari" class="form-control form-control-sm" value="{{ request('tanggal_dari') }}" min="2026-01-01">
             </div>
             <div class="col-md-2">
                 <label class="filter-label">Sampai Tanggal</label>
-                <input type="date" name="tanggal_sampai" class="form-control form-control-sm" value="{{ request('tanggal_sampai') }}">
+                <input type="date" name="tanggal_sampai" class="form-control form-control-sm" value="{{ request('tanggal_sampai') }}" min="2026-01-01">
             </div>
             <div class="col-md-3">
                 <label class="filter-label">Produk</label>

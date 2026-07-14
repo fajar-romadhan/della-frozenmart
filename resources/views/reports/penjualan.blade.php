@@ -26,9 +26,9 @@
                     <form method="GET" action="{{ route('laporan.penjualan') }}" id="formFilterPenjualan">
                         <label class="form-label small fw-bold text-muted mb-2">Periode Tanggal</label>
                         <div class="input-group mb-3">
-                            <input type="date" name="tanggal_dari" class="form-control" value="{{ request('tanggal_dari') }}">
+                            <input type="date" name="tanggal_dari" class="form-control" value="{{ request('tanggal_dari') }}" min="2026-01-01">
                             <span class="input-group-text bg-light">s/d</span>
-                            <input type="date" name="tanggal_sampai" class="form-control" value="{{ request('tanggal_sampai') }}">
+                            <input type="date" name="tanggal_sampai" class="form-control" value="{{ request('tanggal_sampai') }}" min="2026-01-01">
                         </div>
                         <button type="submit" class="btn btn-primary w-100"><i class="ph ph-funnel me-2"></i> Terapkan Filter</button>
                     </form>
