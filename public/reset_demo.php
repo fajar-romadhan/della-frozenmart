@@ -1014,7 +1014,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
             Illuminate\Support\Facades\DB::statement('SET FOREIGN_KEY_CHECKS=0;');
             Illuminate\Support\Facades\DB::table('detail_barang_keluar')->truncate();
             Illuminate\Support\Facades\DB::table('barang_keluar')->truncate();
-            Illuminate\Support\Facades\DB::table('stock_batches')->truncate();
+            Illuminate\Support\Facades\DB::table('batch_stok')->truncate();
             Illuminate\Support\Facades\DB::table('barang_masuk')->truncate();
             Illuminate\Support\Facades\DB::table('penjualan')->truncate();
             Illuminate\Support\Facades\DB::table('analisa_persediaan')->truncate();
