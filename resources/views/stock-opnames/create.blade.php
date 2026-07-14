@@ -741,9 +741,6 @@
                         <button type="button" class="btn-wizard-next" id="btnSimpanLangsung" style="background: #10b981; gap: 6px;">
                             <i class="ph ph-floppy-disk" style="font-size: 1.1rem; vertical-align: middle;"></i> Simpan Langsung
                         </button>
-                        <button type="button" class="btn-wizard-next" id="btnGoToStep3">
-                            Selanjutnya: Review Selisih <i class="ph ph-arrow-right" style="font-size: 1.1rem;"></i>
-                        </button>
                     </div>
                 </div>
             </div>
@@ -1120,142 +1117,163 @@ document.addEventListener('DOMContentLoaded', function() {
     const statCardLokasi = document.getElementById('statCardLokasi');
 
     // Go to Step 3 (Review Selisih)
-    document.getElementById('btnGoToStep3').addEventListener('click', function() {
-        let hasData = false;
-        document.querySelectorAll('.stok-fisik-input').forEach(input => {
-            if (input.value !== '' && !isNaN(parseInt(input.value))) {
-                hasData = true;
+    // Go to Step 3 (Review Selisih)
+    const btnGoToStep3 = document.getElementById('btnGoToStep3');
+    if (btnGoToStep3) {
+        btnGoToStep3.addEventListener('click', function() {
+            let hasData = false;
+            document.querySelectorAll('.stok-fisik-input').forEach(input => {
+                if (input.value !== '' && !isNaN(parseInt(input.value))) {
+                    hasData = true;
+                }
+            });
+
+            if (!hasData) {
+                alert('Silakan isi minimal satu produk dengan stok fisik sebelum melanjutkan.');
+                return;
             }
+
+            // Stepper Visuals
+            circle2.innerHTML = '<i class="ph ph-check-bold" style="font-size: 1rem;"></i>';
+            circle2.className = 'step-circle completed';
+            label2.textContent = 'Selesai';
+            label2.className = 'step-sublabel completed';
+
+            circle3.className = 'step-circle active';
+            label3.textContent = 'Aktif';
+            label3.className = 'step-sublabel active';
+
+            line2.className = 'step-line completed';
+
+            // Show location card
+            statCardLokasi.classList.remove('d-none');
+            
+            // Sync Location
+            const locSelect = document.getElementById('idLokasi');
+            const locText = locSelect.options[locSelect.selectedIndex].text;
+            const locVal = locSelect.value;
+            document.getElementById('statLokasi').innerHTML = locVal + ' <br><small class="text-muted fw-normal" style="font-size: 0.72rem;">' + locText.substring(locText.indexOf('(') + 1, locText.indexOf(')')) + '</small>';
+            document.getElementById('confirmLokasi').textContent = locVal + ' - ' + locText.substring(locText.indexOf('(') + 1, locText.indexOf(')'));
+
+            // Populate step 3 table (Only products with difference)
+            populateReviewTable();
+
+            // Switch containers
+            stepHitung.style.display = 'none';
+            stepReview.style.display = 'block';
+            stepSimpan.style.display = 'none';
+            
+            window.scrollTo(0, 0);
         });
-
-        if (!hasData) {
-            alert('Silakan isi minimal satu produk dengan stok fisik sebelum melanjutkan.');
-            return;
-        }
-
-        // Stepper Visuals
-        circle2.innerHTML = '<i class="ph ph-check-bold" style="font-size: 1rem;"></i>';
-        circle2.className = 'step-circle completed';
-        label2.textContent = 'Selesai';
-        label2.className = 'step-sublabel completed';
-
-        circle3.className = 'step-circle active';
-        label3.textContent = 'Aktif';
-        label3.className = 'step-sublabel active';
-
-        line2.className = 'step-line completed';
-
-        // Show location card
-        statCardLokasi.classList.remove('d-none');
-        
-        // Sync Location
-        const locSelect = document.getElementById('idLokasi');
-        const locText = locSelect.options[locSelect.selectedIndex].text;
-        const locVal = locSelect.value;
-        document.getElementById('statLokasi').innerHTML = locVal + ' <br><small class="text-muted fw-normal" style="font-size: 0.72rem;">' + locText.substring(locText.indexOf('(') + 1, locText.indexOf(')')) + '</small>';
-        document.getElementById('confirmLokasi').textContent = locVal + ' - ' + locText.substring(locText.indexOf('(') + 1, locText.indexOf(')'));
-
-        // Populate step 3 table (Only products with difference)
-        populateReviewTable();
-
-        // Switch containers
-        stepHitung.style.display = 'none';
-        stepReview.style.display = 'block';
-        stepSimpan.style.display = 'none';
-        
-        window.scrollTo(0, 0);
-    });
+    }
 
     // Direct submit from Step 2
-    document.getElementById('btnSimpanLangsung').addEventListener('click', function() {
-        let hasData = false;
-        document.querySelectorAll('#opnameTableBody .stok-fisik-input').forEach(input => {
-            if (input.value !== '' && !isNaN(parseInt(input.value))) {
-                hasData = true;
+    const btnSimpanLangsung = document.getElementById('btnSimpanLangsung');
+    if (btnSimpanLangsung) {
+        btnSimpanLangsung.addEventListener('click', function() {
+            let hasData = false;
+            document.querySelectorAll('#opnameTableBody .stok-fisik-input').forEach(input => {
+                if (input.value !== '' && !isNaN(parseInt(input.value))) {
+                    hasData = true;
+                }
+            });
+
+            if (!hasData) {
+                alert('Silakan isi minimal satu produk dengan stok fisik sebelum menyimpan.');
+                return;
+            }
+
+            if (confirm('Apakah Anda yakin ingin langsung menyimpan hasil penyesuaian stok opname ini?')) {
+                const btnSubmit = document.getElementById('btnSubmitOpname');
+                if (btnSubmit) {
+                    btnSubmit.click();
+                } else {
+                    document.getElementById('formOpname').submit();
+                }
             }
         });
-
-        if (!hasData) {
-            alert('Silakan isi minimal satu produk dengan stok fisik sebelum menyimpan.');
-            return;
-        }
-
-        if (confirm('Apakah Anda yakin ingin langsung menyimpan hasil penyesuaian stok opname ini?')) {
-            document.getElementById('btnSubmitOpname').click();
-        }
-    });
+    }
 
     // Go back to Step 2
-    document.getElementById('btnBackToStep2').addEventListener('click', function() {
-        // Reset Stepper
-        circle2.innerHTML = '2';
-        circle2.className = 'step-circle active';
-        label2.textContent = 'Aktif';
-        label2.className = 'step-sublabel active';
+    const btnBackToStep2 = document.getElementById('btnBackToStep2');
+    if (btnBackToStep2) {
+        btnBackToStep2.addEventListener('click', function() {
+            // Reset Stepper
+            circle2.innerHTML = '2';
+            circle2.className = 'step-circle active';
+            label2.textContent = 'Aktif';
+            label2.className = 'step-sublabel active';
 
-        circle3.className = 'step-circle pending';
-        label3.textContent = 'Belum Aktif';
-        label3.className = 'step-sublabel';
+            circle3.className = 'step-circle pending';
+            label3.textContent = 'Belum Aktif';
+            label3.className = 'step-sublabel';
 
-        line2.className = 'step-line pending';
+            line2.className = 'step-line pending';
 
-        // Hide location card
-        statCardLokasi.classList.add('d-none');
+            // Hide location card
+            statCardLokasi.classList.add('d-none');
 
-        // Switch containers
-        stepHitung.style.display = 'block';
-        stepReview.style.display = 'none';
-        stepSimpan.style.display = 'none';
-        
-        window.scrollTo(0, 0);
-    });
+            // Switch containers
+            stepHitung.style.display = 'block';
+            stepReview.style.display = 'none';
+            stepSimpan.style.display = 'none';
+            
+            window.scrollTo(0, 0);
+        });
+    }
 
     // Go to Step 4 (Simpan Penyesuaian)
-    document.getElementById('btnGoToStep4').addEventListener('click', function() {
-        // Stepper Visuals
-        circle3.innerHTML = '<i class="ph ph-check-bold" style="font-size: 1rem;"></i>';
-        circle3.className = 'step-circle completed';
-        label3.textContent = 'Selesai';
-        label3.className = 'step-sublabel completed';
+    const btnGoToStep4 = document.getElementById('btnGoToStep4');
+    if (btnGoToStep4) {
+        btnGoToStep4.addEventListener('click', function() {
+            // Stepper Visuals
+            circle3.innerHTML = '<i class="ph ph-check-bold" style="font-size: 1rem;"></i>';
+            circle3.className = 'step-circle completed';
+            label3.textContent = 'Selesai';
+            label3.className = 'step-sublabel completed';
 
-        circle4.className = 'step-circle active';
-        label4.textContent = 'Aktif';
-        label4.className = 'step-sublabel active';
+            circle4.className = 'step-circle active';
+            label4.textContent = 'Aktif';
+            label4.className = 'step-sublabel active';
 
-        line3.className = 'step-line completed';
+            line3.className = 'step-line completed';
 
-        // Populate step 4 table
-        populateConfirmTable();
+            // Populate step 4 table
+            populateConfirmTable();
 
-        // Switch containers
-        stepHitung.style.display = 'none';
-        stepReview.style.display = 'none';
-        stepSimpan.style.display = 'block';
-        
-        window.scrollTo(0, 0);
-    });
+            // Switch containers
+            stepHitung.style.display = 'none';
+            stepReview.style.display = 'none';
+            stepSimpan.style.display = 'block';
+            
+            window.scrollTo(0, 0);
+        });
+    }
 
     // Go back to Step 3
-    document.getElementById('btnBackToStep3').addEventListener('click', function() {
-        // Reset Stepper
-        circle3.innerHTML = '3';
-        circle3.className = 'step-circle active';
-        label3.textContent = 'Aktif';
-        label3.className = 'step-sublabel active';
+    const btnBackToStep3 = document.getElementById('btnBackToStep3');
+    if (btnBackToStep3) {
+        btnBackToStep3.addEventListener('click', function() {
+            // Reset Stepper
+            circle3.innerHTML = '3';
+            circle3.className = 'step-circle active';
+            label3.textContent = 'Aktif';
+            label3.className = 'step-sublabel active';
 
-        circle4.className = 'step-circle pending';
-        label4.textContent = 'Belum Aktif';
-        label4.className = 'step-sublabel';
+            circle4.className = 'step-circle pending';
+            label4.textContent = 'Belum Aktif';
+            label4.className = 'step-sublabel';
 
-        line3.className = 'step-line pending';
+            line3.className = 'step-line pending';
 
-        // Switch containers
-        stepHitung.style.display = 'none';
-        stepReview.style.display = 'block';
-        stepSimpan.style.display = 'none';
-        
-        window.scrollTo(0, 0);
-    });
+            // Switch containers
+            stepHitung.style.display = 'none';
+            stepReview.style.display = 'block';
+            stepSimpan.style.display = 'none';
+            
+            window.scrollTo(0, 0);
+        });
+    }
 
     // Populate Review Table (Step 3)
     function populateReviewTable() {
