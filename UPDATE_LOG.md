@@ -5,59 +5,58 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 
 ---
 
-## 1. Status Pekerjaan Terakhir (Selesai)
+## 1. Status Pekerjaan Terakhir (Selesai Sesi Ini)
 
-### 1.1 Penyelarasan Nama Produk (Database & Excel)
-* **Masalah**: Nama produk antara seeder awal (`ProductSeeder.php`) tidak konsisten dengan kolom di Excel Gabungan (`Della_FrozenMart_31Produk_Jan-Mei_2026_Gabungan (1).xlsx`), terutama produk `PRD-0019` yang sebelumnya bernama `Kentang Goreng 500 gram` tetapi di Excel kolomnya bernama `Chicken Nugget Stick 500g`.
-* **Solusi**: 
-  - Membuat database migration `2026_07_15_000000_align_product_names_with_excel.php` untuk mengubah nama 7 produk di database agar sama persis dengan nama kolom di Excel.
-  - Memperbarui array produk di `ProductSeeder.php` agar selaras.
-  - Menghapus logika override alias/mapping manual di `reset_demo.php`, `check_db_excel.php`, `ImportPenjualanController.php`, dan `InventoryAnalysisController.php` karena nama produk saat ini sudah cocok 100% secara alami.
+### 1.1 Visualisasi Notifikasi Stok (Dropdown)
+* **Masalah**: Dropdown notifikasi sebelumnya tidak menampilkan label penanda tipe notifikasi, sehingga user kesulitan membedakan status notifikasi secara visual.
+* **Solusi**:
+  - Mengirimkan field `status` dari backend API (`NotificationController.php`).
+  - Menampilkan badge label **ORDER** (merah pastel) dan **WARNING** (kuning pastel) secara eksplisit di sebelah judul notifikasi dropdown (`app.blade.php`).
+  - Mempercepat Cache TTL dropdown dari **30 detik menjadi 5 detik** agar data stok terupdate lebih responsif.
 
-### 1.2 Import & Reset Demo
-* **Opsi 9 (Reset Bersih & Reimport Penjualan Gabungan)**: Berhasil membersihkan transaksi lama dan mengimpor **3.491 baris data penjualan** dari Excel Gabungan secara bersih.
-* **Opsi 10 (Import Laporan Barang Masuk DOCX)**: Berhasil mengimpor **132 transaksi barang masuk** dari `DATA_BARANG_MASUK_MARET_2026_REVISI.docx` dengan lokasi penyimpanan yang merata (`FRZ-01` s/d `RAK-D`).
-* **Verifikasi Sinkronisasi**: Selisih data penjualan antara Excel Gabungan dengan database sistem adalah **0 (PAS 100%)** untuk seluruh 31 produk.
+### 1.2 Pembatasan Akses Fitur Pemesanan (Role Manager Only)
+* **Masalah**: Tombol dan fitur "Buat Pemesanan" sebelumnya dapat diakses oleh Admin, padahal seharusnya hanya boleh dilakukan oleh Manager.
+* **Solusi**:
+  - Menyembunyikan tombol/link "Buat Pemesanan" dari role **Admin** di 4 halaman UI:
+    1. Header Laporan Pemesanan (`purchase-orders/index.blade.php`).
+    2. Box Alert Detail Analisa (`inventory-analysis/show.blade.php`).
+    3. Dropdown Menu Tabel Analisa (`inventory-analysis/index.blade.php`).
+    4. Box Rekomendasi Forecasting (`forecasting/index.blade.php`).
+  - Menambahkan pengaman backend (`abort(403)`) di method `create()` dan `store()` pada `PurchaseOrderController.php` untuk mencegah akses URL secara langsung oleh Admin.
 
-### 1.3 Penguncian Baseline AU (Average Usage)
-* Formula AU dikunci pada periode baseline **1 Januari 2026 s/d 31 Mei 2026** (total **151 hari**) di dalam `SafetyStockService.php` agar nilai Safety Stock dan ROP tetap stabil meskipun ada penambahan transaksi keluar harian baru.
+### 1.3 Penyesuaian Menu & Tampilan Sidebar
+* **Laporan Pemesanan Owner**: Mengganti menu "Laporan Penjualan" menjadi "Laporan Pemesanan Produk" pada sidebar untuk role **Owner** agar selaras dengan menu role lainnya.
+* **Perbaikan Text Truncation**: Mengubah CSS `.sidebar-text` di `public/css/app.css` dengan menerapkan `white-space: normal` dan `line-height: 1.25` sehingga menu yang panjang seperti **"Laporan Pemesanan Produk"** dapat membungkus secara otomatis (*text wrap*) ke baris baru dan tidak terpotong lagi.
 
-### 1.4 Penghilangan Keterangan Impor & Penyesuaian Notifikasi Stok
-* **Laporan Barang Masuk**: Menyembunyikan tampilan teks `Ket: Import otomatis dari DATA_BARANG_MASUK_MARET_2026_REVISI.docx` dari nama produk di halaman web (`barang-masuk.blade.php`) dan cetak (`barang-masuk-print.blade.php`) jika isinya mengandung kata `'Import otomatis'`.
-* **Reset Demo**: Mengubah value keterangan import otomatis di `public/reset_demo.php` menjadi `null` agar database bersih.
-* **Notifikasi Stok Dropdown**: Penyesuaian judul dropdown notifikasi di `NotificationController.php`:
-  * Menggunakan **"Stok Habis"** jika stok benar-benar $\le 0$.
-  * Menggunakan **"Perlu Order"** jika stok $> 0$ tetapi $\le ROP$.
-  * Menggunakan **"Stok Menipis"** jika statusnya `Warning`.
-* **Formula Status Stok**: Memperbaiki logika status di `SafetyStockService.php` agar sesuai dengan `DOKUMENTASI_SISTEM.md`:
-  * `Order`: Stok Saat Ini $\le$ ROP.
-  * `Warning`: ROP $<$ Stok Saat Ini $\le$ (ROP + Safety Stock).
-  * `Aman`: Stok Saat Ini $>$ (ROP + Safety Stock).
+### 1.4 Pembersihan Widget Profil Toko & Tabel ROP Dashboard
+* **Profil Toko**: Menghapus widget kartu **Profil Toko** beserta modal edit dan logic JavaScript-nya di seluruh dashboard (Admin, Manager, dan Owner).
+* **ROP Dashboard Owner**: Menghapus tabel **Daftar Rekomendasi Pemesanan Ulang (ROP)** dari dashboard Owner.
+* **Executive Stats Owner**: Menghapus kartu statistik **"Penjualan Bulan Lalu"** (karena bernilai 0 pcs dan tidak dibutuhkan) serta menata sisa kartu ke grid `col-md-4` agar sejajar rapi.
+* **Grid Dashboard Admin**: Mengubah kelas pembungkus kolom kiri Admin dari `col-lg-8` menjadi `col-lg-12` agar tampilan dashboard melebar penuh secara estetis pasca penghapusan kartu Profil Toko.
+
+### 1.5 Pembersihan Teks Stok Opname
+* Menghapus kalimat penjelasan *"Kelola pencocokan stok fisik dengan stok pada sistem."* pada header halaman index dan create Stok Opname.
+* Menghapus info-box *"Perbandingan stok sistem vs stok fisik..."* di atas tabel riwayat Stok Opname.
 
 ---
 
 ## 2. Status Data Terakhir di Database (Live & Lokal)
 * **Total Produk**: 31 Item (nama selaras dengan Excel).
 * **Transaksi Barang Masuk**: 132 Record (berasal dari Word Maret, mencakup 10 produk).
-* **Transaksi Penjualan (Excel)**: 3491 Record.
-* **Stok Aktif saat ini**: Hanya terisi untuk 10 produk yang memiliki data barang masuk (stok fisik produk lainnya adalah 0).
-* **Transaksi Barang Keluar**: 0 Record (bersih, siap diuji untuk penambahan manual).
+* **Transaksi Penjualan (Excel)**: 3.491 Record.
+* **Transaksi Barang Keluar**: 0 Record (bersih, siap digunakan untuk pencatatan harian baru).
 
 ---
 
 ## 3. Langkah Menjalankan Perubahan di Server cPanel Live
-Jika pekerjaan akan dilanjutkan di server hosting, jalankan perintah ini di Terminal SSH cPanel:
+Jalankan perintah ini di Terminal SSH cPanel:
 
 ```bash
 cd public_html
 git stash
 git pull origin main
 git stash pop
-php artisan migrate
 ```
 
 Lalu bersihkan cache dengan membuka:
 `http://dellafrozenmart.my.id/clean.php?key=DellaFrozenMart2026_SecureKey`
-
-Jalankan **Opsi 9** dan **Opsi 10** pada halaman reset demo live:
-`http://dellafrozenmart.my.id/reset_demo.php?key=DellaFrozenMart2026_SecureKey`
