@@ -18,17 +18,13 @@ class ForecastingController extends Controller
         $historicalYear = $latestSale ? Carbon::parse($latestSale->tanggal_keluar)->year : Carbon::now()->year;
         $forecastYear = $historicalYear + 1;
         
-        $coreProductCodes = ['PRD-0011', 'PRD-0028', 'PRD-0012', 'PRD-0022', 'PRD-0005', 'PRD-0008', 'PRD-0026', 'PRD-0018', 'PRD-0030', 'PRD-0023'];
         $comparisonData = [];
         
         $zScore = 1.65; // 95% service level
         $growthRate = 0.10; // 10% growth
         $leadTime = 3; // 3 days lead time
 
-        foreach ($coreProductCodes as $code) {
-            $product = Product::where('kode_produk', $code)->first();
-            if (!$product) continue;
-            
+        foreach ($products as $product) {
             $salesTotal = OutgoingGood::where('product_id', $product->id)
                 ->whereYear('tanggal_keluar', $historicalYear)
                 ->sum('jumlah') ?: 0;
@@ -63,6 +59,7 @@ class ForecastingController extends Controller
             $recTotal = $forecastTotal + ($safetyStock * 5);
             
             $comparisonData[] = [
+                'id' => $product->id,
                 'kode' => $product->kode_produk,
                 'nama' => $product->nama_produk,
                 'sales_total' => intval($salesTotal),

@@ -303,33 +303,33 @@
             </span>
         </div>
         <div class="table-responsive">
-            <table class="table align-middle table-hover">
+            <table class="table align-middle table-hover" id="tableComparisonHistory">
                 <thead class="table-light">
                     <tr>
                         <th width="50" class="text-center">No</th>
                         <th>Produk</th>
                         <th class="text-center">Periode</th>
                         <th class="text-center">Musim</th>
-                        <th class="text-end">Data Tahun Sebelumnya (2026)</th>
-                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Hasil Ramalan (2027)</th>
+                        <th class="text-end">Data Tahun Sebelumnya ({{ $historicalYear }})</th>
+                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Hasil Ramalan ({{ $forecastYear }})</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody id="tableComparisonHistoryBody">
                     @foreach($comparisonData as $index => $item)
-                        <tr>
+                        <tr data-product-id="{{ $item['id'] }}">
                             <td class="text-center fw-semibold text-muted">{{ $index + 1 }}</td>
                             <td class="fw-bold text-slate-800">
                                 <div>{{ $item['nama'] }}</div>
                                 <span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 5px; font-size: 0.7rem; font-weight: 600;">{{ $item['kode'] }}</span>
                             </td>
                              <td class="text-center">
-                                <span class="badge-periode-forecast">Tahun Depan (2027)</span>
+                                <span class="badge-periode-forecast">Tahun Depan ({{ $forecastYear }})</span>
                              </td>
-                             <td class="text-center">
+                             <td class="text-center badge-cell">
                                 <span class="badge-musim-forecast">Seasonal Index (Aktif)</span>
                              </td>
-                            <td class="text-end fw-medium">{{ number_format($item['sales_total']) }} pcs</td>
-                            <td class="text-end text-success fw-bold" style="background-color: #f0fdf4;">{{ number_format($item['rec_total']) }} pcs</td>
+                            <td class="text-end fw-medium sales-cell">{{ number_format($item['sales_total']) }} pcs</td>
+                            <td class="text-end text-success fw-bold rec-cell" style="background-color: #f0fdf4;">{{ number_format($item['rec_total']) }} pcs</td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -533,6 +533,41 @@
                     document.getElementById('statCorrected').textContent = res.totals.corrected.toLocaleString('id-ID') + ' pcs';
                     document.getElementById('statStdDev').textContent = res.std_dev.toLocaleString('id-ID');
                     document.getElementById('statSafetyStock').textContent = res.safety_stock_global.toLocaleString('id-ID') + ' pcs';
+
+                    // Update specific row in Comparison Table dynamically
+                    const historyTbody = document.getElementById('tableComparisonHistoryBody');
+                    const existingRow = historyTbody ? historyTbody.querySelector(`tr[data-product-id="${res.product_id}"]`) : null;
+                    
+                    let totalRec = 0;
+                    res.monthly_data.forEach(item => {
+                        totalRec += item.recommendation_2027;
+                    });
+
+                    if (existingRow) {
+                        // Update sales cell
+                        const salesCell = existingRow.querySelector('.sales-cell');
+                        if (salesCell) {
+                            salesCell.textContent = res.totals.sales.toLocaleString('id-ID') + ' pcs';
+                        }
+                        // Update recommendation cell
+                        const recCell = existingRow.querySelector('.rec-cell');
+                        if (recCell) {
+                            recCell.textContent = totalRec.toLocaleString('id-ID') + ' pcs';
+                        }
+                        
+                        // Update badge cell to show customized status
+                        const badgeCell = existingRow.querySelector('.badge-cell');
+                        if (badgeCell) {
+                            badgeCell.innerHTML = `<span class="badge bg-success bg-opacity-10 text-success fw-bold px-2 py-1" style="font-size: 0.65rem; border-radius: 5px; text-transform: uppercase;">Kustom (Prtm: ${res.growth_rate}%)</span>`;
+                        }
+
+                        // Premium micro-animation: glow effect
+                        existingRow.style.transition = 'background-color 0.4s ease';
+                        existingRow.style.backgroundColor = '#ecfdf5';
+                        setTimeout(() => {
+                            existingRow.style.backgroundColor = '';
+                        }, 1800);
+                    }
 
                     // Populate Table
                     const tbody = document.getElementById('tableResultBody');
