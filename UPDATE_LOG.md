@@ -38,6 +38,18 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 * Menghapus kalimat penjelasan *"Kelola pencocokan stok fisik dengan stok pada sistem."* pada header halaman index dan create Stok Opname.
 * Menghapus info-box *"Perbandingan stok sistem vs stok fisik..."* di atas tabel riwayat Stok Opname.
 
+### 1.7 Pembuatan Script Setup & Launcher Otomatis (1-Click)
+* **Kebutuhan**: Mempermudah pemindahan proyek ke laptop lain (via ZIP) tanpa perlu setup database dan dependensi secara manual.
+* **Solusi**: Membuat file [setup_dan_jalankan.bat](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/setup_dan_jalankan.bat) yang otomatis:
+  - Mendiagnosis path PHP dan menambahkannya sementara jika tidak ada di PATH.
+  - Memeriksa kelengkapan ekstensi PHP yang diperlukan (GD, ZIP, Intl, Fileinfo) dan memberi tahu cara mengaktifkannya di XAMPP jika ada yang mati.
+  - Mengunduh Composer (`composer.phar`) otomatis jika belum terpasang.
+  - Membuat file `.env` dari `.env.example` dan membuat database `della_frozenmart` secara otomatis.
+  - Mendiagnosis & memperbaiki eror/crash MySQL XAMPP (membersihkan file log korup: `aria_log_control`, `ib_logfile*` secara aman) serta mendeteksi & mematikan proses lain yang memakai port 3306.
+  - Menjalankan migrasi & seeder database.
+  - Menjalankan server lokal (`php artisan serve`) dan otomatis membuka browser ke alamat `http://127.0.0.1:8000`.
+* **Pembaruan Panduan**: Memperbarui [PANDUAN_CLIENT.txt](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/PANDUAN_CLIENT.txt) dengan menambahkan instruksi cara menjalankan aplikasi menggunakan script batch 1-klik ini.
+
 ---
 
 ## 2. Status Data Terakhir di Database (Live & Lokal)

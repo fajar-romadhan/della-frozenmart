@@ -160,6 +160,13 @@
             <i class="ph ph-truck"></i>
             <span class="sidebar-text">Laporan Pemesanan Produk</span>
         </a>
+
+        @if($role === 'owner')
+            <a href="{{ route('laporan.activity-log') }}" class="sidebar-icon {{ request()->routeIs('laporan.activity-log') ? 'active' : '' }}">
+                <i class="ph ph-clock-counter-clockwise"></i>
+                <span class="sidebar-text">Log Aktivitas</span>
+            </a>
+        @endif
     </div>
     </div>
 

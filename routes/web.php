@@ -163,6 +163,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('peramalan/calculate', [App\Http\Controllers\ForecastingController::class, 'calculate'])->name('peramalan.calculate');
     });
 
+    // Owner only routes
+    Route::middleware(['role:owner'])->group(function () {
+        // Log Aktivitas
+        Route::get('laporan/activity-log', [ReportController::class, 'activityLog'])->name('laporan.activity-log');
+    });
+
     // Admin + Owner + Manager routes
     Route::middleware(['role:admin,owner,manager'])->group(function () {
         // Status Stok

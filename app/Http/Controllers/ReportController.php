@@ -868,4 +868,38 @@ class ReportController extends Controller
             'totalTransaksi'
         ));
     }
+
+    /**
+     * Display general activity logs feed for Owner.
+     */
+    public function activityLog(Request $request)
+    {
+        $query = \App\Models\ActivityLog::with('user');
+
+        if ($request->filled('user_id')) {
+            $query->where('user_id', $request->user_id);
+        }
+
+        if ($request->filled('tipe')) {
+            $query->where('tipe', $request->tipe);
+        }
+
+        if ($request->filled('tanggal_dari')) {
+            $query->whereDate('created_at', '>=', $request->tanggal_dari);
+        }
+
+        if ($request->filled('tanggal_sampai')) {
+            $query->whereDate('created_at', '<=', $request->tanggal_sampai);
+        }
+
+        $logs = $query->latest()->paginate(25)->withQueryString();
+
+        // Fetch all users who have logged actions
+        $users = \App\Models\User::orderBy('name')->get();
+
+        // Unique log types for filter dropdown
+        $types = \App\Models\ActivityLog::select('tipe')->distinct()->pluck('tipe');
+
+        return view('reports.activity-log', compact('logs', 'users', 'types'));
+    }
 }

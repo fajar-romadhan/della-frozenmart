@@ -142,11 +142,12 @@ class SafetyStockService
         $stokSaatIni = $product->stok_saat_ini;
 
         // Determine status (Aman, Warning, Order)
+        // Warning threshold is when stock is between ROP and ROP + 10% of ROP (Example: ROP 210, Warning: 211 - 231)
         $ropInt = (int) round($reorderPoint);
-        $ssInt = (int) round($safetyStock);
+        $warningLimit = $ropInt + (int) round($ropInt * 0.1);
         if ($stokSaatIni <= $ropInt) {
             $statusStok = 'Order';
-        } elseif ($stokSaatIni > $ropInt && $stokSaatIni <= ($ropInt + $ssInt)) {
+        } elseif ($stokSaatIni > $ropInt && $stokSaatIni <= $warningLimit) {
             $statusStok = 'Warning';
         } else {
             $statusStok = 'Aman';
