@@ -211,6 +211,8 @@ h1, h2, h3, h4, h5, h6 {
     opacity: 1;
     max-width: 180px;
     margin-left: 12px;
+    white-space: normal;
+    line-height: 1.25;
 }
 
 .sidebar-logo-text {

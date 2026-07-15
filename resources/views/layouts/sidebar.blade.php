@@ -158,7 +158,7 @@
 
         <a href="{{ route('pemesanan-supplier.index') }}" class="sidebar-icon {{ request()->routeIs('pemesanan-supplier.*') ? 'active' : '' }}">
             <i class="ph ph-truck"></i>
-            <span class="sidebar-text">Laporan Pemesanan</span>
+            <span class="sidebar-text">Laporan Pemesanan Produk</span>
         </a>
     </div>
     </div>
