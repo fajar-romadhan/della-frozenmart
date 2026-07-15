@@ -124,8 +124,6 @@
                         <th style="width: 120px;">TIPE</th>
                         <th style="width: 200px;">AKTIVITAS</th>
                         <th>DESKRIPSI</th>
-                        <th style="width: 120px;">IP ADDRESS</th>
-                        <th style="width: 180px;">DEVICE</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -174,14 +172,10 @@
                             </td>
                             <td class="fw-semibold text-dark">{{ $log->judul }}</td>
                             <td class="text-wrap" style="max-width: 300px; font-size: 0.75rem; line-height: 1.35;">{{ $log->deskripsi }}</td>
-                            <td class="text-muted font-monospace" style="font-size: 0.72rem;">{{ $log->ip_address ?? '-' }}</td>
-                            <td class="text-muted text-wrap" style="font-size: 0.7rem; line-height: 1.2; max-width: 180px;" title="{{ $log->user_agent }}">
-                                {{ Str::limit($log->user_agent, 45) }}
-                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="8" class="text-center py-4 text-muted">
+                            <td colspan="6" class="text-center py-4 text-muted">
                                 <i class="ph ph-info fs-3 d-block mb-2"></i>
                                 Tidak ditemukan data log aktivitas yang sesuai filter.
                             </td>
