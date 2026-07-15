@@ -196,12 +196,13 @@ class NotificationController extends Controller
         // Take only the latest 5
         $latest = $items->take(5)->map(function($item) {
             return [
-                'judul' => $item['judul'],
-                'pesan' => $item['pesan'],
-                'icon' => $item['icon'],
-                'color' => $item['color'],
+                'judul'     => $item['judul'],
+                'pesan'     => $item['pesan'],
+                'icon'      => $item['icon'],
+                'color'     => $item['color'],
+                'status'    => $item['status'],
                 'is_unread' => $item['is_unread'],
-                'waktu' => \Carbon\Carbon::parse($item['created_at'])->diffForHumans(),
+                'waktu'     => \Carbon\Carbon::parse($item['created_at'])->diffForHumans(),
             ];
         })->values();
 

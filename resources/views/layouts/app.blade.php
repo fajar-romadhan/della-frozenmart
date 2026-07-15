@@ -187,7 +187,7 @@
             let notifDropdownLoaded = false;
             let notifDropdownCache = null;
             let notifDropdownCacheTime = 0;
-            const NOTIF_CACHE_TTL = 30000; // 30 seconds
+            const NOTIF_CACHE_TTL = 5000; // 5 seconds — refresh quickly
 
             function toggleNotifDropdown(e) {
                 e.stopPropagation();
@@ -239,24 +239,30 @@
                 }
 
                 const colorMap = {
-                    'red': { bg: '#fef2f2', border: '#fecaca', icon: '#dc2626' },
+                    'red':    { bg: '#fef2f2', border: '#fecaca', icon: '#dc2626' },
                     'yellow': { bg: '#fffbeb', border: '#fde68a', icon: '#d97706' },
                     'orange': { bg: '#fff7ed', border: '#fed7aa', icon: '#ea580c' },
                     'purple': { bg: '#faf5ff', border: '#e9d5ff', icon: '#7c3aed' },
                 };
 
+                const badgeMap = {
+                    'Order':   '<span style="display:inline-block;font-size:0.6rem;font-weight:700;letter-spacing:0.05em;padding:1px 6px;border-radius:4px;background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5;vertical-align:middle;margin-left:4px;">ORDER</span>',
+                    'Warning': '<span style="display:inline-block;font-size:0.6rem;font-weight:700;letter-spacing:0.05em;padding:1px 6px;border-radius:4px;background:#fef9c3;color:#854d0e;border:1px solid #fde047;vertical-align:middle;margin-left:4px;">WARNING</span>',
+                };
+
                 let html = '';
                 data.items.forEach(item => {
-                    const colors = colorMap[item.color] || colorMap['red'];
+                    const colors   = colorMap[item.color] || colorMap['red'];
+                    const badge    = badgeMap[item.status] || '';
                     const unreadClass = item.is_unread ? 'unread' : '';
-                    const unreadDot = item.is_unread ? '<span class="unread-badge-dot" title="Belum dibaca"></span>' : '';
+                    const unreadDot   = item.is_unread ? '<span class="unread-badge-dot" title="Belum dibaca"></span>' : '';
                     html += `
                         <a href="{{ route('notifikasi.index') }}" class="notif-dropdown-item ${unreadClass}">
                             <div class="notif-dropdown-icon" style="background: ${colors.bg}; border-color: ${colors.border};">
                                 <i class="ph-bold ${item.icon}" style="color: ${colors.icon};"></i>
                             </div>
                             <div class="notif-dropdown-content">
-                                <div class="notif-dropdown-item-title">${item.judul}${unreadDot}</div>
+                                <div class="notif-dropdown-item-title">${item.judul}${badge}${unreadDot}</div>
                                 <div class="notif-dropdown-item-msg">${item.pesan}</div>
                             </div>
                             <div class="notif-dropdown-time">${item.waktu}</div>
