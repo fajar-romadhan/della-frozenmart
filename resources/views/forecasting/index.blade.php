@@ -41,29 +41,31 @@
 
     .form-control-premium {
         border: 1.5px solid #e2e8f0;
+        background-color: #f8fafc;
         border-radius: 8px;
         padding: 10px 14px;
         font-size: 0.9rem;
         font-weight: 500;
         color: #0f172a;
-        transition: all 0.2s ease;
+        transition: all 0.25s ease;
     }
 
     .form-control-premium:focus {
-        border-color: #2563eb;
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
+        border-color: #dc2626;
+        background-color: #ffffff;
+        box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.12);
         outline: none;
     }
 
     .btn-premium {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
         color: #ffffff;
         font-weight: 700;
         font-size: 0.9rem;
         padding: 12px 24px;
         border-radius: 8px;
         border: none;
-        box-shadow: 0 4px 15px rgba(37, 99, 235, 0.25);
+        box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2);
         transition: all 0.2s ease;
         display: inline-flex;
         align-items: center;
@@ -71,13 +73,14 @@
     }
 
     .btn-premium:hover {
-        background: linear-gradient(135deg, #1d4ed8 0%, #1e40af 100%);
-        transform: translateY(-1px);
-        box-shadow: 0 6px 20px rgba(37, 99, 235, 0.35);
+        background: linear-gradient(135deg, #b91c1c 0%, #991b1b 100%);
+        transform: translateY(-1.5px);
+        box-shadow: 0 6px 20px rgba(220, 38, 38, 0.3);
+        color: #ffffff;
     }
 
     .btn-premium:active {
-        transform: translateY(1px);
+        transform: translateY(0.5px);
     }
 
     .btn-history-back {
@@ -241,38 +244,45 @@
         <h5 class="fw-bold mb-3 text-slate-800" style="font-size: 1.05rem;"><i class="ph ph-sliders-horizontal text-primary"></i> Parameter Peramalan</h5>
         <form id="formForecasting">
             @csrf
-            <div class="row g-3">
-                {{-- Product Select --}}
-                <div class="col-md-4">
-                    <label class="form-label-premium" for="product_id">Pilih Produk</label>
-                    <div class="input-group mb-2">
-                        <span class="input-group-text" style="background-color: #f8fafc; border-color: #cbd5e1; border-right: none; border-radius: 8px 0 0 8px;">
-                            <i class="ph ph-magnifying-glass text-muted"></i>
-                        </span>
-                        <input type="text" id="search_product" class="form-control" style="border-left: none; border-color: #cbd5e1; border-radius: 0 8px 8px 0; font-size: 0.85rem; padding: 10px 14px;" placeholder="Cari nama/kode produk...">
+            <div class="row g-3 align-items-end">
+                {{-- Product Search & Select combined --}}
+                <div class="col-lg-6 col-md-12">
+                    <div class="row g-2">
+                        <div class="col-sm-5">
+                            <label class="form-label-premium" for="search_product">Cari Produk</label>
+                            <div class="input-group">
+                                <span class="input-group-text" style="background-color: #f8fafc; border-color: #cbd5e1; border-right: none; border-radius: 8px 0 0 8px; padding: 10px 12px;">
+                                    <i class="ph ph-magnifying-glass text-muted"></i>
+                                </span>
+                                <input type="text" id="search_product" class="form-control form-control-premium" style="border-left: none; border-color: #cbd5e1; border-radius: 0 8px 8px 0; font-size: 0.85rem;" placeholder="Nama / kode...">
+                            </div>
+                        </div>
+                        <div class="col-sm-7">
+                            <label class="form-label-premium" for="product_id">Pilih Produk</label>
+                            <select class="form-select form-control-premium" id="product_id" name="product_id" required>
+                                <option value="" disabled selected>-- Pilih Produk Frozen Food --</option>
+                                @foreach($products as $p)
+                                    <option value="{{ $p->id }}">{{ $p->nama_produk }} ({{ $p->kode_produk }})</option>
+                                @endforeach
+                            </select>
+                        </div>
                     </div>
-                    <select class="form-select form-control-premium" id="product_id" name="product_id" required>
-                        <option value="" disabled selected>-- Pilih Produk Frozen Food --</option>
-                        @foreach($products as $p)
-                            <option value="{{ $p->id }}">{{ $p->nama_produk }} ({{ $p->kode_produk }})</option>
-                        @endforeach
-                    </select>
                 </div>
 
                 {{-- Growth Rate --}}
-                <div class="col-md-2" style="min-width: 130px;">
-                    <label class="form-label-premium" for="growth_rate">Pertumbuhan Proyeksi (%)</label>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <label class="form-label-premium" for="growth_rate">Pertumbuhan (%)</label>
                     <input type="number" class="form-control form-control-premium" id="growth_rate" name="growth_rate" value="10" min="0" max="100" required>
                 </div>
 
                 {{-- Lead Time --}}
-                <div class="col-md-2" style="min-width: 130px;">
-                    <label class="form-label-premium" for="lead_time">Lead Time Supplier (Hari)</label>
+                <div class="col-lg-2 col-md-4 col-6">
+                    <label class="form-label-premium" for="lead_time">Lead Time (Hari)</label>
                     <input type="number" class="form-control form-control-premium" id="lead_time" name="lead_time" value="3" min="1" max="30" required>
                 </div>
 
                 {{-- Service Level --}}
-                <div class="col-md-2" style="min-width: 140px;">
+                <div class="col-lg-2 col-md-4 col-12">
                     <label class="form-label-premium" for="service_level">Service Level Target</label>
                     <select class="form-select form-control-premium" id="service_level" name="service_level" required>
                         <option value="90">90% (Z = 1.28)</option>
@@ -280,13 +290,13 @@
                         <option value="99">99% (Z = 2.33)</option>
                     </select>
                 </div>
+            </div>
 
-                {{-- Button Submit --}}
-                <div class="col-md-2 d-flex align-items-end" style="min-width: 200px;">
-                    <button type="submit" class="btn-premium w-100 justify-content-center" id="btnCalculate">
-                        <i class="ph ph-lightning"></i> Mulai Peramal
-                    </button>
-                </div>
+            {{-- Action Row --}}
+            <div class="d-flex justify-content-end mt-4 pt-3 border-top border-light">
+                <button type="submit" class="btn-premium px-4 py-2-5" id="btnCalculate" style="border-radius: 8px;">
+                    <i class="ph ph-lightning"></i> Mulai Peramalan
+                </button>
             </div>
         </form>
     </div>
@@ -366,24 +376,6 @@
                     <span class="stat-chip-value" id="statCorrected">0 pcs</span>
                 </div>
             </div>
-            <div class="stat-chip">
-                <div class="stat-chip-icon" style="background: rgba(139, 92, 246, 0.08); color: #8b5cf6;">
-                    <i class="ph ph-wave-sine"></i>
-                </div>
-                <div class="stat-chip-details">
-                    <span class="stat-chip-label">Deviasi Fluktuasi (σ)</span>
-                    <span class="stat-chip-value" id="statStdDev">0</span>
-                </div>
-            </div>
-            <div class="stat-chip">
-                <div class="stat-chip-icon" style="background: rgba(239, 68, 68, 0.08); color: #ef4444;">
-                    <i class="ph ph-shield-check"></i>
-                </div>
-                <div class="stat-chip-details">
-                    <span class="stat-chip-label">Safety Stock Global</span>
-                    <span class="stat-chip-value" id="statSafetyStock">0 pcs</span>
-                </div>
-            </div>
         </div>
         <div class="row">
             {{-- Chart Card --}}
@@ -422,18 +414,6 @@
             </div>
         </div>
 
-        {{-- Actionable PO recommendation --}}
-        <div class="glass-card" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0;">
-            <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
-                <div>
-                    <h5 class="fw-bold text-success-dark mb-1" style="font-size: 1.05rem;"><i class="ph ph-check-square-offset"></i> Rekomendasi Siap Ditindaklanjuti</h5>
-                    <p class="text-secondary-dark mb-0 small">Berdasarkan hasil analisa musiman, Anda disarankan untuk segera membuat pemesanan jika stok barang saat ini mendekati ROP.</p>
-                </div>
-                @if(auth()->user()->role === 'manager')
-                <a href="{{ route('pemesanan-supplier.create') }}" class="btn btn-success fw-bold" style="border-radius: 8px; padding: 10px 20px;"><i class="ph ph-shopping-cart-simple"></i> Buat Pemesanan Supplier</a>
-                @endif
-            </div>
-        </div>
     </div>
 </div>
 
@@ -500,8 +480,6 @@
                     // Fill Stats
                     document.getElementById('statSales').textContent = res.totals.sales.toLocaleString('id-ID') + ' pcs';
                     document.getElementById('statCorrected').textContent = res.totals.corrected.toLocaleString('id-ID') + ' pcs';
-                    document.getElementById('statStdDev').textContent = res.std_dev.toLocaleString('id-ID');
-                    document.getElementById('statSafetyStock').textContent = res.safety_stock_global.toLocaleString('id-ID') + ' pcs';
 
                     // Update specific row in Comparison Table dynamically
                     const historyTbody = document.getElementById('tableComparisonHistoryBody');
