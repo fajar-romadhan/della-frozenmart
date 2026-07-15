@@ -4,15 +4,9 @@
 
 @section('content')
 <div class="container-fluid">
-    {{-- Breadcrumb & Header --}}
+    {{-- Header --}}
     <div class="d-flex justify-content-between align-items-center mb-4 no-print">
         <div>
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb mb-1">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}" class="text-decoration-none text-muted">Dashboard</a></li>
-                    <li class="breadcrumb-item active fw-semibold text-dark" aria-current="page">Laporan Barang Masuk</li>
-                </ol>
-            </nav>
             <h4 class="fw-bold mb-0 text-dark">Laporan Barang Masuk</h4>
         </div>
     </div>
