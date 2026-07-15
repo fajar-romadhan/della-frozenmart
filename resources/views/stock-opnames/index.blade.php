@@ -475,7 +475,6 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
             <h1 class="page-title-main mb-1">Stok Opname</h1>
-            <p class="page-subtitle mb-0">Kelola pencocokan stok fisik dengan stok pada sistem.</p>
         </div>
         <a href="{{ route('stok-opname.create') }}" class="btn-add-opname" id="btnInputOpname">
             <i class="ph ph-clipboard-text bold"></i> Input Stok Opname
@@ -586,10 +585,6 @@
 
     {{-- Table Section --}}
     <h2 class="section-title">Riwayat Stok Opname</h2>
-    <div class="section-subtitle">
-        <i class="ph ph-info-fill"></i>
-        <span>Perbandingan stok sistem vs stok fisik. Selisih otomatis disesuaikan pada saat penyimpanan.</span>
-    </div>
     
     <div class="opname-table-card">
         <div class="table-responsive">

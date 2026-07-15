@@ -558,7 +558,6 @@
         </a>
         <div class="flex-grow-1">
             <h1 class="page-title-main mb-1" style="font-size: 1.8rem; font-weight: 800; display: inline-block;">Stok Opname</h1>
-            <p class="page-subtitle mb-0">Kelola pencocokan stok fisik dengan stok pada sistem.</p>
         </div>
         <a href="{{ route('stok-opname.index') }}" class="btn-history-opname" id="btnHistoryOpname">
             <i class="ph ph-clock" style="font-size: 1.2rem;"></i> Riwayat Stok Opname
