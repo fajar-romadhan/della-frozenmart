@@ -268,9 +268,9 @@
 
 </div>
 @endsection
-
-
-
+@push('scripts')
+<script>
+document.addEventListener("DOMContentLoaded", function() {
     // 2. Sales Chart AJAX Filter Handler (Dynamic)
     const ctx = document.getElementById('salesChart').getContext('2d');
     let salesChart;
