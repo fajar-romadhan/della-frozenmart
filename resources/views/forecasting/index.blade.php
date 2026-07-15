@@ -232,8 +232,7 @@
             <i class="ph ph-arrow-left"></i> Kembali
         </a>
         <div class="flex-grow-1">
-            <h1 class="fw-bold mb-1 text-slate-800" style="font-size: 1.8rem; font-weight: 800;">Peramalan Kebutuhan Stok (Forecasting)</h1>
-            <p class="text-muted mb-0">Modul Peramalan Rantai Pasok Terkoreksi Lost Sales & Seasonal Index (Tahun Depan {{ $forecastYear }})</p>
+            <h1 class="fw-bold mb-0 text-slate-800" style="font-size: 1.8rem; font-weight: 800;">Peramalan Kebutuhan Stok (Forecasting)</h1>
         </div>
     </div>
 
@@ -386,43 +385,13 @@
                 </div>
             </div>
         </div>
-
-        <div class="row">
+        <div class="row">
             {{-- Chart Card --}}
-            <div class="col-lg-8">
-                <div class="glass-card" style="height: calc(100% - 24px);">
+            <div class="col-lg-12">
+                <div class="glass-card">
                     <h5 class="fw-bold mb-3 text-slate-800" style="font-size: 1.02rem;"><i class="ph ph-chart-bar-horizontal text-primary"></i> Tren Penjualan {{ $historicalYear }} vs Proyeksi {{ $forecastYear }}</h5>
-                    <div style="position: relative; height: 320px; width: 100%;">
+                    <div style="position: relative; height: 350px; width: 100%;">
                         <canvas id="forecastChart"></canvas>
-                    </div>
-                </div>
-            </div>
-
-            {{-- Explanation & Method details --}}
-            <div class="col-lg-4">
-                <div class="glass-card" style="height: calc(100% - 24px); display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <h5 class="fw-bold mb-2 text-slate-800" style="font-size: 1.02rem;"><i class="ph ph-book-open text-primary"></i> Latar Belakang Metode</h5>
-                        <p class="text-muted small" style="line-height: 1.45;">
-                            Modul ini menerapkan <strong>Demand Unconstraining</strong> untuk memulihkan bias data penjualan akibat kekosongan stok, dikombinasikan dengan <strong>Seasonal Indexing</strong> dan perhitungan <strong>Safety Stock Statistik</strong>.
-                        </p>
-                        
-                        <div class="formula-card">
-                            <span class="formula-title">1. Estimasi Permintaan Riil</span>
-                            <span class="formula-math">D_m = Sales_m + (ADR_m * Stockout_Days_m)</span>
-
-                            <span class="formula-title" style="margin-top: 8px; display: block;">2. Indeks Musiman (Seasonal)</span>
-                            <span class="formula-math">SI_m = D_m / Average_Monthly_Demand</span>
-
-                            <span class="formula-title" style="margin-top: 8px; display: block;">3. Safety Stock Statistik</span>
-                            <span class="formula-math">SS = Z * σ_D * sqrt(LeadTime / 30)</span>
-                        </div>
-                    </div>
-                    
-                    <div class="mt-3 pt-3 border-top">
-                        <div class="p-3 rounded" style="background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af;">
-                            <i class="ph ph-info-semibold"></i> Angka <strong>Rekomendasi</strong> memproyeksikan stok optimal tahun depan guna menekan risiko lost sales di bawah 5%.
-                        </div>
                     </div>
                 </div>
             </div>
