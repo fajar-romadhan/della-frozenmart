@@ -134,4 +134,50 @@ class OutgoingGoodController extends Controller
         $barang_keluar->load(['product', 'user', 'outgoingGoodDetails.stockBatch']);
         return view('outgoing-goods.show', compact('barang_keluar'));
     }
+
+    public function destroy(OutgoingGood $barang_keluar)
+    {
+        $barang_keluar->load(['product', 'outgoingGoodDetails.stockBatch']);
+
+        $product   = $barang_keluar->product;
+        $jumlah    = $barang_keluar->jumlah;
+        $produkNama = $product->nama_produk ?? '(produk dihapus)';
+        $produkKode = $product->kode_produk ?? '-';
+
+        try {
+            DB::beginTransaction();
+
+            // Kembalikan stok ke setiap batch FIFO yang diambil
+            foreach ($barang_keluar->outgoingGoodDetails as $detail) {
+                if ($detail->stockBatch) {
+                    $detail->stockBatch->increment('jumlah_sisa', $detail->jumlah_diambil);
+                }
+            }
+
+            // Kembalikan stok produk
+            if ($product) {
+                $product->increment('stok_saat_ini', $jumlah);
+                $product->refresh();
+                $this->safetyStockService->calculate($product);
+            }
+
+            // Hapus detail terlebih dahulu, lalu hapus header
+            $barang_keluar->outgoingGoodDetails()->delete();
+            $barang_keluar->delete();
+
+            DB::commit();
+
+            LogActivity::log(
+                'delete',
+                'Hapus Barang Keluar',
+                "Menghapus transaksi barang keluar produk '{$produkNama}' ({$produkKode}) sebanyak {$jumlah} pcs. Stok telah dikembalikan ke batch FIFO."
+            );
+
+            return redirect()->route('barang-keluar.index')
+                ->with('success', "Transaksi barang keluar berhasil dihapus. Stok {$produkNama} telah dikembalikan sebanyak {$jumlah} pcs.");
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => 'Gagal menghapus: ' . $e->getMessage()]);
+        }
+    }
 }

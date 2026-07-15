@@ -445,9 +445,25 @@
                         </td>
                         <td class="col-user text-muted">{{ $item->user->name ?? '-' }}</td>
                         <td class="col-action text-center">
-                            <a href="{{ route('barang-keluar.show', $item) }}" class="btn btn-sm btn-light border p-1" style="border-radius: 6px;" title="Detail Transaksi">
-                                <i class="ph ph-eye text-danger" style="font-size: 1.1rem; vertical-align: middle;"></i>
-                            </a>
+                            <div class="d-flex gap-1 justify-content-center">
+                                <a href="{{ route('barang-keluar.show', $item) }}" class="btn btn-sm btn-light border p-1" style="border-radius: 6px;" title="Detail Transaksi">
+                                    <i class="ph ph-eye text-danger" style="font-size: 1.1rem; vertical-align: middle;"></i>
+                                </a>
+                                @if(auth()->user()->role === 'admin')
+                                <form action="{{ route('barang-keluar.destroy', $item) }}" method="POST" class="d-inline form-hapus-keluar">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="button" class="btn btn-sm btn-light border p-1 btn-hapus-keluar"
+                                        style="border-radius: 6px;"
+                                        title="Hapus Transaksi"
+                                        data-nama="{{ $item->product->nama_produk ?? '-' }}"
+                                        data-jumlah="{{ number_format($item->jumlah) }}"
+                                        data-tanggal="{{ \Carbon\Carbon::parse($item->tanggal_keluar)->format('d/m/Y') }}">
+                                        <i class="ph ph-trash text-danger" style="font-size: 1.1rem; vertical-align: middle;"></i>
+                                    </button>
+                                </form>
+                                @endif
+                            </div>
                         </td>
                     </tr>
                     @empty
@@ -472,7 +488,67 @@
                 {{ $outgoingGoods->links('pagination::bootstrap-5') }}
             </div>
         </div>
-        @endif
     </div>
 </div>
+
+{{-- Modal Konfirmasi Hapus --}}
+<div class="modal fade" id="modalHapusKeluar" tabindex="-1" aria-labelledby="modalHapusLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
+            <div class="modal-header border-0 pb-0 pt-4 px-4">
+                <div class="d-flex align-items-center gap-2">
+                    <div style="width: 40px; height: 40px; background: #fee2e2; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                        <i class="ph ph-trash text-danger" style="font-size: 1.3rem;"></i>
+                    </div>
+                    <h5 class="modal-title fw-bold text-danger mb-0" id="modalHapusLabel">Hapus Transaksi Barang Keluar?</h5>
+                </div>
+            </div>
+            <div class="modal-body px-4 pb-0">
+                <p class="text-muted mb-2" style="font-size: 0.9rem;">Anda akan menghapus transaksi berikut:</p>
+                <div class="rounded p-3 mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div class="fw-semibold" id="modalNamaProduk" style="font-size: 0.95rem;"></div>
+                    <small class="text-muted" id="modalDetailHapus"></small>
+                </div>
+                <div class="alert alert-warning d-flex gap-2 align-items-start py-2 px-3" style="font-size: 0.82rem; border-radius: 8px;">
+                    <i class="ph ph-warning-circle mt-1 flex-shrink-0"></i>
+                    <span><strong>Stok akan dikembalikan otomatis</strong> ke batch FIFO asal. Tindakan ini akan tercatat di Log Aktivitas.</span>
+                </div>
+            </div>
+            <div class="modal-footer border-0 pt-2 pb-4 px-4 gap-2">
+                <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger fw-semibold px-4" id="btnKonfirmasiHapus">
+                    <i class="ph ph-trash me-1"></i>Ya, Hapus & Kembalikan Stok
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@push('scripts')
+<script>
+    let formHapusTarget = null;
+
+    document.querySelectorAll('.btn-hapus-keluar').forEach(function(btn) {
+        btn.addEventListener('click', function() {
+            const nama    = this.dataset.nama;
+            const jumlah  = this.dataset.jumlah;
+            const tanggal = this.dataset.tanggal;
+            formHapusTarget = this.closest('form');
+
+            document.getElementById('modalNamaProduk').textContent = nama;
+            document.getElementById('modalDetailHapus').textContent = tanggal + ' · ' + jumlah + ' pcs';
+
+            const modal = new bootstrap.Modal(document.getElementById('modalHapusKeluar'));
+            modal.show();
+        });
+    });
+
+    document.getElementById('btnKonfirmasiHapus').addEventListener('click', function() {
+        if (formHapusTarget) {
+            formHapusTarget.submit();
+        }
+    });
+</script>
+@endpush
+
 @endsection

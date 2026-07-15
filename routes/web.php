@@ -121,6 +121,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('pengguna/{user}/toggle-status', [UserController::class, 'toggleStatus'])->name('pengguna.toggle-status');
         Route::post('pengguna/{user}/reset-password', [UserController::class, 'resetPassword'])->name('pengguna.reset-password');
         Route::resource('stok-opname', StockOpnameController::class)->only(['index', 'create', 'store']);
+        // Hapus barang keluar (Admin only - untuk koreksi input salah)
+        Route::delete('barang-keluar/{barang_keluar}', [OutgoingGoodController::class, 'destroy'])->name('barang-keluar.destroy');
     });
     
     // Admin + Manager routes
