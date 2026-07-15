@@ -285,22 +285,29 @@
                 <thead class="table-light">
                     <tr>
                         <th width="50" class="text-center">No</th>
-                        <th>Kode</th>
-                        <th>Nama Produk</th>
-                        <th class="text-end">Stok Sebelumnya (Penjualan 2026)</th>
-                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Stok Rekomendasi (2027)</th>
-                        <th class="text-end text-primary fw-bold">Selisih Kenaikan</th>
+                        <th>Produk</th>
+                        <th class="text-center">Periode</th>
+                        <th class="text-center">Musim</th>
+                        <th class="text-end">Data Tahun Sebelumnya (2026)</th>
+                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Hasil Ramalan (2027)</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($comparisonData as $index => $item)
                         <tr>
                             <td class="text-center fw-semibold text-muted">{{ $index + 1 }}</td>
-                            <td><span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 5px; font-size: 0.75rem; font-weight: 600;">{{ $item['kode'] }}</span></td>
-                            <td class="fw-bold text-slate-800">{{ $item['nama'] }}</td>
+                            <td class="fw-bold text-slate-800">
+                                <div>{{ $item['nama'] }}</div>
+                                <span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 5px; font-size: 0.7rem; font-weight: 600;">{{ $item['kode'] }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-2 py-1" style="font-size: 0.72rem; border-radius: 5px;">Tahun Depan (2027)</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold px-2 py-1" style="font-size: 0.72rem; border-radius: 5px;">Seasonal Index (Aktif)</span>
+                            </td>
                             <td class="text-end fw-medium">{{ number_format($item['sales_total']) }} pcs</td>
                             <td class="text-end text-success fw-bold" style="background-color: #f0fdf4;">{{ number_format($item['rec_total']) }} pcs</td>
-                            <td class="text-end text-primary fw-bold">+{{ number_format($item['selisih']) }} pcs</td>
                         </tr>
                     @endforeach
                 </tbody>
