@@ -45,10 +45,55 @@
     .badge-custom {
         font-weight: 600;
         font-size: 0.7rem;
-        padding: 4px 8px;
+        padding: 6px 10px;
         border-radius: 6px;
         text-transform: uppercase;
         display: inline-block;
+    }
+    /* Custom High-Contrast Badges */
+    .badge-role-admin {
+        background-color: #fee2e2 !important; /* Soft Pastel Red */
+        color: #ef4444 !important; /* Rich Red Text */
+    }
+    .badge-role-manager {
+        background-color: #e0e7ff !important; /* Soft Pastel Indigo/Blue */
+        color: #4f46e5 !important; /* Rich Indigo/Blue Text */
+    }
+    .badge-role-owner {
+        background-color: #d1fae5 !important; /* Soft Pastel Green */
+        color: #10b981 !important; /* Rich Green Text */
+    }
+    .badge-role-system {
+        background-color: #f1f5f9 !important; /* Light Slate Gray */
+        color: #64748b !important; /* Slate Gray Text */
+    }
+    .badge-type-login, .badge-type-logout {
+        background-color: #f1f5f9 !important;
+        color: #475569 !important;
+    }
+    .badge-type-create {
+        background-color: #d1fae5 !important;
+        color: #059669 !important;
+    }
+    .badge-type-update {
+        background-color: #fef3c7 !important;
+        color: #d97706 !important;
+    }
+    .badge-type-delete, .badge-type-outgoing {
+        background-color: #fee2e2 !important;
+        color: #dc2626 !important;
+    }
+    .badge-type-export, .badge-type-import {
+        background-color: #e0f2fe !important;
+        color: #0284c7 !important;
+    }
+    .badge-type-incoming {
+        background-color: #e0e7ff !important;
+        color: #4f46e5 !important;
+    }
+    .badge-type-opname {
+        background-color: #fae8ff !important;
+        color: #c084fc !important;
     }
 </style>
 
@@ -128,23 +173,23 @@
                 </thead>
                 <tbody>
                     @php
-                        $badgeColors = [
-                            'login' => 'bg-secondary bg-opacity-10 text-secondary',
-                            'logout' => 'bg-secondary bg-opacity-10 text-secondary',
-                            'create' => 'bg-success bg-opacity-10 text-success',
-                            'update' => 'bg-warning bg-opacity-10 text-warning',
-                            'delete' => 'bg-danger bg-opacity-10 text-danger',
-                            'export' => 'bg-info bg-opacity-10 text-info',
-                            'import' => 'bg-info bg-opacity-10 text-info',
-                            'incoming' => 'bg-primary bg-opacity-10 text-primary',
-                            'outgoing' => 'bg-danger bg-opacity-10 text-danger',
-                            'opname' => 'bg-dark bg-opacity-10 text-dark',
+                        $badgeClasses = [
+                            'login' => 'badge-custom badge-type-login',
+                            'logout' => 'badge-custom badge-type-logout',
+                            'create' => 'badge-custom badge-type-create',
+                            'update' => 'badge-custom badge-type-update',
+                            'delete' => 'badge-custom badge-type-delete',
+                            'export' => 'badge-custom badge-type-export',
+                            'import' => 'badge-custom badge-type-import',
+                            'incoming' => 'badge-custom badge-type-incoming',
+                            'outgoing' => 'badge-custom badge-type-outgoing',
+                            'opname' => 'badge-custom badge-type-opname',
                         ];
                         
-                        $roleColors = [
-                            'admin' => 'badge bg-danger bg-opacity-10 text-danger',
-                            'manager' => 'badge bg-primary bg-opacity-10 text-primary',
-                            'owner' => 'badge bg-success bg-opacity-10 text-success',
+                        $roleClasses = [
+                            'admin' => 'badge-role-admin',
+                            'manager' => 'badge-role-manager',
+                            'owner' => 'badge-role-owner',
                         ];
                     @endphp
 
@@ -157,15 +202,15 @@
                             </td>
                             <td>
                                 @if($log->user)
-                                    <span class="{{ $roleColors[strtolower($log->user->role)] ?? 'badge bg-secondary' }}" style="font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                                    <span class="badge-custom {{ $roleClasses[strtolower($log->user->role)] ?? 'badge-role-system' }}">
                                         {{ $log->user->name }}
                                     </span>
                                 @else
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">System</span>
+                                    <span class="badge-custom badge-role-system">System</span>
                                 @endif
                             </td>
                             <td>
-                                <span class="badge-custom {{ $badgeColors[strtolower($log->tipe)] ?? 'bg-secondary bg-opacity-10 text-secondary' }}">
+                                <span class="{{ $badgeClasses[strtolower($log->tipe)] ?? 'badge-custom badge-type-login' }}">
                                     {{ $log->tipe }}
                                 </span>
                             </td>
