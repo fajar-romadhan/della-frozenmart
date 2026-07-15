@@ -89,40 +89,7 @@
                 </div>
             </div>
 
-            <!-- 2. Top Selling Products Table -->
-            <div class="card border-0 shadow-sm mb-4">
-                <div class="card-header bg-white">
-                    <h5 class="mb-0 fw-bold"><i class="ph ph-crown text-primary me-1"></i> 5 Produk Terlaris (Bulan Ini)</h5>
-                </div>
-                <div class="card-body p-0">
-                    <div class="table-responsive border-0">
-                        <table class="table table-hover align-middle mb-0">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Kode</th>
-                                    <th>Nama Produk</th>
-                                    <th>Kategori</th>
-                                    <th class="text-center">Total Terjual</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @forelse($produkTerlaris as $item)
-                                    <tr>
-                                        <td><span class="badge bg-light text-dark fw-bold">{{ $item->product->kode_produk ?? '-' }}</span></td>
-                                        <td class="fw-semibold">{{ $item->product->nama_produk ?? '-' }}</td>
-                                        <td>{{ $item->product->category->nama_kategori ?? '-' }}</td>
-                                        <td class="text-center fw-bold text-success">{{ number_format($item->total_terjual, 0, ',', '.') }} {{ $item->product->satuan ?? 'pcs' }}</td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="4" class="text-center py-4 text-muted">Belum ada data penjualan.</td>
-                                    </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
+
 
 
 
