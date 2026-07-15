@@ -50,7 +50,7 @@
             <h4 class="fw-bold mb-1" style="color: #0f172a; font-family: var(--font-display);">Laporan Pemesanan Produk</h4>
             <p class="text-muted mb-0" style="font-size: 0.9rem;">Daftar transaksi pemesanan barang kepada supplier</p>
         </div>
-        @if(auth()->user()->role === 'manager' || auth()->user()->role === 'admin')
+        @if(auth()->user()->role === 'manager')
         <a href="{{ route('pemesanan-supplier.create') }}" class="btn btn-primary fw-bold" style="border-radius: 8px; font-size: 0.88rem; padding: 10px 20px;"><i class="bi bi-plus-lg"></i> Buat Pemesanan</a>
         @endif
     </div>

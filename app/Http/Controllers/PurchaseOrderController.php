@@ -26,6 +26,10 @@ class PurchaseOrderController extends Controller
 
     public function create(Request $request)
     {
+        if (auth()->user()->role !== 'manager') {
+            abort(403, 'Hanya Manager yang dapat membuat pemesanan.');
+        }
+
         $suppliers = Supplier::orderBy('nama_supplier')->get();
         $products = Product::where('status_aktif', true)->orderBy('nama_produk')->get();
         
@@ -36,6 +40,10 @@ class PurchaseOrderController extends Controller
 
     public function store(Request $request)
     {
+        if (auth()->user()->role !== 'manager') {
+            abort(403, 'Hanya Manager yang dapat membuat pemesanan.');
+        }
+
         $request->validate([
             'supplier_id' => 'required|exists:supplier,id',
             'product_id' => 'required|exists:produk,id',

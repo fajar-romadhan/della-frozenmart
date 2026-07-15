@@ -456,11 +456,13 @@
                                                         </form>
                                                     </li>
                                                     @if($analysis->status_stok == 'Order' || $analysis->status_stok == 'Warning')
+                                                        @if(auth()->user()->role === 'manager')
                                                         <li>
                                                             <a class="dropdown-item py-2 text-danger" href="{{ route('pemesanan-supplier.create', ['product_id' => $analysis->product_id]) }}" style="font-size: 0.8rem; font-weight: 700;">
                                                                 <i class="ph ph-shopping-cart text-danger me-2"></i> Buat Pemesanan
                                                             </a>
                                                         </li>
+                                                        @endif
                                                     @endif
                                                 @endif
                                             </ul>

@@ -431,7 +431,9 @@
                     <h5 class="fw-bold text-success-dark mb-1" style="font-size: 1.05rem;"><i class="ph ph-check-square-offset"></i> Rekomendasi Siap Ditindaklanjuti</h5>
                     <p class="text-secondary-dark mb-0 small">Berdasarkan hasil analisa musiman, Anda disarankan untuk segera membuat pemesanan jika stok barang saat ini mendekati ROP.</p>
                 </div>
+                @if(auth()->user()->role === 'manager')
                 <a href="{{ route('pemesanan-supplier.create') }}" class="btn btn-success fw-bold" style="border-radius: 8px; padding: 10px 20px;"><i class="ph ph-shopping-cart-simple"></i> Buat Pemesanan Supplier</a>
+                @endif
             </div>
         </div>
     </div>

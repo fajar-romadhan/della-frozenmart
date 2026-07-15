@@ -81,13 +81,17 @@
                             <i class="bi bi-exclamation-triangle me-2"></i>
                             <strong>Perhatian!</strong> Stok mendekati Reorder Point. Pertimbangkan untuk segera melakukan pemesanan.
                         </div>
+                        @if(auth()->user()->role === 'manager')
                         <a href="{{ route('pemesanan-supplier.create', ['product_id' => $product->id]) }}" class="btn btn-warning"><i class="bi bi-cart-plus me-2"></i>Buat Pemesanan</a>
+                        @endif
                     @else
                         <div class="alert alert-danger mb-3">
                             <i class="bi bi-x-circle me-2"></i>
                             <strong>Segera Pesan!</strong> Stok sudah di bawah Safety Stock. Lakukan pemesanan ke supplier sekarang.
                         </div>
+                        @if(auth()->user()->role === 'manager')
                         <a href="{{ route('pemesanan-supplier.create', ['product_id' => $product->id]) }}" class="btn btn-danger"><i class="bi bi-cart-plus me-2"></i>Buat Pemesanan Sekarang</a>
+                        @endif
                     @endif
                 </div>
             </div>
