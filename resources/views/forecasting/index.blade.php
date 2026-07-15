@@ -233,7 +233,7 @@
         </a>
         <div class="flex-grow-1">
             <h1 class="fw-bold mb-1 text-slate-800" style="font-size: 1.8rem; font-weight: 800;">Peramalan Kebutuhan Stok (Forecasting)</h1>
-            <p class="text-muted mb-0">Modul Peramalan Rantai Pasok Terkoreksi Lost Sales & Seasonal Index (Tahun Depan 2027)</p>
+            <p class="text-muted mb-0">Modul Peramalan Rantai Pasok Terkoreksi Lost Sales & Seasonal Index (Tahun Depan {{ $forecastYear }})</p>
         </div>
     </div>
 
@@ -354,7 +354,7 @@
                     <i class="ph ph-shopping-bag"></i>
                 </div>
                 <div class="stat-chip-details">
-                    <span class="stat-chip-label">Total Terjual (2026)</span>
+                    <span class="stat-chip-label">Total Terjual ({{ $historicalYear }})</span>
                     <span class="stat-chip-value" id="statSales">0 pcs</span>
                 </div>
             </div>
@@ -391,7 +391,7 @@
             {{-- Chart Card --}}
             <div class="col-lg-8">
                 <div class="glass-card" style="height: calc(100% - 24px);">
-                    <h5 class="fw-bold mb-3 text-slate-800" style="font-size: 1.02rem;"><i class="ph ph-chart-bar-horizontal text-primary"></i> Tren Penjualan 2026 vs Proyeksi 2027</h5>
+                    <h5 class="fw-bold mb-3 text-slate-800" style="font-size: 1.02rem;"><i class="ph ph-chart-bar-horizontal text-primary"></i> Tren Penjualan {{ $historicalYear }} vs Proyeksi {{ $forecastYear }}</h5>
                     <div style="position: relative; height: 320px; width: 100%;">
                         <canvas id="forecastChart"></canvas>
                     </div>
@@ -436,14 +436,14 @@
                     <thead class="table-light">
                         <tr>
                             <th>Bulan</th>
-                            <th class="text-center">Penjualan Aktual (2026)</th>
+                            <th class="text-center">Penjualan Aktual ({{ $historicalYear }})</th>
                             <th class="text-center">Hari Stok Kosong</th>
                             <th class="text-center">Lost Sales Terbuang</th>
-                            <th class="text-center">Permintaan Riil (2026)</th>
+                            <th class="text-center">Permintaan Riil ({{ $historicalYear }})</th>
                             <th class="text-center">Indeks Musiman</th>
-                            <th class="text-center text-primary fw-bold">Prediksi Kasar (2027)</th>
+                            <th class="text-center text-primary fw-bold">Prediksi Kasar ({{ $forecastYear }})</th>
                             <th class="text-center text-danger fw-bold">Safety Stock</th>
-                            <th class="text-center text-success fw-bold" style="background-color: #f0fdf4;">Rekomendasi Stok (2027)</th>
+                            <th class="text-center text-success fw-bold" style="background-color: #f0fdf4;">Rekomendasi Stok ({{ $forecastYear }})</th>
                         </tr>
                     </thead>
                     <tbody id="tableResultBody">
@@ -578,7 +578,7 @@
                             labels: labels,
                             datasets: [
                                 {
-                                    label: 'Penjualan Aktual (2026)',
+                                    label: 'Penjualan Aktual (' + res.historical_year + ')',
                                     data: salesData,
                                     backgroundColor: '#cbd5e1',
                                     borderWidth: 0,
@@ -586,7 +586,7 @@
                                     barPercentage: 0.6
                                 },
                                 {
-                                    label: 'Permintaan Terkoreksi (2026)',
+                                    label: 'Permintaan Terkoreksi (' + res.historical_year + ')',
                                     data: correctedData,
                                     backgroundColor: 'rgba(59, 130, 246, 0.4)',
                                     borderColor: '#3b82f6',
@@ -595,7 +595,7 @@
                                     barPercentage: 0.6
                                 },
                                 {
-                                    label: 'Rekomendasi Proyeksi (2027)',
+                                    label: 'Rekomendasi Proyeksi (' + res.forecast_year + ')',
                                     type: 'line',
                                     data: recData,
                                     borderColor: '#10b981',

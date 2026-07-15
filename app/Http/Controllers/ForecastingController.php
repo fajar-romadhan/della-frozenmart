@@ -14,6 +14,10 @@ class ForecastingController extends Controller
     {
         $products = Product::where('status_aktif', true)->orderBy('nama_produk')->get();
         
+        $latestSale = OutgoingGood::latest('tanggal_keluar')->first();
+        $historicalYear = $latestSale ? Carbon::parse($latestSale->tanggal_keluar)->year : Carbon::now()->year;
+        $forecastYear = $historicalYear + 1;
+        
         $coreProductCodes = ['PRD-0011', 'PRD-0028', 'PRD-0012', 'PRD-0022', 'PRD-0005', 'PRD-0008', 'PRD-0026', 'PRD-0018', 'PRD-0030', 'PRD-0023'];
         $comparisonData = [];
         
@@ -26,18 +30,25 @@ class ForecastingController extends Controller
             if (!$product) continue;
             
             $salesTotal = OutgoingGood::where('product_id', $product->id)
-                ->whereYear('tanggal_keluar', 2026)
+                ->whereYear('tanggal_keluar', $historicalYear)
                 ->sum('jumlah') ?: 0;
                 
+            $minDateStr = OutgoingGood::where('product_id', $product->id)->whereYear('tanggal_keluar', $historicalYear)->min('tanggal_keluar');
+            $maxDateStr = OutgoingGood::where('product_id', $product->id)->whereYear('tanggal_keluar', $historicalYear)->max('tanggal_keluar');
+            
+            $startMonth = $minDateStr ? Carbon::parse($minDateStr)->month : 1;
+            $endMonth = $maxDateStr ? Carbon::parse($maxDateStr)->month : 5;
+            
             $monthlySales = [];
-            for ($m = 1; $m <= 5; $m++) {
+            for ($m = $startMonth; $m <= $endMonth; $m++) {
                 $monthlySales[$m] = OutgoingGood::where('product_id', $product->id)
-                    ->whereYear('tanggal_keluar', 2026)
+                    ->whereYear('tanggal_keluar', $historicalYear)
                     ->whereMonth('tanggal_keluar', $m)
                     ->sum('jumlah') ?: 0;
             }
             
-            $numMonths = 5;
+            $numMonths = ($endMonth - $startMonth) + 1;
+            if ($numMonths <= 0) $numMonths = 1;
             $avgSales = $salesTotal / $numMonths;
             
             $sumSquares = 0;
@@ -62,7 +73,7 @@ class ForecastingController extends Controller
             ];
         }
 
-        return view('forecasting.index', compact('products', 'comparisonData'));
+        return view('forecasting.index', compact('products', 'comparisonData', 'historicalYear', 'forecastYear'));
     }
 
     public function calculate(Request $request)
@@ -87,16 +98,20 @@ class ForecastingController extends Controller
         ];
         $zScore = $zScoreMap[$serviceLevel];
 
+        $latestSale = OutgoingGood::latest('tanggal_keluar')->first();
+        $historicalYear = $latestSale ? Carbon::parse($latestSale->tanggal_keluar)->year : Carbon::now()->year;
+        $forecastYear = $historicalYear + 1;
+
         $product = Product::findOrFail($productId);
 
-        // Detect the active range of sales for the product in 2026
-        $minDateStr = OutgoingGood::where('product_id', $productId)->whereYear('tanggal_keluar', 2026)->min('tanggal_keluar');
-        $maxDateStr = OutgoingGood::where('product_id', $productId)->whereYear('tanggal_keluar', 2026)->max('tanggal_keluar');
+        // Detect the active range of sales for the product in the historical year
+        $minDateStr = OutgoingGood::where('product_id', $productId)->whereYear('tanggal_keluar', $historicalYear)->min('tanggal_keluar');
+        $maxDateStr = OutgoingGood::where('product_id', $productId)->whereYear('tanggal_keluar', $historicalYear)->max('tanggal_keluar');
 
         if (!$minDateStr || !$maxDateStr) {
             // Fallback range if no sales recorded yet
-            $minDateStr = '2026-01-01';
-            $maxDateStr = '2026-05-31';
+            $minDateStr = $historicalYear . '-01-01';
+            $maxDateStr = $historicalYear . '-05-31';
         }
 
         $minDate = Carbon::parse($minDateStr)->startOfMonth();
@@ -133,8 +148,8 @@ class ForecastingController extends Controller
 
         // Group into monthly data
         $monthlyData = [];
-        $totalSales2026 = 0;
-        $totalCorrected2026 = 0;
+        $totalSalesHistorical = 0;
+        $totalCorrectedHistorical = 0;
 
         $tempMonth = clone $minDate;
         $monthsList = [];
@@ -201,8 +216,8 @@ class ForecastingController extends Controller
                 'corrected_demand' => intval(round($correctedDemand)),
             ];
 
-            $totalSales2026 += $salesInMonth;
-            $totalCorrected2026 += $correctedDemand;
+            $totalSalesHistorical += $salesInMonth;
+            $totalCorrectedHistorical += $correctedDemand;
         }
 
         $numMonths = count($monthlyData);
@@ -211,7 +226,7 @@ class ForecastingController extends Controller
         }
 
         // Average corrected monthly
-        $avgCorrectedMonthly = $totalCorrected2026 / $numMonths;
+        $avgCorrectedMonthly = $totalCorrectedHistorical / $numMonths;
         if ($avgCorrectedMonthly <= 0) {
             $avgCorrectedMonthly = 1;
         }
@@ -223,7 +238,7 @@ class ForecastingController extends Controller
         unset($data);
 
         // Projections
-        $projectedTotalNext = $totalCorrected2026 * (1 + $growthRate);
+        $projectedTotalNext = $totalCorrectedHistorical * (1 + $growthRate);
         $projectedAvgMonthlyNext = $projectedTotalNext / $numMonths;
 
         // Standard Deviation
@@ -257,9 +272,11 @@ class ForecastingController extends Controller
             'std_dev' => round($stdDev, 2),
             'safety_stock_global' => intval(round($safetyStockVal)),
             'monthly_data' => $monthlyData,
+            'historical_year' => $historicalYear,
+            'forecast_year' => $forecastYear,
             'totals' => [
-                'sales' => intval(round($totalSales2026)),
-                'corrected' => intval(round($totalCorrected2026)),
+                'sales' => intval(round($totalSalesHistorical)),
+                'corrected' => intval(round($totalCorrectedHistorical)),
             ]
         ]);
     }
