@@ -201,6 +201,28 @@
         height: 3rem;
         color: #2563eb;
     }
+
+    /* High-contrast custom badges */
+    .badge-periode-forecast {
+        background-color: #e0e7ff !important; /* Indigo pastel */
+        color: #4f46e5 !important; /* Indigo text */
+        font-weight: 600;
+        font-size: 0.72rem;
+        padding: 5px 10px;
+        border-radius: 5px;
+        display: inline-block;
+        text-transform: uppercase;
+    }
+    .badge-musim-forecast {
+        background-color: #fef3c7 !important; /* Amber pastel */
+        color: #d97706 !important; /* Amber text */
+        font-weight: 600;
+        font-size: 0.72rem;
+        padding: 5px 10px;
+        border-radius: 5px;
+        display: inline-block;
+        text-transform: uppercase;
+    }
 </style>
 
 <div class="container-fluid forecasting-container">
@@ -300,12 +322,12 @@
                                 <div>{{ $item['nama'] }}</div>
                                 <span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 5px; font-size: 0.7rem; font-weight: 600;">{{ $item['kode'] }}</span>
                             </td>
-                            <td class="text-center">
-                                <span class="badge bg-primary bg-opacity-10 text-primary fw-semibold px-2 py-1" style="font-size: 0.72rem; border-radius: 5px;">Tahun Depan (2027)</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge bg-warning bg-opacity-10 text-warning fw-semibold px-2 py-1" style="font-size: 0.72rem; border-radius: 5px;">Seasonal Index (Aktif)</span>
-                            </td>
+                             <td class="text-center">
+                                <span class="badge-periode-forecast">Tahun Depan (2027)</span>
+                             </td>
+                             <td class="text-center">
+                                <span class="badge-musim-forecast">Seasonal Index (Aktif)</span>
+                             </td>
                             <td class="text-end fw-medium">{{ number_format($item['sales_total']) }} pcs</td>
                             <td class="text-end text-success fw-bold" style="background-color: #f0fdf4;">{{ number_format($item['rec_total']) }} pcs</td>
                         </tr>
