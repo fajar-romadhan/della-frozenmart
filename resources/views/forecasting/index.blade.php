@@ -292,35 +292,46 @@
         </form>
     </div>
 
-    {{-- Card Tabel Perbandingan Proyeksi --}}
+    {{-- Card Tabel Perbandingan 10 Produk Utama --}}
     <div class="glass-card mb-4">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
             <h5 class="fw-bold mb-0 text-slate-800" style="font-size: 1.05rem;">
-                <i class="ph ph-clock-counter-clockwise text-primary"></i> Tabel Riwayat Hasil Peramalan Produk
+                <i class="ph ph-scales text-primary"></i> Tabel Perbandingan Proyeksi 10 Produk Utama
             </h5>
             <span class="badge bg-primary-light text-primary px-3 py-2" style="border-radius: 6px; font-weight: 600; font-size: 0.75rem;">
-                Akumulasi riwayat pencarian peramalan produk saat ini
+                Parameter Standar: Pertumbuhan 10%, Lead Time 3 Hari, Service Level 95%
             </span>
         </div>
         <div class="table-responsive">
-            <table class="table align-middle table-hover" id="tableComparisonHistory">
+            <table class="table align-middle table-hover">
                 <thead class="table-light">
                     <tr>
                         <th width="50" class="text-center">No</th>
                         <th>Produk</th>
                         <th class="text-center">Periode</th>
                         <th class="text-center">Musim</th>
-                        <th class="text-end">Data Tahun Sebelumnya ({{ $historicalYear }})</th>
-                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Hasil Ramalan ({{ $forecastYear }})</th>
+                        <th class="text-end">Data Tahun Sebelumnya (2026)</th>
+                        <th class="text-end text-success fw-bold" style="background-color: #f0fdf4;">Hasil Ramalan (2027)</th>
                     </tr>
                 </thead>
-                <tbody id="tableComparisonHistoryBody">
-                    <tr id="emptyHistoryRow">
-                        <td colspan="6" class="text-center py-4 text-muted">
-                            <i class="ph ph-info fs-3 d-block mb-2"></i>
-                            Belum ada riwayat peramalan produk. Silakan pilih produk di atas dan klik tombol "Mulai Peramalan".
-                        </td>
-                    </tr>
+                <tbody>
+                    @foreach($comparisonData as $index => $item)
+                        <tr>
+                            <td class="text-center fw-semibold text-muted">{{ $index + 1 }}</td>
+                            <td class="fw-bold text-slate-800">
+                                <div>{{ $item['nama'] }}</div>
+                                <span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 5px; font-size: 0.7rem; font-weight: 600;">{{ $item['kode'] }}</span>
+                            </td>
+                             <td class="text-center">
+                                <span class="badge-periode-forecast">Tahun Depan (2027)</span>
+                             </td>
+                             <td class="text-center">
+                                <span class="badge-musim-forecast">Seasonal Index (Aktif)</span>
+                             </td>
+                            <td class="text-end fw-medium">{{ number_format($item['sales_total']) }} pcs</td>
+                            <td class="text-end text-success fw-bold" style="background-color: #f0fdf4;">{{ number_format($item['rec_total']) }} pcs</td>
+                        </tr>
+                    @endforeach
                 </tbody>
             </table>
         </div>
@@ -522,52 +533,6 @@
                     document.getElementById('statCorrected').textContent = res.totals.corrected.toLocaleString('id-ID') + ' pcs';
                     document.getElementById('statStdDev').textContent = res.std_dev.toLocaleString('id-ID');
                     document.getElementById('statSafetyStock').textContent = res.safety_stock_global.toLocaleString('id-ID') + ' pcs';
-
-                    // Update Comparison/History Table
-                    const historyTbody = document.getElementById('tableComparisonHistoryBody');
-                    const emptyRow = document.getElementById('emptyHistoryRow');
-                    if (emptyRow) {
-                        emptyRow.remove();
-                    }
-
-                    // Sum recommendations
-                    let totalRec = 0;
-                    res.monthly_data.forEach(item => {
-                        totalRec += item.recommendation_2027;
-                    });
-
-                    // Check if row already exists for this product
-                    const existingRow = Array.from(historyTbody.rows).find(row => row.dataset.productId == res.product_id);
-                    if (existingRow) {
-                        existingRow.querySelector('.sales-cell').textContent = res.totals.sales.toLocaleString('id-ID') + ' pcs';
-                        existingRow.querySelector('.rec-cell').textContent = totalRec.toLocaleString('id-ID') + ' pcs';
-                    } else {
-                        const nextNo = historyTbody.rows.length + 1;
-                        const newRow = document.createElement('tr');
-                        newRow.dataset.productId = res.product_id;
-                        
-                        // Extract product code from the selected option text
-                        const selectedOption = selectProduct.options[selectProduct.selectedIndex];
-                        const productCodeMatch = selectedOption ? selectedOption.text.match(/\(([^)]+)\)/) : null;
-                        const productCode = productCodeMatch ? productCodeMatch[1] : '';
-
-                        newRow.innerHTML = `
-                            <td class="text-center fw-semibold text-muted">${nextNo}</td>
-                            <td class="fw-bold text-slate-800">
-                                <div>${res.product_name}</div>
-                                <span style="background: #f1f5f9; color: #475569; padding: 2px 7px; border-radius: 5px; font-size: 0.7rem; font-weight: 600;">${productCode}</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge-periode-forecast">Tahun Depan (${res.forecast_year})</span>
-                            </td>
-                            <td class="text-center">
-                                <span class="badge-musim-forecast">Seasonal Index (Aktif)</span>
-                            </td>
-                            <td class="text-end fw-medium sales-cell">${res.totals.sales.toLocaleString('id-ID')} pcs</td>
-                            <td class="text-end text-success fw-bold rec-cell" style="background-color: #f0fdf4;">${totalRec.toLocaleString('id-ID')} pcs</td>
-                        `;
-                        historyTbody.appendChild(newRow);
-                    }
 
                     // Populate Table
                     const tbody = document.getElementById('tableResultBody');

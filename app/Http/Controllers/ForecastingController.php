@@ -18,7 +18,62 @@ class ForecastingController extends Controller
         $historicalYear = $latestSale ? Carbon::parse($latestSale->tanggal_keluar)->year : Carbon::now()->year;
         $forecastYear = $historicalYear + 1;
         
-        return view('forecasting.index', compact('products', 'historicalYear', 'forecastYear'));
+        $coreProductCodes = ['PRD-0011', 'PRD-0028', 'PRD-0012', 'PRD-0022', 'PRD-0005', 'PRD-0008', 'PRD-0026', 'PRD-0018', 'PRD-0030', 'PRD-0023'];
+        $comparisonData = [];
+        
+        $zScore = 1.65; // 95% service level
+        $growthRate = 0.10; // 10% growth
+        $leadTime = 3; // 3 days lead time
+
+        foreach ($coreProductCodes as $code) {
+            $product = Product::where('kode_produk', $code)->first();
+            if (!$product) continue;
+            
+            $salesTotal = OutgoingGood::where('product_id', $product->id)
+                ->whereYear('tanggal_keluar', $historicalYear)
+                ->sum('jumlah') ?: 0;
+                
+            $minDateStr = OutgoingGood::where('product_id', $product->id)->whereYear('tanggal_keluar', $historicalYear)->min('tanggal_keluar');
+            $maxDateStr = OutgoingGood::where('product_id', $product->id)->whereYear('tanggal_keluar', $historicalYear)->max('tanggal_keluar');
+            
+            $startMonth = $minDateStr ? Carbon::parse($minDateStr)->month : 1;
+            $endMonth = $maxDateStr ? Carbon::parse($maxDateStr)->month : 5;
+            
+            $monthlySales = [];
+            for ($m = $startMonth; $m <= $endMonth; $m++) {
+                $monthlySales[$m] = OutgoingGood::where('product_id', $product->id)
+                    ->whereYear('tanggal_keluar', $historicalYear)
+                    ->whereMonth('tanggal_keluar', $m)
+                    ->sum('jumlah') ?: 0;
+            }
+            
+            $numMonths = ($endMonth - $startMonth) + 1;
+            if ($numMonths <= 0) $numMonths = 1;
+            $avgSales = $salesTotal / $numMonths;
+            
+            $sumSquares = 0;
+            foreach ($monthlySales as $mSales) {
+                $sumSquares += pow($mSales - $avgSales, 2);
+            }
+            $stdDev = $numMonths > 1 ? sqrt($sumSquares / ($numMonths - 1)) : 0;
+            
+            $safetyStock = $zScore * $stdDev * sqrt($leadTime / 30);
+            
+            $forecastTotal = $salesTotal * (1 + $growthRate);
+            $recTotal = $forecastTotal + ($safetyStock * 5);
+            
+            $comparisonData[] = [
+                'kode' => $product->kode_produk,
+                'nama' => $product->nama_produk,
+                'sales_total' => intval($salesTotal),
+                'sales_avg' => intval(round($avgSales)),
+                'rec_total' => intval(round($recTotal)),
+                'rec_avg' => intval(round($recTotal / 5)),
+                'selisih' => intval(round($recTotal - $salesTotal)),
+            ];
+        }
+
+        return view('forecasting.index', compact('products', 'comparisonData', 'historicalYear', 'forecastYear'));
     }
 
     public function calculate(Request $request)
@@ -209,7 +264,6 @@ class ForecastingController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'product_id' => $product->id,
             'product_name' => $product->nama_produk,
             'growth_rate' => $growthRate * 100,
             'lead_time' => $leadTime,
