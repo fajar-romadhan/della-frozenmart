@@ -22,6 +22,18 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 ### 1.3 Penguncian Baseline AU (Average Usage)
 * Formula AU dikunci pada periode baseline **1 Januari 2026 s/d 31 Mei 2026** (total **151 hari**) di dalam `SafetyStockService.php` agar nilai Safety Stock dan ROP tetap stabil meskipun ada penambahan transaksi keluar harian baru.
 
+### 1.4 Penghilangan Keterangan Impor & Penyesuaian Notifikasi Stok
+* **Laporan Barang Masuk**: Menyembunyikan tampilan teks `Ket: Import otomatis dari DATA_BARANG_MASUK_MARET_2026_REVISI.docx` dari nama produk di halaman web (`barang-masuk.blade.php`) dan cetak (`barang-masuk-print.blade.php`) jika isinya mengandung kata `'Import otomatis'`.
+* **Reset Demo**: Mengubah value keterangan import otomatis di `public/reset_demo.php` menjadi `null` agar database bersih.
+* **Notifikasi Stok Dropdown**: Penyesuaian judul dropdown notifikasi di `NotificationController.php`:
+  * Menggunakan **"Stok Habis"** jika stok benar-benar $\le 0$.
+  * Menggunakan **"Perlu Order"** jika stok $> 0$ tetapi $\le ROP$.
+  * Menggunakan **"Stok Menipis"** jika statusnya `Warning`.
+* **Formula Status Stok**: Memperbaiki logika status di `SafetyStockService.php` agar sesuai dengan `DOKUMENTASI_SISTEM.md`:
+  * `Order`: Stok Saat Ini $\le$ ROP.
+  * `Warning`: ROP $<$ Stok Saat Ini $\le$ (ROP + Safety Stock).
+  * `Aman`: Stok Saat Ini $>$ (ROP + Safety Stock).
+
 ---
 
 ## 2. Status Data Terakhir di Database (Live & Lokal)

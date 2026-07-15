@@ -143,9 +143,10 @@ class SafetyStockService
 
         // Determine status (Aman, Warning, Order)
         $ropInt = (int) round($reorderPoint);
-        if ($stokSaatIni < $ropInt) {
+        $ssInt = (int) round($safetyStock);
+        if ($stokSaatIni <= $ropInt) {
             $statusStok = 'Order';
-        } elseif ($stokSaatIni == $ropInt) {
+        } elseif ($stokSaatIni > $ropInt && $stokSaatIni <= ($ropInt + $ssInt)) {
             $statusStok = 'Warning';
         } else {
             $statusStok = 'Aman';

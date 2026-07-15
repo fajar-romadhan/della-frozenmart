@@ -1273,7 +1273,7 @@ if ($vendorExists && $_SERVER['REQUEST_METHOD'] === 'POST') {
                     'batch_code'           => $batchCode,
                     'sumber_import'        => 'Import Demo DOCX',
                     'id_lokasi'            => $lokasi,
-                    'keterangan'           => 'Import otomatis dari DATA_BARANG_MASUK_MARET_2026_REVISI.docx',
+                    'keterangan'           => null,
                     'user_id'              => 1,
                 ]);
 

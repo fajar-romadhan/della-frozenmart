@@ -177,7 +177,7 @@
                     <td><span class="fw-bold">{{ $item->product->kode_produk ?? '-' }}</span></td>
                     <td>
                         <span class="fw-bold">{{ $item->product->nama_produk ?? '-' }}</span>
-                        @if($item->keterangan)
+                        @if($item->keterangan && !str_contains($item->keterangan, 'Import otomatis'))
                             <div class="text-muted small italic" style="font-size: 0.65rem;">Ket: {{ $item->keterangan }}</div>
                         @endif
                     </td>

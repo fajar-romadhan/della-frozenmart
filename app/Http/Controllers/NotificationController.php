@@ -160,14 +160,16 @@ class NotificationController extends Controller
 
             if ($analysis && $analysis->status_stok === 'Order') {
                 $status = 'Order';
-                $judul = 'Stok Habis';
-                $pesan = $product->nama_produk . ' tersisa ' . number_format($product->stok_saat_ini, 0, ',', '.') . ' pcs.';
+                $judul = $product->stok_saat_ini <= 0 ? 'Stok Habis' : 'Perlu Order';
+                $pesan = $product->stok_saat_ini <= 0 
+                    ? $product->nama_produk . ' telah habis (0 pcs).' 
+                    : $product->nama_produk . ' tersisa ' . number_format($product->stok_saat_ini, 0, ',', '.') . ' pcs (di bawah ROP).';
                 $icon = 'ph-x';
                 $color = 'red';
             } elseif ($analysis && $analysis->status_stok === 'Warning') {
                 $status = 'Warning';
-                $judul = 'Stok Peringatan';
-                $pesan = $product->nama_produk . ' tersisa ' . number_format($product->stok_saat_ini, 0, ',', '.') . ' pcs.';
+                $judul = 'Stok Menipis';
+                $pesan = $product->nama_produk . ' tersisa ' . number_format($product->stok_saat_ini, 0, ',', '.') . ' pcs (mendekati ROP).';
                 $icon = 'ph-warning';
                 $color = 'yellow';
             }
