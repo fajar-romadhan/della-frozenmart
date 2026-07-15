@@ -86,11 +86,11 @@
                 </div>
                 <div class="col-md-2">
                     <label class="form-label fw-bold" style="font-size: 0.82rem; color: #334155;">Tanggal Dari</label>
-                    <input type="date" name="tanggal_dari" class="form-control" style="border-radius: 8px; font-size: 0.8rem;" value="{{ request('tanggal_dari') }}">
+                    <input type="date" name="tanggal_dari" class="form-control" style="border-radius: 8px; font-size: 0.8rem;" value="{{ request('tanggal_dari') }}" min="2026-01-01">
                 </div>
                 <div class="col-md-2">
                     <label class="form-label fw-bold" style="font-size: 0.82rem; color: #334155;">Tanggal Sampai</label>
-                    <input type="date" name="tanggal_sampai" class="form-control" style="border-radius: 8px; font-size: 0.8rem;" value="{{ request('tanggal_sampai') }}">
+                    <input type="date" name="tanggal_sampai" class="form-control" style="border-radius: 8px; font-size: 0.8rem;" value="{{ request('tanggal_sampai') }}" min="2026-01-01">
                 </div>
                 <div class="col-md-2 d-flex align-items-end gap-2">
                     <button type="submit" class="btn btn-primary w-100 fw-bold" style="border-radius: 8px; font-size: 0.8rem; height: 38px;">
@@ -140,6 +140,11 @@
                             'outgoing' => 'bg-danger bg-opacity-10 text-danger',
                             'opname' => 'bg-dark bg-opacity-10 text-dark',
                         ];
+                        
+                        $roleColors = [
+                            'admin' => 'badge bg-danger bg-opacity-10 text-danger',
+                            'manager' => 'badge bg-primary bg-opacity-10 text-primary',
+                            'owner' => 'badge bg-success bg-opacity-10 text-success',
                         ];
                     @endphp
 
@@ -151,7 +156,13 @@
                                 <small class="text-muted" style="font-size: 0.7rem;">{{ $log->created_at->diffForHumans() }}</small>
                             </td>
                             <td>
-                                <div class="fw-semibold" style="font-size: 0.8rem;">{{ $log->user->name ?? 'System' }}</div>
+                                @if($log->user)
+                                    <span class="{{ $roleColors[strtolower($log->user->role)] ?? 'badge bg-secondary' }}" style="font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">
+                                        {{ $log->user->name }}
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.75rem; font-weight: 600; padding: 4px 8px; border-radius: 6px;">System</span>
+                                @endif
                             </td>
                             <td>
                                 <span class="badge-custom {{ $badgeColors[strtolower($log->tipe)] ?? 'bg-secondary bg-opacity-10 text-secondary' }}">
