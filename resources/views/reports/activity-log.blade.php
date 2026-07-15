@@ -140,11 +140,6 @@
                             'outgoing' => 'bg-danger bg-opacity-10 text-danger',
                             'opname' => 'bg-dark bg-opacity-10 text-dark',
                         ];
-                        
-                        $roleColors = [
-                            'admin' => 'badge bg-danger bg-opacity-10 text-danger',
-                            'manager' => 'badge bg-primary bg-opacity-10 text-primary',
-                            'owner' => 'badge bg-success bg-opacity-10 text-success',
                         ];
                     @endphp
 
@@ -157,13 +152,6 @@
                             </td>
                             <td>
                                 <div class="fw-semibold" style="font-size: 0.8rem;">{{ $log->user->name ?? 'System' }}</div>
-                                @if($log->user)
-                                    <span class="{{ $roleColors[strtolower($log->user->role)] ?? 'badge bg-secondary' }}" style="font-size: 0.65rem;">
-                                        {{ ucfirst($log->user->role) }}
-                                    </span>
-                                @else
-                                    <span class="badge bg-secondary bg-opacity-10 text-secondary" style="font-size: 0.65rem;">System</span>
-                                @endif
                             </td>
                             <td>
                                 <span class="badge-custom {{ $badgeColors[strtolower($log->tipe)] ?? 'bg-secondary bg-opacity-10 text-secondary' }}">
