@@ -14,7 +14,7 @@
 
     <!-- Executive Stats Cards -->
     <div class="row mb-4">
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-4">
             <div class="card stat-card hover-animate bg-white border-0 stat-primary">
                 <div class="stat-icon shadow-sm">
                     <i class="ph ph-trend-up"></i>
@@ -25,18 +25,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-lg-3">
-            <div class="card stat-card hover-animate bg-white border-0 stat-info">
-                <div class="stat-icon shadow-sm">
-                    <i class="ph ph-clock-counter-clockwise"></i>
-                </div>
-                <div class="stat-info">
-                    <span class="stat-label">Penjualan Bulan Lalu</span>
-                    <h3 class="stat-value mb-0">{{ number_format($penjualanBulanLalu ?? 0, 0, ',', '.') }} pcs</h3>
-                </div>
-            </div>
-        </div>
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-4">
             <div class="card stat-card hover-animate bg-white border-0 stat-success">
                 <div class="stat-icon shadow-sm">
                     <i class="ph ph-download-simple"></i>
@@ -47,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-6 col-lg-3">
+        <div class="col-md-4">
             <div class="card stat-card hover-animate bg-white border-0 stat-danger">
                 <div class="stat-icon shadow-sm">
                     <i class="ph ph-warning-octagon"></i>
