@@ -44,7 +44,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 
 ### 1.6 Pengurutan Tabel Analisa Persediaan
 * **Kebutuhan**: Manager meminta agar 10 produk utama (kritis) diposisikan di baris teratas pada tabel Analisa Persediaan (Safety Stock) tanpa mengubah isi data di dalamnya.
-* **Solusi**: Memodifikasi method `index()` di `InventoryAnalysisController.php` untuk mengurutkan koleksi `$analyses` secara kustom: mendeteksi 10 produk kritis dan memindahkannya ke urutan teratas secara teratur, sedangkan produk lainnya diurutkan secara alfabetis di bawahnya.
+* **Solusi**: Memodifikasi method `index()` di `InventoryAnalysisController.php` untuk mengurutkan koleksi `$analyses` secara kustom: mendeteksi 10 produk kritis dan memindahkannya ke urutan teratas secara teratur, sedangkan produk lainnya diurutkan secara alfabetis di bawahnya. Serta memanggil method `->values()` pada koleksi setelah diurutkan untuk mengatur ulang kunci indeks koleksi menjadi berurutan, sehingga penomoran baris tabel di Blade (`$index + 1`) berurutan secara sempurna (1, 2, 3, ...) dan tidak mengikuti kunci index array asalnya.
 
 ---
 
