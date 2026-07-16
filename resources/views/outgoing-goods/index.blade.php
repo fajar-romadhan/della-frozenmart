@@ -531,35 +531,48 @@ document.addEventListener('DOMContentLoaded', function () {
     var formHapusTarget = null;
     var modalEl = document.getElementById('modalHapusKeluar');
 
-    // Click: fill modal data and show
+    // Helper: aggressively clean up all Bootstrap modal residue
+    function forceCleanModal() {
+        document.querySelectorAll('.modal-backdrop').forEach(function (el) { el.remove(); });
+        document.body.classList.remove('modal-open');
+        document.body.removeAttribute('style');
+        if (modalEl) {
+            modalEl.classList.remove('show');
+            modalEl.style.display = 'none';
+            modalEl.removeAttribute('aria-modal');
+            modalEl.setAttribute('aria-hidden', 'true');
+        }
+    }
+
+    // Open modal: fill data, then show
     document.querySelectorAll('.btn-hapus-keluar').forEach(function (btn) {
         btn.addEventListener('click', function () {
             formHapusTarget = this.closest('form');
             document.getElementById('modalNamaProduk').textContent = this.dataset.nama;
             document.getElementById('modalDetailHapus').textContent = this.dataset.tanggal + ' · ' + this.dataset.jumlah + ' pcs';
-
-            // Dispose any existing instance before creating a fresh one
-            var existing = bootstrap.Modal.getInstance(modalEl);
-            if (existing) { existing.dispose(); }
-
-            var modal = new bootstrap.Modal(modalEl, { backdrop: true, keyboard: true });
-            modal.show();
+            bootstrap.Modal.getOrCreateInstance(modalEl).show();
         });
     });
 
-    // Confirm: hide modal then submit form
+    // Batal button: force cleanup after animation finishes
+    var batalBtn = document.querySelector('#modalHapusKeluar [data-bs-dismiss="modal"]');
+    if (batalBtn) {
+        batalBtn.addEventListener('click', function () {
+            setTimeout(forceCleanModal, 350);
+        });
+    }
+
+    // Confirm delete
     document.getElementById('btnKonfirmasiHapus').addEventListener('click', function () {
-        var existing = bootstrap.Modal.getInstance(modalEl);
-        if (existing) { existing.hide(); }
-        if (formHapusTarget) { formHapusTarget.submit(); }
+        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
+        setTimeout(function () {
+            forceCleanModal();
+            if (formHapusTarget) { formHapusTarget.submit(); }
+        }, 350);
     });
 
-    // Guaranteed cleanup after every close — remove ALL backdrops and unlock body
-    modalEl.addEventListener('hidden.bs.modal', function () {
-        document.querySelectorAll('.modal-backdrop').forEach(function (el) { el.remove(); });
-        document.body.classList.remove('modal-open');
-        document.body.removeAttribute('style');
-    });
+    // Also clean up on hidden event (fires after animation)
+    modalEl.addEventListener('hidden.bs.modal', forceCleanModal);
 });
 </script>
 @endpush
