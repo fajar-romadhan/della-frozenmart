@@ -1,5 +1,5 @@
 # Log Update Pekerjaan Terakhir (Recap Session)
-*Terakhir Diperbarui: 16 Juli 2026*
+*Terakhir Diperbarui: 16 Juli 2026 (Malam — Sesi Lanjutan)*
 
 Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan agar dapat dibaca langsung oleh AI Agent pada sesi berikutnya.
 
@@ -40,14 +40,27 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
   - **Optimasi Memori**: Eager-loading transaksi bulk masuk/keluar di `ForecastingController.php` guna menyingkirkan N+1 query.
   - **Batasan 10 Produk Kritis**: Mengubah query produk di modul peramalan sehingga hanya menampilkan dan menghitung peramalan untuk 10 produk utama yang sering mengalami kekurangan stok (tidak lagi memuat ke-31 produk secara penuh).
 
-### 1.5 Perbaikan Bug 500 Error & Backdrop Modal Hitam di Barang Keluar
-* **Solusi**: 
-  - Memperbaiki syntax error Blade (hilangnya tag penutup `@endif` pada pagination container) di `resources/views/outgoing-goods/index.blade.php`.
-  - Mengatasi bug "layar hitam" (duplicate backdrop modal) saat tombol hapus diklik berulang kali dengan cara mengaktifkan modal menggunakan atribut deklaratif Bootstrap 5 (`data-bs-toggle="modal"` dan `data-bs-target="#modalHapusKeluar"`) pada tag button, serta menghapus inisiasi manual modal `new bootstrap.Modal()` di dalam JavaScript click listener.
+### 1.5 Perbaikan Bug 500 Error di Barang Keluar
+* **Solusi**: Memperbaiki syntax error Blade (hilangnya tag penutup `@endif` pada pagination container) di `resources/views/outgoing-goods/index.blade.php`.
 
 ### 1.6 Pengurutan Tabel Analisa Persediaan
 * **Kebutuhan**: Manager meminta agar 10 produk utama (kritis) diposisikan di baris teratas pada tabel Analisa Persediaan (Safety Stock) tanpa mengubah isi data di dalamnya.
 * **Solusi**: Memodifikasi method `index()` di `InventoryAnalysisController.php` untuk mengurutkan koleksi `$analyses` secara kustom: mendeteksi 10 produk kritis dan memindahkannya ke urutan teratas secara teratur, sedangkan produk lainnya diurutkan secara alfabetis di bawahnya. Serta memanggil method `->values()` pada koleksi setelah diurutkan untuk mengatur ulang kunci indeks koleksi menjadi berurutan, sehingga penomoran baris tabel di Blade (`$index + 1`) berurutan secara sempurna (1, 2, 3, ...) dan tidak mengikuti kunci index array asalnya.
+
+### 1.7 Penyempurnaan Tampilan Dropdown Produk di Peramalan
+* **Perubahan**:
+  - Menghapus teks `(Sangat Direkomendasikan)` dari opsi default dropdown produk di halaman Peramalan Penjualan, sehingga kini hanya tampil **"Semua Produk"** secara ringkas dan bersih.
+  - Menghapus badge label **"10 Kritis"** (warna merah) dari kolom produk pada tabel Hasil Analisis Peramalan Penjualan agar tampilan lebih premium dan mudah dibaca.
+  - Meng-upgrade styling kolom nama produk: nama produk menggunakan font bold `text-slate-800` dengan letter-spacing rapat, kode produk ditampilkan lebih kecil dengan huruf kapital penuh (*uppercase*) dan letter-spacing renggang di bawah nama produk.
+
+### 1.8 Perbaikan Definitif Bug Layar Hitam (Modal Hapus Barang Keluar)
+* **Masalah**: Saat tombol hapus di halaman Barang Keluar diklik, muncul dialog konfirmasi. Namun setelah dialog ditutup (klik "Batal"), layar menjadi hitam dan seluruh halaman tidak bisa diklik. Hal ini disebabkan elemen `div.modal-backdrop` Bootstrap yang tersisa di DOM (tidak dihapus) karena konflik instance Bootstrap Modal.
+* **Root Cause**: Bootstrap Modal membuat instance baru setiap kali tombol diklik, namun backdrop dari instance lama tidak selalu dibersihkan oleh Bootstrap secara otomatis, terutama saat terjadi konflik dengan cara instance modal diinisiasi (di luar `DOMContentLoaded`, double instantiation, atau `dispose()` yang memutus event listener).
+* **Solusi Definitif**: Mengganti seluruh implementasi Bootstrap Modal API (`bootstrap.Modal`) dengan **custom modal murni zero-dependency** di `resources/views/outgoing-goods/index.blade.php`:
+  - Backdrop dibuat sebagai `<div id="customBackdropHapus">` terpisah dengan `position:fixed; inset:0; z-index:1040` yang kita kendalikan sendiri.
+  - Modal box dibuat sebagai `<div id="modalHapusKeluar">` dengan `position:fixed; display:flex` yang kita kendalikan sendiri.
+  - Tombol **Batal**, klik backdrop, dan tombol **ESC** semuanya memanggil fungsi `closeModal()` yang langsung men-set `display:none` — tidak ada lifecycle Bootstrap, tidak ada backdrop yang bisa nyangkut.
+  - Tidak ada `modal-open` class yang ditambahkan ke `<body>`, tidak ada Bootstrap event listener apapun.
 
 ---
 
