@@ -42,6 +42,10 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 ### 1.5 Perbaikan Bug 500 Error di Barang Keluar
 * **Solusi**: Memperbaiki syntax error Blade (hilangnya tag penutup `@endif` pada pagination container) di `resources/views/outgoing-goods/index.blade.php`.
 
+### 1.6 Pengurutan Tabel Analisa Persediaan
+* **Kebutuhan**: Manager meminta agar 10 produk utama (kritis) diposisikan di baris teratas pada tabel Analisa Persediaan (Safety Stock) tanpa mengubah isi data di dalamnya.
+* **Solusi**: Memodifikasi method `index()` di `InventoryAnalysisController.php` untuk mengurutkan koleksi `$analyses` secara kustom: mendeteksi 10 produk kritis dan memindahkannya ke urutan teratas secara teratur, sedangkan produk lainnya diurutkan secara alfabetis di bawahnya.
+
 ---
 
 ## 2. Sesi Sebelumnya (15 Juli 2026)
