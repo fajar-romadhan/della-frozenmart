@@ -40,8 +40,10 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
   - **Optimasi Memori**: Eager-loading transaksi bulk masuk/keluar di `ForecastingController.php` guna menyingkirkan N+1 query.
   - **Batasan 10 Produk Kritis**: Mengubah query produk di modul peramalan sehingga hanya menampilkan dan menghitung peramalan untuk 10 produk utama yang sering mengalami kekurangan stok (tidak lagi memuat ke-31 produk secara penuh).
 
-### 1.5 Perbaikan Bug 500 Error di Barang Keluar
-* **Solusi**: Memperbaiki syntax error Blade (hilangnya tag penutup `@endif` pada pagination container) di `resources/views/outgoing-goods/index.blade.php`.
+### 1.5 Perbaikan Bug 500 Error & Backdrop Modal Hitam di Barang Keluar
+* **Solusi**: 
+  - Memperbaiki syntax error Blade (hilangnya tag penutup `@endif` pada pagination container) di `resources/views/outgoing-goods/index.blade.php`.
+  - Mengatasi bug "layar hitam" (duplicate backdrop modal) saat tombol hapus diklik berulang kali dengan cara mengaktifkan modal menggunakan atribut deklaratif Bootstrap 5 (`data-bs-toggle="modal"` dan `data-bs-target="#modalHapusKeluar"`) pada tag button, serta menghapus inisiasi manual modal `new bootstrap.Modal()` di dalam JavaScript click listener.
 
 ### 1.6 Pengurutan Tabel Analisa Persediaan
 * **Kebutuhan**: Manager meminta agar 10 produk utama (kritis) diposisikan di baris teratas pada tabel Analisa Persediaan (Safety Stock) tanpa mengubah isi data di dalamnya.
