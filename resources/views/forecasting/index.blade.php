@@ -284,7 +284,7 @@
                 <div class="col-lg-5 col-md-6 col-12">
                     <label class="form-label-premium" for="product_id">Pilih Produk Yang Ingin Diramal</label>
                     <select class="form-select form-control-premium w-100" id="product_id" name="product_id" required>
-                        <option value="all" selected>Semua Produk (Sangat Direkomendasikan)</option>
+                        <option value="all" selected>Semua Produk</option>
                         @foreach($products as $p)
                             <option value="{{ $p->id }}">{{ $p->nama_produk }} ({{ $p->kode_produk }})</option>
                         @endforeach
