@@ -456,8 +456,6 @@
                                     <button type="button" class="btn btn-sm btn-light border p-1 btn-hapus-keluar"
                                         style="border-radius: 6px;"
                                         title="Hapus Transaksi"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalHapusKeluar"
                                         data-nama="{{ $item->product->nama_produk ?? '-' }}"
                                         data-jumlah="{{ number_format($item->jumlah) }}"
                                         data-tanggal="{{ \Carbon\Carbon::parse($item->tanggal_keluar)->format('d/m/Y') }}">
@@ -530,23 +528,33 @@
 @push('scripts')
 <script>
     let formHapusTarget = null;
+    const modalEl = document.getElementById('modalHapusKeluar');
+    const modalInstance = new bootstrap.Modal(modalEl, { backdrop: true, keyboard: true });
 
+    // Set form target & fill data when any delete button is clicked
     document.querySelectorAll('.btn-hapus-keluar').forEach(function(btn) {
         btn.addEventListener('click', function() {
-            const nama    = this.dataset.nama;
-            const jumlah  = this.dataset.jumlah;
-            const tanggal = this.dataset.tanggal;
             formHapusTarget = this.closest('form');
-
-            document.getElementById('modalNamaProduk').textContent = nama;
-            document.getElementById('modalDetailHapus').textContent = tanggal + ' · ' + jumlah + ' pcs';
+            document.getElementById('modalNamaProduk').textContent = this.dataset.nama;
+            document.getElementById('modalDetailHapus').textContent = this.dataset.tanggal + ' · ' + this.dataset.jumlah + ' pcs';
+            modalInstance.show();
         });
     });
 
+    // Confirm delete: submit form then hide modal
     document.getElementById('btnKonfirmasiHapus').addEventListener('click', function() {
         if (formHapusTarget) {
+            modalInstance.hide();
             formHapusTarget.submit();
         }
+    });
+
+    // After modal fully hides, always clean up stale backdrops & body classes
+    modalEl.addEventListener('hidden.bs.modal', function() {
+        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = '';
+        document.body.style.paddingRight = '';
     });
 </script>
 @endpush
