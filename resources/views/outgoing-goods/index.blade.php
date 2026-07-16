@@ -488,6 +488,7 @@
                 {{ $outgoingGoods->links('pagination::bootstrap-5') }}
             </div>
         </div>
+        @endif
     </div>
 </div>
 
