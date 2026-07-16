@@ -34,6 +34,41 @@ class InventoryAnalysisController extends Controller
         }
 
         $analyses = $query->get();
+
+        $criticalProductNames = [
+            'okey sosis 500gr',
+            'fiesta chicken nugget 450gr',
+            'jamur enoki',
+            'meru lapis bogor',
+            'okey nugget stik 500gr',
+            'cireng rujak',
+            'salam nugget 500gr',
+            'warisan isi 50',
+            'belfood sosis isi 30',
+            'richeese nugget'
+        ];
+
+        $analyses = $analyses->sort(function ($a, $b) use ($criticalProductNames) {
+            $nameA = strtolower(trim($a->product->nama_produk ?? ''));
+            $nameB = strtolower(trim($b->product->nama_produk ?? ''));
+
+            $isCritA = in_array($nameA, $criticalProductNames);
+            $isCritB = in_array($nameB, $criticalProductNames);
+
+            if ($isCritA && !$isCritB) {
+                return -1;
+            }
+            if (!$isCritA && $isCritB) {
+                return 1;
+            }
+            if ($isCritA && $isCritB) {
+                $idxA = array_search($nameA, $criticalProductNames);
+                $idxB = array_search($nameB, $criticalProductNames);
+                return $idxA <=> $idxB;
+            }
+            return strcmp($nameA, $nameB);
+        });
+
         $products = Product::where('status_aktif', true)->orderBy('nama_produk')->get();
         
         return view('inventory-analysis.index', compact('analyses', 'products'));
