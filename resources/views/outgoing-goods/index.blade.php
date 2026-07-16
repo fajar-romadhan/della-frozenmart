@@ -492,35 +492,32 @@
     </div>
 </div>
 
-{{-- Modal Konfirmasi Hapus --}}
-<div class="modal fade" id="modalHapusKeluar" tabindex="-1" aria-labelledby="modalHapusLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content" style="border-radius: 14px; border: none; box-shadow: 0 20px 60px rgba(0,0,0,0.15);">
-            <div class="modal-header border-0 pb-0 pt-4 px-4">
-                <div class="d-flex align-items-center gap-2">
-                    <div style="width: 40px; height: 40px; background: #fee2e2; border-radius: 10px; display: flex; align-items: center; justify-content: center;">
-                        <i class="ph ph-trash text-danger" style="font-size: 1.3rem;"></i>
-                    </div>
-                    <h5 class="modal-title fw-bold text-danger mb-0" id="modalHapusLabel">Hapus Transaksi Barang Keluar?</h5>
+{{-- Custom Hapus Modal (no Bootstrap Modal API) --}}
+<div id="customBackdropHapus" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.45); z-index:1040;"></div>
+<div id="modalHapusKeluar" style="display:none; position:fixed; inset:0; z-index:1055; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:#fff; border-radius:14px; width:100%; max-width:440px; box-shadow:0 20px 60px rgba(0,0,0,0.18); position:relative;">
+        <div style="padding:1.5rem 1.5rem 0;">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:1rem;">
+                <div style="width:40px; height:40px; background:#fee2e2; border-radius:10px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                    <i class="ph ph-trash text-danger" style="font-size:1.3rem;"></i>
                 </div>
+                <h5 style="margin:0; font-weight:700; color:#dc2626;">Hapus Transaksi Barang Keluar?</h5>
             </div>
-            <div class="modal-body px-4 pb-0">
-                <p class="text-muted mb-2" style="font-size: 0.9rem;">Anda akan menghapus transaksi berikut:</p>
-                <div class="rounded p-3 mb-3" style="background: #f8fafc; border: 1px solid #e2e8f0;">
-                    <div class="fw-semibold" id="modalNamaProduk" style="font-size: 0.95rem;"></div>
-                    <small class="text-muted" id="modalDetailHapus"></small>
-                </div>
-                <div class="alert alert-warning d-flex gap-2 align-items-start py-2 px-3" style="font-size: 0.82rem; border-radius: 8px;">
-                    <i class="ph ph-warning-circle mt-1 flex-shrink-0"></i>
-                    <span><strong>Stok akan dikembalikan otomatis</strong> ke batch FIFO asal. Tindakan ini akan tercatat di Log Aktivitas.</span>
-                </div>
+            <p style="color:#64748b; font-size:0.9rem; margin-bottom:0.5rem;">Anda akan menghapus transaksi berikut:</p>
+            <div style="background:#f8fafc; border:1px solid #e2e8f0; border-radius:8px; padding:0.75rem; margin-bottom:0.75rem;">
+                <div id="modalNamaProduk" style="font-weight:600; font-size:0.95rem;"></div>
+                <small id="modalDetailHapus" style="color:#64748b;"></small>
             </div>
-            <div class="modal-footer border-0 pt-2 pb-4 px-4 gap-2">
-                <button type="button" class="btn btn-light fw-semibold px-4" data-bs-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-danger fw-semibold px-4" id="btnKonfirmasiHapus">
-                    <i class="ph ph-trash me-1"></i>Ya, Hapus & Kembalikan Stok
-                </button>
+            <div style="background:#fffbeb; border:1px solid #fcd34d; border-radius:8px; padding:0.5rem 0.75rem; display:flex; gap:8px; align-items:flex-start; font-size:0.82rem; margin-bottom:1rem;">
+                <i class="ph ph-warning-circle" style="color:#d97706; flex-shrink:0; margin-top:1px;"></i>
+                <span><strong>Stok akan dikembalikan otomatis</strong> ke batch FIFO asal. Tindakan ini akan tercatat di Log Aktivitas.</span>
             </div>
+        </div>
+        <div style="padding:0 1.5rem 1.5rem; display:flex; gap:0.5rem; justify-content:flex-end;">
+            <button type="button" id="btnBatalHapus" style="font-weight:600; padding:0.5rem 1.5rem; border-radius:8px; border:1px solid #e2e8f0; background:#f8fafc; cursor:pointer;">Batal</button>
+            <button type="button" id="btnKonfirmasiHapus" style="font-weight:600; padding:0.5rem 1.5rem; border-radius:8px; border:none; background:#dc2626; color:#fff; cursor:pointer;">
+                <i class="ph ph-trash me-1"></i>Ya, Hapus &amp; Kembalikan Stok
+            </button>
         </div>
     </div>
 </div>
@@ -529,50 +526,47 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     var formHapusTarget = null;
-    var modalEl = document.getElementById('modalHapusKeluar');
+    var backdrop   = document.getElementById('customBackdropHapus');
+    var modalBox   = document.getElementById('modalHapusKeluar');
 
-    // Helper: aggressively clean up all Bootstrap modal residue
-    function forceCleanModal() {
-        document.querySelectorAll('.modal-backdrop').forEach(function (el) { el.remove(); });
-        document.body.classList.remove('modal-open');
-        document.body.removeAttribute('style');
-        if (modalEl) {
-            modalEl.classList.remove('show');
-            modalEl.style.display = 'none';
-            modalEl.removeAttribute('aria-modal');
-            modalEl.setAttribute('aria-hidden', 'true');
-        }
+    function openModal() {
+        backdrop.style.display = 'block';
+        modalBox.style.display = 'flex';
     }
 
-    // Open modal: fill data, then show
+    function closeModal() {
+        backdrop.style.display = 'none';
+        modalBox.style.display = 'none';
+        formHapusTarget = null;
+    }
+
+    // Open: fill data and show
     document.querySelectorAll('.btn-hapus-keluar').forEach(function (btn) {
         btn.addEventListener('click', function () {
             formHapusTarget = this.closest('form');
             document.getElementById('modalNamaProduk').textContent = this.dataset.nama;
             document.getElementById('modalDetailHapus').textContent = this.dataset.tanggal + ' · ' + this.dataset.jumlah + ' pcs';
-            bootstrap.Modal.getOrCreateInstance(modalEl).show();
+            openModal();
         });
     });
 
-    // Batal button: force cleanup after animation finishes
-    var batalBtn = document.querySelector('#modalHapusKeluar [data-bs-dismiss="modal"]');
-    if (batalBtn) {
-        batalBtn.addEventListener('click', function () {
-            setTimeout(forceCleanModal, 350);
-        });
-    }
+    // Batal: just close
+    document.getElementById('btnBatalHapus').addEventListener('click', closeModal);
 
-    // Confirm delete
+    // Backdrop click: close
+    backdrop.addEventListener('click', closeModal);
+
+    // Confirm: close then submit form
     document.getElementById('btnKonfirmasiHapus').addEventListener('click', function () {
-        bootstrap.Modal.getOrCreateInstance(modalEl).hide();
-        setTimeout(function () {
-            forceCleanModal();
-            if (formHapusTarget) { formHapusTarget.submit(); }
-        }, 350);
+        var form = formHapusTarget;
+        closeModal();
+        if (form) { form.submit(); }
     });
 
-    // Also clean up on hidden event (fires after animation)
-    modalEl.addEventListener('hidden.bs.modal', forceCleanModal);
+    // ESC key: close
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') { closeModal(); }
+    });
 });
 </script>
 @endpush
