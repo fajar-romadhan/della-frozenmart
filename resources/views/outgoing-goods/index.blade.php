@@ -456,6 +456,8 @@
                                     <button type="button" class="btn btn-sm btn-light border p-1 btn-hapus-keluar"
                                         style="border-radius: 6px;"
                                         title="Hapus Transaksi"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalHapusKeluar"
                                         data-nama="{{ $item->product->nama_produk ?? '-' }}"
                                         data-jumlah="{{ number_format($item->jumlah) }}"
                                         data-tanggal="{{ \Carbon\Carbon::parse($item->tanggal_keluar)->format('d/m/Y') }}">
@@ -538,9 +540,6 @@
 
             document.getElementById('modalNamaProduk').textContent = nama;
             document.getElementById('modalDetailHapus').textContent = tanggal + ' · ' + jumlah + ' pcs';
-
-            const modal = new bootstrap.Modal(document.getElementById('modalHapusKeluar'));
-            modal.show();
         });
     });
 
