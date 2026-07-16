@@ -14,7 +14,19 @@ class ForecastingController extends Controller
 {
     public function index()
     {
-        $products = Product::where('status_aktif', true)->orderBy('nama_produk')->get();
+        $criticalIds = [11, 28, 12, 22, 5, 8, 26, 18, 30, 23];
+        $criticalNames = [
+            'okey sosis 500gr', 'fiesta chicken nugget 450gr', 'jamur enoki', 'meru lapis bogor', 'okey nugget stik 500gr',
+            'cireng rujak', 'salam nugget 500gr', 'warisan isi 50', 'belfood sosis isi 30', 'richeese nugget'
+        ];
+
+        $products = Product::where('status_aktif', true)
+            ->where(function($q) use ($criticalIds, $criticalNames) {
+                $q->whereIn('id', $criticalIds)
+                  ->orWhereIn(DB::raw('LOWER(TRIM(nama_produk))'), $criticalNames);
+            })
+            ->orderBy('nama_produk')
+            ->get();
         
         // Calculate default seasonal forecast: Semua Produk, Lebaran (March)
         $defaultForecast = $this->calculateSeasonalForecast($products, 'lebaran');
@@ -53,7 +65,19 @@ class ForecastingController extends Controller
 
         // Fetch products
         if ($productId === 'all') {
-            $products = Product::where('status_aktif', true)->orderBy('nama_produk')->get();
+            $criticalIds = [11, 28, 12, 22, 5, 8, 26, 18, 30, 23];
+            $criticalNames = [
+                'okey sosis 500gr', 'fiesta chicken nugget 450gr', 'jamur enoki', 'meru lapis bogor', 'okey nugget stik 500gr',
+                'cireng rujak', 'salam nugget 500gr', 'warisan isi 50', 'belfood sosis isi 30', 'richeese nugget'
+            ];
+
+            $products = Product::where('status_aktif', true)
+                ->where(function($q) use ($criticalIds, $criticalNames) {
+                    $q->whereIn('id', $criticalIds)
+                      ->orWhereIn(DB::raw('LOWER(TRIM(nama_produk))'), $criticalNames);
+                })
+                ->orderBy('nama_produk')
+                ->get();
         } else {
             $products = Product::where('id', $productId)->where('status_aktif', true)->get();
             if ($products->isEmpty()) {
