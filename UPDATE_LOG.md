@@ -38,6 +38,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
   - **Kalkulasi Lost Sales & Permintaan Terkoreksi**: Menghitung rata-rata penjualan harian pada masa aktif stok, memperkirakan volume lost sales, dan memformulasikan proyeksi hasil ramalan bebas lost sales.
   - **Visual Premium Crimson Red**: Desain form pilihan produk (terintegrasi Semua Produk & pilihan per item) dan musim yang elegan, serta menyembunyikan parameter teknis konfigurasi (Growth, Lead Time, Service Level) di latar belakang menggunakan hidden inputs, ditambah visualisasi Chart.js interaktif dengan badge indikator produk kritis (10 produk utama) dan badge orange untuk hari kosong.
   - **Optimasi Memori**: Eager-loading transaksi bulk masuk/keluar di `ForecastingController.php` guna menyingkirkan N+1 query.
+  - **Batasan 10 Produk Kritis**: Mengubah query produk di modul peramalan sehingga hanya menampilkan dan menghitung peramalan untuk 10 produk utama yang sering mengalami kekurangan stok (tidak lagi memuat ke-31 produk secara penuh).
 
 ### 1.5 Perbaikan Bug 500 Error di Barang Keluar
 * **Solusi**: Memperbaiki syntax error Blade (hilangnya tag penutup `@endif` pada pagination container) di `resources/views/outgoing-goods/index.blade.php`.
