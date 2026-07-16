@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 use App\Models\Product;
 use App\Models\IncomingGood;
 use App\Models\OutgoingGood;
+use App\Models\Sale;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Carbon\CarbonPeriod;
 use Illuminate\Support\Facades\DB;
 
 class ForecastingController extends Controller
@@ -14,267 +16,357 @@ class ForecastingController extends Controller
     {
         $products = Product::where('status_aktif', true)->orderBy('nama_produk')->get();
         
-        $latestSale = OutgoingGood::latest('tanggal_keluar')->first();
-        $historicalYear = $latestSale ? Carbon::parse($latestSale->tanggal_keluar)->year : Carbon::now()->year;
-        $forecastYear = $historicalYear + 1;
+        // Calculate default seasonal forecast: Semua Produk, Lebaran (March)
+        $defaultForecast = $this->calculateSeasonalForecast($products, 'lebaran');
         
-        $comparisonData = [];
+        $comparisonData = $defaultForecast['forecast_data'];
+        $rangeInfo = $defaultForecast['range_info'];
         
-        $zScore = 1.65; // 95% service level
-        $growthRate = 0.10; // 10% growth
-        $leadTime = 3; // 3 days lead time
-
-        foreach ($products as $product) {
-            $salesTotal = OutgoingGood::where('product_id', $product->id)
-                ->whereYear('tanggal_keluar', $historicalYear)
-                ->sum('jumlah') ?: 0;
-                
-            $minDateStr = OutgoingGood::where('product_id', $product->id)->whereYear('tanggal_keluar', $historicalYear)->min('tanggal_keluar');
-            $maxDateStr = OutgoingGood::where('product_id', $product->id)->whereYear('tanggal_keluar', $historicalYear)->max('tanggal_keluar');
-            
-            $startMonth = $minDateStr ? Carbon::parse($minDateStr)->month : 1;
-            $endMonth = $maxDateStr ? Carbon::parse($maxDateStr)->month : 5;
-            
-            $monthlySales = [];
-            for ($m = $startMonth; $m <= $endMonth; $m++) {
-                $monthlySales[$m] = OutgoingGood::where('product_id', $product->id)
-                    ->whereYear('tanggal_keluar', $historicalYear)
-                    ->whereMonth('tanggal_keluar', $m)
-                    ->sum('jumlah') ?: 0;
-            }
-            
-            $numMonths = ($endMonth - $startMonth) + 1;
-            if ($numMonths <= 0) $numMonths = 1;
-            $avgSales = $salesTotal / $numMonths;
-            
-            $sumSquares = 0;
-            foreach ($monthlySales as $mSales) {
-                $sumSquares += pow($mSales - $avgSales, 2);
-            }
-            $stdDev = $numMonths > 1 ? sqrt($sumSquares / ($numMonths - 1)) : 0;
-            
-            $safetyStock = $zScore * $stdDev * sqrt($leadTime / 30);
-            
-            $forecastTotal = $salesTotal * (1 + $growthRate);
-            $recTotal = $forecastTotal + ($safetyStock * 5);
-            
-            $comparisonData[] = [
-                'id' => $product->id,
-                'kode' => $product->kode_produk,
-                'nama' => $product->nama_produk,
-                'sales_total' => intval($salesTotal),
-                'sales_avg' => intval(round($avgSales)),
-                'rec_total' => intval(round($recTotal)),
-                'rec_avg' => intval(round($recTotal / 5)),
-                'selisih' => intval(round($recTotal - $salesTotal)),
-            ];
-        }
-
-        return view('forecasting.index', compact('products', 'comparisonData', 'historicalYear', 'forecastYear'));
+        $seasonLabel = $rangeInfo['label'];
+        $historicalPeriod = $rangeInfo['name_prev'];
+        $forecastPeriod = $rangeInfo['name_forecast'];
+        
+        return view('forecasting.index', compact(
+            'products', 
+            'comparisonData', 
+            'seasonLabel', 
+            'historicalPeriod', 
+            'forecastPeriod'
+        ));
     }
 
     public function calculate(Request $request)
     {
         $request->validate([
-            'product_id' => 'required|exists:produk,id',
+            'product_id' => 'required|string', // can be 'all' or specific product id
+            'season' => 'required|in:lebaran,idul_adha,natal,tahun_baru',
             'growth_rate' => 'required|numeric|min:0|max:100',
             'lead_time' => 'required|integer|min:1|max:30',
             'service_level' => 'required|in:90,95,99',
         ]);
 
         $productId = $request->product_id;
+        $season = $request->season;
         $growthRate = $request->growth_rate / 100;
         $leadTime = $request->lead_time;
         $serviceLevel = $request->service_level;
 
-        // Z-Score mapping for statistical safety stock
-        $zScoreMap = [
-            '90' => 1.28,
-            '95' => 1.65,
-            '99' => 2.33,
-        ];
-        $zScore = $zScoreMap[$serviceLevel];
-
-        $latestSale = OutgoingGood::latest('tanggal_keluar')->first();
-        $historicalYear = $latestSale ? Carbon::parse($latestSale->tanggal_keluar)->year : Carbon::now()->year;
-        $forecastYear = $historicalYear + 1;
-
-        $product = Product::findOrFail($productId);
-
-        // Detect the active range of sales for the product in the historical year
-        $minDateStr = OutgoingGood::where('product_id', $productId)->whereYear('tanggal_keluar', $historicalYear)->min('tanggal_keluar');
-        $maxDateStr = OutgoingGood::where('product_id', $productId)->whereYear('tanggal_keluar', $historicalYear)->max('tanggal_keluar');
-
-        if (!$minDateStr || !$maxDateStr) {
-            // Fallback range if no sales recorded yet
-            $minDateStr = $historicalYear . '-01-01';
-            $maxDateStr = $historicalYear . '-05-31';
+        // Fetch products
+        if ($productId === 'all') {
+            $products = Product::where('status_aktif', true)->orderBy('nama_produk')->get();
+        } else {
+            $products = Product::where('id', $productId)->where('status_aktif', true)->get();
+            if ($products->isEmpty()) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Produk tidak ditemukan.'
+                ], 404);
+            }
         }
 
-        $minDate = Carbon::parse($minDateStr)->startOfMonth();
-        $maxDate = Carbon::parse($maxDateStr)->endOfMonth();
-
-        // Get daily incoming and outgoing quantities
-        $incoming = IncomingGood::where('product_id', $productId)
-            ->select('tanggal_masuk', DB::raw('SUM(jumlah) as qty'))
-            ->groupBy('tanggal_masuk')
-            ->pluck('qty', 'tanggal_masuk')
-            ->toArray();
-
-        $outgoing = OutgoingGood::where('product_id', $productId)
-            ->select('tanggal_keluar', DB::raw('SUM(jumlah) as qty'))
-            ->groupBy('tanggal_keluar')
-            ->pluck('qty', 'tanggal_keluar')
-            ->toArray();
-
-        // Reconstruct daily stock levels from today backwards to minDate
-        $currentStock = $product->stok_saat_ini;
-        $today = Carbon::today();
+        // Perform calculation
+        $resultData = $this->calculateSeasonalForecast($products, $season, $growthRate, $leadTime, $serviceLevel);
         
-        $dailyStock = [];
-        $tempStock = $currentStock;
+        $forecastData = $resultData['forecast_data'];
+        $rangeInfo = $resultData['range_info'];
 
-        for ($date = clone $today; $date->greaterThanOrEqualTo($minDate); $date->subDay()) {
-            $dateStr = $date->format('Y-m-d');
-            $dailyStock[$dateStr] = $tempStock;
+        // Get monthly timeline details for the charts
+        // We will generate the daily/monthly details for chart representation.
+        // For chart representation, we use the selected season's actual sales vs forecast.
+        $chartLabels = [];
+        $salesData = [];
+        $correctedData = [];
+        $recData = [];
 
-            $incQty = isset($incoming[$dateStr]) ? floatval($incoming[$dateStr]) : 0;
-            $outQty = isset($outgoing[$dateStr]) ? floatval($outgoing[$dateStr]) : 0;
-            $tempStock = $tempStock - $incQty + $outQty;
-        }
+        // If it is a single product calculation, we can return daily sales data for that month as chart points
+        // If it is "all products", we can return top 10 products comparison
+        if ($productId !== 'all') {
+            // Return daily breakdown for chart
+            $product = $products->first();
+            $pId = $product->id;
+            
+            $seasonStart = Carbon::parse($rangeInfo['start']);
+            $seasonEnd = Carbon::parse($rangeInfo['end']);
+            
+            // Reconstruct daily stock levels forward
+            $reconstructStart = '2026-01-01';
+            $reconstructEnd = '2026-05-31';
 
-        // Group into monthly data
-        $monthlyData = [];
-        $totalSalesHistorical = 0;
-        $totalCorrectedHistorical = 0;
+            $incoming = IncomingGood::where('product_id', $pId)
+                ->whereBetween('tanggal_masuk', [$reconstructStart, $reconstructEnd])
+                ->select('tanggal_masuk', DB::raw('SUM(jumlah) as qty'))
+                ->groupBy('tanggal_masuk')
+                ->pluck('qty', 'tanggal_masuk')
+                ->toArray();
 
-        $tempMonth = clone $minDate;
-        $monthsList = [];
-        while ($tempMonth->lessThanOrEqualTo($maxDate)) {
-            $monthsList[] = [
-                'num' => $tempMonth->month,
-                'year' => $tempMonth->year,
-                'name' => $tempMonth->locale('id')->translatedFormat('F Y'),
-                'start' => $tempMonth->copy()->startOfMonth(),
-                'end' => $tempMonth->copy()->endOfMonth(),
-            ];
-            $tempMonth->addMonth();
-        }
+            $salesQuery = DB::table('penjualan')
+                ->where('product_id', $pId)
+                ->select('tanggal_penjualan as tanggal', 'jumlah_terjual as qty');
 
-        foreach ($monthsList as $monthInfo) {
-            $mNum = $monthInfo['num'];
-            $mYear = $monthInfo['year'];
-            $mName = $monthInfo['name'];
-            $monthStartDate = $monthInfo['start'];
-            $monthEndDate = $monthInfo['end'];
+            $outgoingQuery = DB::table('barang_keluar')
+                ->where('product_id', $pId)
+                ->where('jenis_keluar', 'penjualan')
+                ->select('tanggal_keluar as tanggal', 'jumlah as qty');
 
-            $daysInMonth = $monthStartDate->diffInDays($monthEndDate) + 1;
+            $combinedOutgoing = DB::query()
+                ->fromSub($salesQuery->unionAll($outgoingQuery), 'combined')
+                ->select('tanggal', DB::raw('SUM(qty) as qty'))
+                ->groupBy('tanggal')
+                ->pluck('qty', 'tanggal')
+                ->toArray();
 
-            // Calculate actual sales
-            $salesInMonth = OutgoingGood::where('product_id', $productId)
-                ->whereYear('tanggal_keluar', $mYear)
-                ->whereMonth('tanggal_keluar', $mNum)
-                ->sum('jumlah');
+            $stock = 0;
+            $dailyStock = [];
+            $period = CarbonPeriod::create($reconstructStart, $reconstructEnd);
+            foreach ($period as $date) {
+                $dateStr = $date->format('Y-m-d');
+                $inc = isset($incoming[$dateStr]) ? floatval($incoming[$dateStr]) : 0;
+                $out = isset($combinedOutgoing[$dateStr]) ? floatval($combinedOutgoing[$dateStr]) : 0;
 
-            // Calculate stockout days
-            $stockoutDays = 0;
-            for ($d = clone $monthStartDate; $d->lessThanOrEqualTo($monthEndDate); $d->addDay()) {
-                $dStr = $d->format('Y-m-d');
-                $stock = isset($dailyStock[$dStr]) ? $dailyStock[$dStr] : 0;
-
-                // Skip dates in the future
-                if ($d->greaterThan($today)) {
-                    continue;
+                $stock = $stock + $inc - $out;
+                if ($stock < 0) {
+                    $stock = 0;
                 }
-                if ($stock <= 0) {
+                $dailyStock[$dateStr] = $stock;
+            }
+
+            // Daily loop inside the season
+            $seasonPeriod = CarbonPeriod::create($seasonStart, $seasonEnd);
+            
+            $singleForecast = $forecastData[0];
+            $daysInMonth = $rangeInfo['days'];
+            $dailyAvgSales = $singleForecast['sales_actual'] / $daysInMonth;
+            
+            // Safety stock daily component
+            $dailySafetyStock = $singleForecast['safety_stock'] / $daysInMonth;
+
+            foreach ($seasonPeriod as $date) {
+                $dateStr = $date->format('Y-m-d');
+                $out = isset($combinedOutgoing[$dateStr]) ? floatval($combinedOutgoing[$dateStr]) : 0;
+                $s = isset($dailyStock[$dateStr]) ? $dailyStock[$dateStr] : 0;
+                
+                $chartLabels[] = $date->locale('id')->translatedFormat('d M');
+                $salesData[] = $out;
+                
+                // If stock was out, corrected demand has active daily average. Otherwise it is actual sales.
+                $correctedDemandVal = ($s <= 0 && $out <= 0) ? $dailyAvgSales : $out;
+                $correctedData[] = round($correctedDemandVal);
+                
+                // Forecast daily point
+                $dailyForecastVal = $correctedDemandVal * (1 + $growthRate) + $dailySafetyStock;
+                $recData[] = round($dailyForecastVal);
+            }
+        } else {
+            // For all products, chart will compare top 10 products with highest sales in that season
+            usort($forecastData, function ($a, $b) {
+                return $b['sales_actual'] <=> $a['sales_actual'];
+            });
+            
+            $topProducts = array_slice($forecastData, 0, 10);
+            foreach ($topProducts as $item) {
+                $chartLabels[] = strlen($item['nama']) > 15 ? substr($item['nama'], 0, 15) . '...' : $item['nama'];
+                $salesData[] = $item['sales_actual'];
+                $correctedData[] = $item['corrected_demand'];
+                $recData[] = $item['hasil_ramalan'];
+            }
+        }
+
+        $totalSales = array_sum(array_column($forecastData, 'sales_actual'));
+        $totalLostSales = array_sum(array_column($forecastData, 'lost_sales'));
+        $totalCorrected = array_sum(array_column($forecastData, 'corrected_demand'));
+        $totalForecast = array_sum(array_column($forecastData, 'hasil_ramalan'));
+
+        return response()->json([
+            'status' => 'success',
+            'season_label' => $rangeInfo['label'],
+            'historical_period' => $rangeInfo['name_prev'],
+            'forecast_period' => $rangeInfo['name_forecast'],
+            'is_all' => ($productId === 'all'),
+            'totals' => [
+                'sales' => intval(round($totalSales)),
+                'lost_sales' => intval(round($totalLostSales)),
+                'corrected' => intval(round($totalCorrected)),
+                'forecast' => intval(round($totalForecast)),
+            ],
+            'chart' => [
+                'labels' => $chartLabels,
+                'sales' => $salesData,
+                'corrected' => $correctedData,
+                'recommendation' => $recData,
+            ],
+            'forecast_data' => $forecastData
+        ]);
+    }
+
+    private function calculateSeasonalForecast($products, $season, $growthRate = 0.10, $leadTime = 3, $serviceLevel = 95)
+    {
+        // Define date ranges
+        $ranges = [
+            'lebaran' => [
+                'start' => '2026-03-01',
+                'end' => '2026-03-31',
+                'name_prev' => 'Maret 2026 (Lebaran 2026)',
+                'name_forecast' => 'Maret 2027 (Lebaran 2027)',
+                'label' => 'Lebaran',
+                'days' => 31
+            ],
+            'idul_adha' => [
+                'start' => '2026-05-01',
+                'end' => '2026-05-31',
+                'name_prev' => 'Mei 2026 (Idul Adha 2026)',
+                'name_forecast' => 'Mei 2027 (Idul Adha 2027)',
+                'label' => 'Idul Adha',
+                'days' => 31
+            ],
+            'natal' => [
+                'start' => '2026-01-01', // proxy
+                'end' => '2026-01-31',   // proxy
+                'name_prev' => 'Desember 2026 (Proxy Jan 2026)',
+                'name_forecast' => 'Desember 2027 (Natal 2027)',
+                'label' => 'Natal',
+                'days' => 31
+            ],
+            'tahun_baru' => [
+                'start' => '2026-01-01',
+                'end' => '2026-01-31',
+                'name_prev' => 'Januari 2026 (Tahun Baru 2026)',
+                'name_forecast' => 'Januari 2027 (Tahun Baru 2027)',
+                'label' => 'Tahun Baru',
+                'days' => 31
+            ],
+        ];
+
+        $selectedRange = $ranges[$season] ?? $ranges['lebaran'];
+        $seasonStart = Carbon::parse($selectedRange['start']);
+        $seasonEnd = Carbon::parse($selectedRange['end']);
+        $daysInMonth = $selectedRange['days'];
+
+        // Eager load all transactions for the entire range to prevent N+1 query problem
+        $reconstructStart = '2026-01-01';
+        $reconstructEnd = '2026-05-31';
+
+        $incomingGoods = IncomingGood::whereBetween('tanggal_masuk', [$reconstructStart, $reconstructEnd])
+            ->select('product_id', 'tanggal_masuk', DB::raw('SUM(jumlah) as qty'))
+            ->groupBy('product_id', 'tanggal_masuk')
+            ->get()
+            ->groupBy('product_id');
+
+        $sales = Sale::whereBetween('tanggal_penjualan', [$reconstructStart, $reconstructEnd])
+            ->select('product_id', 'tanggal_penjualan', DB::raw('SUM(jumlah_terjual) as qty'))
+            ->groupBy('product_id', 'tanggal_penjualan')
+            ->get()
+            ->groupBy('product_id');
+
+        $outgoingGoods = OutgoingGood::where('jenis_keluar', 'penjualan')
+            ->whereBetween('tanggal_keluar', [$reconstructStart, $reconstructEnd])
+            ->select('product_id', 'tanggal_keluar', DB::raw('SUM(jumlah) as qty'))
+            ->groupBy('product_id', 'tanggal_keluar')
+            ->get()
+            ->groupBy('product_id');
+
+        $forecastData = [];
+        $criticalProductIds = [11, 28, 12, 22, 5, 8, 26, 18, 30, 23]; // 10 main critical products
+
+        $period = CarbonPeriod::create($reconstructStart, $reconstructEnd);
+
+        foreach ($products as $product) {
+            $pId = $product->id;
+
+            // Group transactions by date for this product
+            $pIncoming = isset($incomingGoods[$pId]) ? $incomingGoods[$pId]->pluck('qty', 'tanggal_masuk')->toArray() : [];
+            $pSales = isset($sales[$pId]) ? $sales[$pId]->pluck('qty', 'tanggal_penjualan')->toArray() : [];
+            $pOutgoing = isset($outgoingGoods[$pId]) ? $outgoingGoods[$pId]->pluck('qty', 'tanggal_keluar')->toArray() : [];
+
+            // Combine sales and outgoing
+            $pCombinedOutgoing = [];
+            foreach ($pSales as $date => $qty) {
+                $pCombinedOutgoing[$date] = ($pCombinedOutgoing[$date] ?? 0) + $qty;
+            }
+            foreach ($pOutgoing as $date => $qty) {
+                $pCombinedOutgoing[$date] = ($pCombinedOutgoing[$date] ?? 0) + $qty;
+            }
+
+            // Reconstruct daily stock levels FORWARD from Jan 1 to May 31 2026
+            $stock = 0;
+            $dailyStock = [];
+            
+            foreach ($period as $date) {
+                $dateStr = $date->format('Y-m-d');
+                $inc = isset($pIncoming[$dateStr]) ? floatval($pIncoming[$dateStr]) : 0;
+                $out = isset($pCombinedOutgoing[$dateStr]) ? floatval($pCombinedOutgoing[$dateStr]) : 0;
+
+                $stock = $stock + $inc - $out;
+                if ($stock < 0) {
+                    $stock = 0;
+                }
+                $dailyStock[$dateStr] = $stock;
+            }
+
+            // Calculate seasonal metrics inside the selected season month
+            $salesActual = 0;
+            $stockoutDays = 0;
+            $maxDailySales = 0;
+
+            $seasonPeriod = CarbonPeriod::create($seasonStart, $seasonEnd);
+            foreach ($seasonPeriod as $date) {
+                $dateStr = $date->format('Y-m-d');
+                $out = isset($pCombinedOutgoing[$dateStr]) ? floatval($pCombinedOutgoing[$dateStr]) : 0;
+                $s = isset($dailyStock[$dateStr]) ? $dailyStock[$dateStr] : 0;
+
+                $salesActual += $out;
+                if ($out > $maxDailySales) {
+                    $maxDailySales = $out;
+                }
+                if ($s <= 0) {
                     $stockoutDays++;
                 }
             }
 
+            // Lost sales calculation
             $activeDays = $daysInMonth - $stockoutDays;
             if ($activeDays <= 0) {
                 $activeDays = 1;
             }
 
-            // Unconstrain demand
-            $correctedDemand = $salesInMonth;
             $lostSales = 0;
-            if ($stockoutDays > 0 && $salesInMonth > 0) {
-                $adr = $salesInMonth / $activeDays;
+            if ($stockoutDays > 0 && $salesActual > 0) {
+                $adr = $salesActual / $activeDays;
                 $lostSales = $adr * $stockoutDays;
-                $correctedDemand = $salesInMonth + $lostSales;
             }
 
-            $monthlyData[] = [
-                'name' => $mName,
-                'sales' => intval($salesInMonth),
-                'stockout_days' => $stockoutDays,
+            $correctedDemand = $salesActual + $lostSales;
+            $projectedDemand = $correctedDemand * (1 + $growthRate);
+
+            // Safety stock: (Max Daily - Average Daily) * Lead Time
+            $averageDailySales = $salesActual / $daysInMonth;
+            $safetyStock = ($maxDailySales - $averageDailySales) * $leadTime;
+            if ($safetyStock < 0) {
+                $safetyStock = 0;
+            }
+
+            $hasilRamalan = $projectedDemand + $safetyStock;
+
+            $forecastData[] = [
+                'id' => $product->id,
+                'kode' => $product->kode_produk,
+                'nama' => $product->nama_produk,
+                'is_critical' => in_array($product->id, $criticalProductIds) || in_array(strtolower(trim($product->nama_produk)), [
+                    'okey sosis 500gr', 'fiesta chicken nugget 450gr', 'jamur enoki', 'meru lapis bogor', 'okey nugget stik 500gr',
+                    'cireng rujak', 'salam nugget 500gr', 'warisan isi 50', 'belfood sosis isi 30', 'richeese nugget'
+                ]),
+                'sales_actual' => intval(round($salesActual)),
+                'stockout_days' => intval($stockoutDays),
                 'lost_sales' => intval(round($lostSales)),
                 'corrected_demand' => intval(round($correctedDemand)),
+                'safety_stock' => intval(round($safetyStock)),
+                'projected_demand' => intval(round($projectedDemand)),
+                'hasil_ramalan' => intval(round($hasilRamalan)),
             ];
-
-            $totalSalesHistorical += $salesInMonth;
-            $totalCorrectedHistorical += $correctedDemand;
         }
 
-        $numMonths = count($monthlyData);
-        if ($numMonths <= 0) {
-            $numMonths = 1;
-        }
-
-        // Average corrected monthly
-        $avgCorrectedMonthly = $totalCorrectedHistorical / $numMonths;
-        if ($avgCorrectedMonthly <= 0) {
-            $avgCorrectedMonthly = 1;
-        }
-
-        // Calculate Seasonal Index for each month
-        foreach ($monthlyData as &$data) {
-            $data['seasonal_index'] = round($data['corrected_demand'] / $avgCorrectedMonthly, 4);
-        }
-        unset($data);
-
-        // Projections
-        $projectedTotalNext = $totalCorrectedHistorical * (1 + $growthRate);
-        $projectedAvgMonthlyNext = $projectedTotalNext / $numMonths;
-
-        // Standard Deviation
-        $sumSquares = 0;
-        foreach ($monthlyData as $data) {
-            $sumSquares += pow($data['corrected_demand'] - $avgCorrectedMonthly, 2);
-        }
-        $stdDev = $numMonths > 1 ? sqrt($sumSquares / ($numMonths - 1)) : 0;
-
-        // Safety Stock calculation
-        $safetyStockVal = $zScore * $stdDev * sqrt($leadTime / 30);
-
-        // Calculate forecast and recommendation for next year
-        foreach ($monthlyData as &$data) {
-            $forecastedDemand = $projectedAvgMonthlyNext * $data['seasonal_index'];
-            $recStock = $forecastedDemand + $safetyStockVal;
-
-            $data['forecast_2027'] = intval(round($forecastedDemand));
-            $data['safety_stock_2027'] = intval(round($safetyStockVal));
-            $data['recommendation_2027'] = intval(round($recStock));
-        }
-        unset($data);
-
-        return response()->json([
-            'status' => 'success',
-            'product_name' => $product->nama_produk,
-            'growth_rate' => $growthRate * 100,
-            'lead_time' => $leadTime,
-            'service_level' => $serviceLevel,
-            'z_score' => $zScore,
-            'std_dev' => round($stdDev, 2),
-            'safety_stock_global' => intval(round($safetyStockVal)),
-            'monthly_data' => $monthlyData,
-            'historical_year' => $historicalYear,
-            'forecast_year' => $forecastYear,
-            'totals' => [
-                'sales' => intval(round($totalSalesHistorical)),
-                'corrected' => intval(round($totalCorrectedHistorical)),
-            ]
-        ]);
+        return [
+            'forecast_data' => $forecastData,
+            'range_info' => $selectedRange,
+        ];
     }
 }
