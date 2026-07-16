@@ -67,7 +67,7 @@ class InventoryAnalysisController extends Controller
                 return $idxA <=> $idxB;
             }
             return strcmp($nameA, $nameB);
-        });
+        })->values();
 
         $products = Product::where('status_aktif', true)->orderBy('nama_produk')->get();
         
