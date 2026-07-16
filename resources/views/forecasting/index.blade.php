@@ -417,13 +417,8 @@
                             <tr data-product-id="{{ $item['id'] }}">
                                 <td class="text-center fw-semibold text-muted">{{ $index + 1 }}</td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold text-slate-800">{{ $item['nama'] }}</span>
-                                        @if($item['is_critical'])
-                                            <span class="badge-kritis" title="10 produk utama dengan riwayat stockout/kekurangan">10 Kritis</span>
-                                        @endif
-                                    </div>
-                                    <small class="text-muted fw-semibold">{{ $item['kode'] }}</small>
+                                    <div class="fw-bold text-slate-800" style="font-size: 0.92rem; letter-spacing: -0.1px;">{{ $item['nama'] }}</div>
+                                    <div class="text-muted fw-semibold mt-1" style="font-size: 0.76rem; letter-spacing: 0.2px; text-transform: uppercase;">{{ $item['kode'] }}</div>
                                 </td>
                                 <td>
                                     <span class="badge-periode-forecast">{{ $historicalPeriod }}</span>
@@ -636,7 +631,6 @@
                     let tbodyHtml = '';
 
                     res.forecast_data.forEach((item, index) => {
-                        const criticalBadge = item.is_critical ? '<span class="badge-kritis" title="10 produk utama dengan riwayat stockout/kekurangan">10 Kritis</span>' : '';
                         const stockoutBadge = item.stockout_days > 0 
                             ? `<div class="mt-1"><span class="badge-stokout" title="Stok habis selama beberapa hari pada periode ini"><i class="ph ph-clock-countdown text-orange"></i> ${item.stockout_days} Hari Kosong (+${item.lost_sales.toLocaleString('id-ID')} pcs lost sales)</span></div>`
                             : '';
@@ -645,11 +639,8 @@
                             <tr data-product-id="${item.id}">
                                 <td class="text-center fw-semibold text-muted">${index + 1}</td>
                                 <td>
-                                    <div class="d-flex align-items-center gap-2">
-                                        <span class="fw-bold text-slate-800">${item.nama}</span>
-                                        ${criticalBadge}
-                                    </div>
-                                    <small class="text-muted fw-semibold">${item.kode}</small>
+                                    <div class="fw-bold text-slate-800" style="font-size: 0.92rem; letter-spacing: -0.1px;">${item.nama}</div>
+                                    <div class="text-muted fw-semibold mt-1" style="font-size: 0.76rem; letter-spacing: 0.2px; text-transform: uppercase;">${item.kode}</div>
                                 </td>
                                 <td>
                                     <span class="badge-periode-forecast">${res.historical_period}</span>
