@@ -310,35 +310,10 @@
                 </div>
             </div>
 
-            {{-- Advanced parameters collapse --}}
-            <div class="mt-3">
-                <span class="advanced-toggle" data-bs-toggle="collapse" data-bs-target="#advancedParams" aria-expanded="false" aria-controls="advancedParams">
-                    <i class="ph ph-gear"></i> Konfigurasi Tingkat Lanjut (Growth, Lead Time, Service Level)
-                </span>
-                
-                <div class="collapse mt-3" id="advancedParams">
-                    <div class="p-3 rounded-3 border" style="background-color: #f8fafc;">
-                        <div class="row g-3">
-                            <div class="col-md-4 col-6">
-                                <label class="form-label-premium" for="growth_rate">Target Pertumbuhan (%)</label>
-                                <input type="number" class="form-control form-control-premium w-100" id="growth_rate" name="growth_rate" value="10" min="0" max="100" required>
-                            </div>
-                            <div class="col-md-4 col-6">
-                                <label class="form-label-premium" for="lead_time">Lead Time Supplier (Hari)</label>
-                                <input type="number" class="form-control form-control-premium w-100" id="lead_time" name="lead_time" value="3" min="1" max="30" required>
-                            </div>
-                            <div class="col-md-4 col-12">
-                                <label class="form-label-premium" for="service_level">Service Level Target</label>
-                                <select class="form-select form-control-premium w-100" id="service_level" name="service_level" required>
-                                    <option value="90">90% (Z = 1.28)</option>
-                                    <option value="95" selected>95% (Z = 1.65 - Standar)</option>
-                                    <option value="99">99% (Z = 2.33)</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            {{-- Hidden parameters with default values --}}
+            <input type="hidden" name="growth_rate" value="10">
+            <input type="hidden" name="lead_time" value="3">
+            <input type="hidden" name="service_level" value="95">
         </form>
     </div>
 
