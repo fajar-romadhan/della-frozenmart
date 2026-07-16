@@ -36,7 +36,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
   - **Pemetaan Musim & Tanggal**: Mendefinisikan periode musim liburan secara dinamis (Lebaran Maret 2026 -> 2027, Idul Adha Mei 2026 -> 2027, Natal menggunakan proxy Januari 2026 -> Desember 2027, Tahun Baru Januari 2026 -> 2027).
   - **Simulasi Stok Maju (Forward Reconstruction)**: Menghitung harian stok dari 1 Januari 2026 untuk melacak *stockout days* secara akurat.
   - **Kalkulasi Lost Sales & Permintaan Terkoreksi**: Menghitung rata-rata penjualan harian pada masa aktif stok, memperkirakan volume lost sales, dan memformulasikan proyeksi hasil ramalan bebas lost sales.
-  - **Visual Premium Crimson Red**: Desain form pilihan produk (terintegrasi Semua Produk & pilihan per item) dan musim yang elegan, kolaps tingkat lanjut, serta visualisasi Chart.js interaktif dengan badge indikator produk kritis (10 produk utama) dan badge orange untuk hari kosong.
+  - **Visual Premium Crimson Red**: Desain form pilihan produk (terintegrasi Semua Produk & pilihan per item) dan musim yang elegan, serta menyembunyikan parameter teknis konfigurasi (Growth, Lead Time, Service Level) di latar belakang menggunakan hidden inputs, ditambah visualisasi Chart.js interaktif dengan badge indikator produk kritis (10 produk utama) dan badge orange untuk hari kosong.
   - **Optimasi Memori**: Eager-loading transaksi bulk masuk/keluar di `ForecastingController.php` guna menyingkirkan N+1 query.
 
 ### 1.5 Perbaikan Bug 500 Error di Barang Keluar
