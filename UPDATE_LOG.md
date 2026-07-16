@@ -29,6 +29,19 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 ### 1.3 Pembersihan Dashboard Owner
 * **Solusi**: Menghapus kartu **"5 Produk Terlaris (Bulan Ini)"** dari dashboard Owner sesuai instruksi visual untuk menyederhanakan antarmuka.
 
+### 1.4 Perombakan Modul Peramalan Penjualan Musiman
+* **Kebutuhan**: Manager meminta merombak total modul peramalan agar berfokus pada peramalan penjualan musiman (Lebaran, Idul Adha, Natal, Tahun Baru) dengan antarmuka premium, profesional, dan tabel perbandingan/grafik proyeksi yang akurat (dilengkapi perhitungan lost sales akibat stok habis).
+* **Solusi**:
+  - **Menu Baru**: Mengubah nama menu di sidebar menjadi **Peramalan Penjualan** pada `sidebar.blade.php`.
+  - **Pemetaan Musim & Tanggal**: Mendefinisikan periode musim liburan secara dinamis (Lebaran Maret 2026 -> 2027, Idul Adha Mei 2026 -> 2027, Natal menggunakan proxy Januari 2026 -> Desember 2027, Tahun Baru Januari 2026 -> 2027).
+  - **Simulasi Stok Maju (Forward Reconstruction)**: Menghitung harian stok dari 1 Januari 2026 untuk melacak *stockout days* secara akurat.
+  - **Kalkulasi Lost Sales & Permintaan Terkoreksi**: Menghitung rata-rata penjualan harian pada masa aktif stok, memperkirakan volume lost sales, dan memformulasikan proyeksi hasil ramalan bebas lost sales.
+  - **Visual Premium Crimson Red**: Desain form pilihan produk (terintegrasi Semua Produk & pilihan per item) dan musim yang elegan, kolaps tingkat lanjut, serta visualisasi Chart.js interaktif dengan badge indikator produk kritis (10 produk utama) dan badge orange untuk hari kosong.
+  - **Optimasi Memori**: Eager-loading transaksi bulk masuk/keluar di `ForecastingController.php` guna menyingkirkan N+1 query.
+
+### 1.5 Perbaikan Bug 500 Error di Barang Keluar
+* **Solusi**: Memperbaiki syntax error Blade (hilangnya tag penutup `@endif` pada pagination container) di `resources/views/outgoing-goods/index.blade.php`.
+
 ---
 
 ## 2. Sesi Sebelumnya (15 Juli 2026)
