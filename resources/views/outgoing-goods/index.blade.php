@@ -527,35 +527,40 @@
 
 @push('scripts')
 <script>
-    let formHapusTarget = null;
-    const modalEl = document.getElementById('modalHapusKeluar');
-    const modalInstance = new bootstrap.Modal(modalEl, { backdrop: true, keyboard: true });
+document.addEventListener('DOMContentLoaded', function () {
+    var formHapusTarget = null;
+    var modalEl = document.getElementById('modalHapusKeluar');
 
-    // Set form target & fill data when any delete button is clicked
-    document.querySelectorAll('.btn-hapus-keluar').forEach(function(btn) {
-        btn.addEventListener('click', function() {
+    // Click: fill modal data and show
+    document.querySelectorAll('.btn-hapus-keluar').forEach(function (btn) {
+        btn.addEventListener('click', function () {
             formHapusTarget = this.closest('form');
             document.getElementById('modalNamaProduk').textContent = this.dataset.nama;
             document.getElementById('modalDetailHapus').textContent = this.dataset.tanggal + ' · ' + this.dataset.jumlah + ' pcs';
-            modalInstance.show();
+
+            // Dispose any existing instance before creating a fresh one
+            var existing = bootstrap.Modal.getInstance(modalEl);
+            if (existing) { existing.dispose(); }
+
+            var modal = new bootstrap.Modal(modalEl, { backdrop: true, keyboard: true });
+            modal.show();
         });
     });
 
-    // Confirm delete: submit form then hide modal
-    document.getElementById('btnKonfirmasiHapus').addEventListener('click', function() {
-        if (formHapusTarget) {
-            modalInstance.hide();
-            formHapusTarget.submit();
-        }
+    // Confirm: hide modal then submit form
+    document.getElementById('btnKonfirmasiHapus').addEventListener('click', function () {
+        var existing = bootstrap.Modal.getInstance(modalEl);
+        if (existing) { existing.hide(); }
+        if (formHapusTarget) { formHapusTarget.submit(); }
     });
 
-    // After modal fully hides, always clean up stale backdrops & body classes
-    modalEl.addEventListener('hidden.bs.modal', function() {
-        document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+    // Guaranteed cleanup after every close — remove ALL backdrops and unlock body
+    modalEl.addEventListener('hidden.bs.modal', function () {
+        document.querySelectorAll('.modal-backdrop').forEach(function (el) { el.remove(); });
         document.body.classList.remove('modal-open');
-        document.body.style.overflow = '';
-        document.body.style.paddingRight = '';
+        document.body.removeAttribute('style');
     });
+});
 </script>
 @endpush
 
