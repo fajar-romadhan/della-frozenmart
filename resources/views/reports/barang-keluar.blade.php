@@ -167,7 +167,7 @@
             
             <div class="row g-4 align-items-center">
                 {{-- Left Table --}}
-                <div class="col-lg-5">
+                <div class="col-lg-4">
                     <div class="card border-0 shadow-sm bg-white p-0">
                         <div class="p-2 border-bottom bg-light">
                             <span class="fw-bold small text-muted"><i class="ph ph-list-numbers me-1"></i> Riwayat Stok Masuk (Urutan Masuk)</span>
@@ -176,10 +176,10 @@
                             <table class="table table-sm align-middle mb-0" style="font-size: 0.78rem;" id="tableFifoLeft">
                                 <thead>
                                     <tr>
-                                        <th>Tanggal Masuk</th>
-                                        <th>No. Transaksi Masuk</th>
+                                        <th>Tgl Masuk</th>
+                                        <th>No. Transaksi</th>
                                         <th class="text-center">Qty Masuk</th>
-                                        <th class="text-center">Sisa Stok Sebelum Keluar</th>
+                                        <th class="text-center">Sisa Sebelum</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -196,7 +196,7 @@
                 </div>
 
                 {{-- Right Table --}}
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                     <div class="card border-0 shadow-sm bg-white p-0">
                         <div class="p-2 border-bottom bg-light">
                             <span class="fw-bold small text-muted"><i class="ph ph-check-square me-1"></i> Pemakaian FIFO untuk Transaksi</span>
@@ -205,9 +205,9 @@
                             <table class="table table-sm align-middle mb-0" style="font-size: 0.78rem;" id="tableFifoRight">
                                 <thead>
                                     <tr>
-                                        <th>Dari Stok Masuk</th>
+                                        <th>Batch Masuk</th>
                                         <th class="text-center">Qty Terpakai</th>
-                                        <th class="text-center">Sisa Setelah Dipakai</th>
+                                        <th class="text-center">Sisa Setelah</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -327,7 +327,10 @@
             details.batches_used.forEach(b => {
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-                    <td><span class="badge bg-light text-dark border fw-bold">${b.batch_code} (${b.tanggal_masuk})</span></td>
+                    <td>
+                        <span class="badge bg-light text-dark border fw-bold">${b.batch_code}</span>
+                        <div class="text-muted small mt-1" style="font-size: 0.7rem; font-weight: 500;">${b.tanggal_masuk}</div>
+                    </td>
                     <td class="text-center text-success fw-bold">${b.qty_terpakai}</td>
                     <td class="text-center text-muted">${b.sisa_setelah_dipakai}</td>
                 `;
