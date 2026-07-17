@@ -11,6 +11,16 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 * **Latar Belakang**: Tampilan jam transaksi barang keluar di tabel laporan web, PDF, dan Excel selalu menampilkan `00:00` karena kolom `tanggal_keluar` menggunakan tipe database `DATE`.
 * **Solusi**: 
   - Mengubah cara parsing di [ReportController.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Http/Controllers/ReportController.php) (pada method `barangKeluar` dan `getProcessedOutgoingData`) dengan menggabungkan date dari `tanggal_keluar` dengan time (hour/minute/second) dari timestamp `created_at` secara presentation-layer.
+  - **Pembersihan Teks Overlapping**: Menghapus teks `<p>` keterangan yang tumpang tindih pada header tabel FIFO.
+  - **Penyempurnaan Visual Layout FIFO**:
+    1. Menjadikan tanggal pada tabel 'Pemakaian FIFO' agar turun ke baris baru di bawah *badge* (membungkus teks panjang `BM-2026xxxx (21 APR 2026)` ke bawah), sehingga lebar tabel jauh lebih ringkas.
+    2. Meringkas nama judul kolom (`Sisa Stok Sebelum Keluar` menjadi `Sisa Sebelum`, dll) agar hemat ruang.
+    3. Mengatur ulang proporsi Grid Bootstrap (Tabel Kiri: `col-lg-5`, Arrow: `col-lg-1`, Tabel Kanan: `col-lg-4`, Nilai: `col-lg-2`) agar proporsional dan tidak ada tabel yang terpotong.
+  - **Sinkronisasi Data Peramalan Manager (Excel Jan - Mei 2026)**: 
+    Membuat skrip khusus untuk mengekstrak data 10 produk dari file Excel `Della_FrozenMart_Jan-Mei_2026_Final.xlsx` dan menanamkannya ke dalam tabel `penjualan` sebanyak 467 baris (sebagai riwayat historis murni tanpa memotong sisa stok fisik gudang).
+    Menyiapkan file `Database\Seeders\ForecastingDataSeeder.php` agar data ini dapat langsung diinjeksi ke hosting *live* cPanel dengan mudah.
+  - **Perbaikan Kalkulasi Peramalan (Bug 0 pcs)**: Memperbaiki *bug* pada pembacaan tipe data tanggal (*Carbon time-casting*) yang menyebabkan nilai peramalan terhitung 0 pcs di kartu dan tabel. Sekarang kalkulasi peramalan sudah bisa terbaca dan sinkron penuh dengan data grafik aktual.
+  - **Penghapusan Opsi Natal**: Menghapus opsi *Hari Raya Natal (Estimasi Data Proxy)* dari daftar pilihan musim liburan pada halaman Peramalan sesuai permintaan.
   - Menjamin 100% data yang diinput kemarin malam aman dan utuh karena tidak mengubah skema database.
   - Jam transaksi yang diinput kemarin malam kini otomatis retroaktif tampil dengan jam/menit yang benar di laporan.
   - Menyelaraskan sorting data menggunakan `latest('id')` agar urutan data ekspor sinkron dengan halaman web.

@@ -297,7 +297,6 @@
                     <select class="form-select form-control-premium w-100" id="season" name="season" required>
                         <option value="lebaran" selected>Lebaran (Hari Raya Idul Fitri)</option>
                         <option value="idul_adha">Hari Raya Idul Adha</option>
-                        <option value="natal">Hari Raya Natal (Estimasi Data Proxy)</option>
                         <option value="tahun_baru">Liburan Tahun Baru</option>
                     </select>
                 </div>
@@ -317,18 +316,7 @@
         </form>
     </div>
 
-    {{-- Proxy Warning Alert Box --}}
-    <div id="proxyWarningAlert" class="alert alert-warning border-0 shadow-sm py-3 px-4 mb-4" style="display: none; border-radius: 12px;">
-        <div class="d-flex align-items-start gap-3">
-            <div style="width: 36px; height: 36px; background: #fef3c7; border-radius: 8px; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                <i class="ph ph-warning-circle text-warning font-semibold" style="font-size: 1.3rem;"></i>
-            </div>
-            <div>
-                <h6 class="fw-bold mb-1 text-slate-800" style="font-size: 0.95rem;">Menggunakan Data Penjualan Proxy (Januari 2026)</h6>
-                <p class="text-muted mb-0" style="font-size: 0.82rem;">Karena data penjualan Desember 2026 tidak tersedia di file Excel Jan-Mei 2026, sistem secara otomatis mensimulasikan data Natal/Desember menggunakan riwayat transaksi dari bulan Januari 2026 sebagai basis estimasi terpercaya.</p>
-            </div>
-        </div>
-    </div>
+
 
     {{-- Loading Spinner --}}
     <div class="loading-spinner" id="loadingArea">
@@ -598,12 +586,7 @@
             const formData = new FormData(form);
             const selectedSeason = document.getElementById('season').value;
 
-            // Trigger proxy warning if Natal is selected
-            if (selectedSeason === 'natal') {
-                proxyWarningAlert.style.display = 'block';
-            } else {
-                proxyWarningAlert.style.display = 'none';
-            }
+
 
             fetch('{{ route("peramalan.calculate") }}', {
                 method: 'POST',

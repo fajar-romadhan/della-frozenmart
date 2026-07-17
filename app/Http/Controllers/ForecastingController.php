@@ -51,7 +51,7 @@ class ForecastingController extends Controller
     {
         $request->validate([
             'product_id' => 'required|string', // can be 'all' or specific product id
-            'season' => 'required|in:lebaran,idul_adha,natal,tahun_baru',
+            'season' => 'required|in:lebaran,idul_adha,tahun_baru',
             'growth_rate' => 'required|numeric|min:0|max:100',
             'lead_time' => 'required|integer|min:1|max:30',
             'service_level' => 'required|in:90,95,99',
@@ -242,14 +242,7 @@ class ForecastingController extends Controller
                 'label' => 'Idul Adha',
                 'days' => 31
             ],
-            'natal' => [
-                'start' => '2026-01-01', // proxy
-                'end' => '2026-01-31',   // proxy
-                'name_prev' => 'Desember 2026 (Proxy Jan 2026)',
-                'name_forecast' => 'Desember 2027 (Natal 2027)',
-                'label' => 'Natal',
-                'days' => 31
-            ],
+
             'tahun_baru' => [
                 'start' => '2026-01-01',
                 'end' => '2026-01-31',
@@ -296,10 +289,25 @@ class ForecastingController extends Controller
         foreach ($products as $product) {
             $pId = $product->id;
 
-            // Group transactions by date for this product
-            $pIncoming = isset($incomingGoods[$pId]) ? $incomingGoods[$pId]->pluck('qty', 'tanggal_masuk')->toArray() : [];
-            $pSales = isset($sales[$pId]) ? $sales[$pId]->pluck('qty', 'tanggal_penjualan')->toArray() : [];
-            $pOutgoing = isset($outgoingGoods[$pId]) ? $outgoingGoods[$pId]->pluck('qty', 'tanggal_keluar')->toArray() : [];
+            // Group transactions by date for this product (format keys strictly to Y-m-d to avoid Carbon time-casting issues)
+            $pIncoming = [];
+            if (isset($incomingGoods[$pId])) {
+                foreach ($incomingGoods[$pId] as $row) {
+                    $pIncoming[Carbon::parse($row->tanggal_masuk)->format('Y-m-d')] = $row->qty;
+                }
+            }
+            $pSales = [];
+            if (isset($sales[$pId])) {
+                foreach ($sales[$pId] as $row) {
+                    $pSales[Carbon::parse($row->tanggal_penjualan)->format('Y-m-d')] = $row->qty;
+                }
+            }
+            $pOutgoing = [];
+            if (isset($outgoingGoods[$pId])) {
+                foreach ($outgoingGoods[$pId] as $row) {
+                    $pOutgoing[Carbon::parse($row->tanggal_keluar)->format('Y-m-d')] = $row->qty;
+                }
+            }
 
             // Combine sales and outgoing
             $pCombinedOutgoing = [];
