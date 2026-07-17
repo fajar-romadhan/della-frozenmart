@@ -167,7 +167,7 @@
             
             <div class="row g-4 align-items-center">
                 {{-- Left Table --}}
-                <div class="col-lg-4">
+                <div class="col-lg-5">
                     <div class="card border-0 shadow-sm bg-white p-0">
                         <div class="p-2 border-bottom bg-light">
                             <span class="fw-bold small text-muted"><i class="ph ph-list-numbers me-1"></i> Riwayat Stok Masuk (Urutan Masuk)</span>
@@ -196,7 +196,7 @@
                 </div>
 
                 {{-- Right Table --}}
-                <div class="col-lg-5">
+                <div class="col-lg-4">
                     <div class="card border-0 shadow-sm bg-white p-0">
                         <div class="p-2 border-bottom bg-light">
                             <span class="fw-bold small text-muted"><i class="ph ph-check-square me-1"></i> Pemakaian FIFO untuk Transaksi</span>
