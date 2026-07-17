@@ -1,5 +1,5 @@
 # Log Update Pekerjaan Terakhir (Recap Session)
-*Terakhir Diperbarui: 17 Juli 2026 (Sesi Perbaikan Bug Jam)*
+*Terakhir Diperbarui: 17 Juli 2026 (Penambahan Kolom Stok Awal & Hapus Min. Stok)*
 
 Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan agar dapat dibaca langsung oleh AI Agent pada sesi berikutnya.
 
@@ -7,7 +7,22 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 
 ## 1. Sesi Terbaru: 17 Juli 2026 (Selesai Sesi Ini)
 
-### 1.1 Perbaikan Bug Jam Laporan Barang Keluar
+### 1.1 Penambahan Kolom "Stok Awal" pada Analisis Persediaan
+* **Latar Belakang**: Pengguna meminta ditambahkan kolom "Stok Awal" pada tabel "Hasil Perhitungan per Produk" di halaman Analisis Persediaan.
+* **Solusi**:
+  - Menambahkan kolom header `<th>STOK AWAL (PCS)</th>` sebelum `STOK SAAT INI (PCS)` pada file [index.blade.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/resources/views/inventory-analysis/index.blade.php).
+  - Menampilkan total stok awal per produk dengan menjumlahkan `jumlah_awal` dari seluruh data `stockBatches` milik produk tersebut (`$analysis->product->stockBatches->sum('jumlah_awal')`).
+  - Mengubah eager loading di [InventoryAnalysisController.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Http/Controllers/InventoryAnalysisController.php) (pada method `index`) dari `with('product')` menjadi `with(['product', 'product.stockBatches'])` guna mencegah N+1 query dan menjaga kinerja loading halaman tetap instan.
+  - Menyesuaikan tag `colspan` pada baris kosong (`@empty`) dari 10/11 menjadi 11/12 agar layout tabel tetap presisi.
+
+### 1.2 Penghapusan Kolom "Min. Stok" pada Dashboard Manager
+* **Latar Belakang**: Manager meminta untuk menghapus kolom "Min. Stok" dari tabel "Produk Mendesak Harus Segera Dipesan" pada dashboard manager.
+* **Solusi**:
+  - Menghapus kolom header `<th>Min. Stok</th>` dan data cell `<td>{{ number_format($item->product->stok_minimum ...) }}</td>` dari file [manager.blade.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/resources/views/dashboard/manager.blade.php).
+  - Menyesuaikan tag `colspan` pada baris kosong (`@empty`) dari 5 menjadi 4 agar layout grid tabel tetap rapi.
+  - Perubahan ini 100% aman bagi integritas database karena hanya bersifat kosmetik pada visual/tampilan (UI), sehingga tidak memengaruhi atau mengganggu data produk yang sudah diinput.
+
+### 1.2 Perbaikan Bug Jam Laporan Barang Keluar
 * **Latar Belakang**: Tampilan jam transaksi barang keluar di tabel laporan web, PDF, dan Excel selalu menampilkan `00:00` karena kolom `tanggal_keluar` menggunakan tipe database `DATE`.
 * **Solusi**: 
   - Mengubah cara parsing di [ReportController.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Http/Controllers/ReportController.php) (pada method `barangKeluar` dan `getProcessedOutgoingData`) dengan menggabungkan date dari `tanggal_keluar` dengan time (hour/minute/second) dari timestamp `created_at` secara presentation-layer.

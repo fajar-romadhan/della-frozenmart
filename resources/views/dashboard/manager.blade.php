@@ -116,7 +116,6 @@
                                     <th>Kode</th>
                                     <th>Nama Produk</th>
                                     <th class="text-center">Stok Saat Ini</th>
-                                    <th class="text-center">Min. Stok</th>
                                     <th class="text-center">Opsi</th>
                                 </tr>
                             </thead>
@@ -126,7 +125,6 @@
                                         <td><span class="badge bg-light text-dark fw-bold">{{ $item->product->kode_produk ?? '-' }}</span></td>
                                         <td class="fw-semibold">{{ $item->product->nama_produk ?? '-' }}</td>
                                         <td class="text-center fw-bold text-danger">{{ number_format($item->stok_saat_ini, 0, ',', '.') }}</td>
-                                        <td class="text-center text-muted">{{ number_format($item->product->stok_minimum ?? 0, 0, ',', '.') }}</td>
                                         <td class="text-center">
                                             <a href="{{ route('pemesanan-supplier.create', ['product_id' => $item->product_id]) }}" class="btn btn-sm btn-danger py-1" style="font-size: 0.78rem">
                                                 <i class="ph ph-shopping-cart-simple"></i> Buat Order
@@ -135,7 +133,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="5" class="text-center py-5 text-muted">
+                                        <td colspan="4" class="text-center py-5 text-muted">
                                             <i class="ph ph-check-circle text-success fs-1 mb-2"></i>
                                             <p class="mb-0 fw-semibold">Seluruh stok produk berada di atas batas aman.</p>
                                         </td>

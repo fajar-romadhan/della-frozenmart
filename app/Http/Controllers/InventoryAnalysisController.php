@@ -22,7 +22,7 @@ class InventoryAnalysisController extends Controller
 
     public function index(Request $request)
     {
-        $query = InventoryAnalysis::with('product');
+        $query = InventoryAnalysis::with(['product', 'product.stockBatches']);
         
         // Only get the latest analysis per product
         $query->whereIn('id', function($sub) {

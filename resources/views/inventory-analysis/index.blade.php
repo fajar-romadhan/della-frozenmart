@@ -383,6 +383,7 @@
                             <th class="text-center" style="width: 50px;">NO</th>
                             <th>KODE PRODUK</th>
                             <th>NAMA PRODUK</th>
+                            <th class="text-end">STOK AWAL (PCS)</th>
                             <th class="text-end">STOK SAAT INI (PCS)</th>
                             <th class="text-center">AU (PCS/HARI)</th>
                             <th class="text-center">MU (PCS/HARI)</th>
@@ -401,6 +402,9 @@
                                 <td class="text-center text-muted">{{ $index + 1 }}</td>
                                 <td class="fw-semibold text-muted">{{ $analysis->product->kode_produk ?? '-' }}</td>
                                 <td class="fw-bold">{{ $analysis->product->nama_produk ?? '-' }}</td>
+                                <td class="text-end fw-semibold text-secondary" style="font-size: 0.9rem;">
+                                    {{ number_format($analysis->product->stockBatches->sum('jumlah_awal') ?? 0, 0, ',', '.') }}
+                                </td>
                                 <td class="text-end">
                                     @php
                                         $stockClass = 'stock-val-aman';
@@ -472,7 +476,7 @@
                             </tr>
                         @empty
                             <tr>
-                                <td colspan="{{ auth()->user()->role === 'admin' ? 10 : 11 }}" class="text-center py-5 text-muted">
+                                <td colspan="{{ auth()->user()->role === 'admin' ? 11 : 12 }}" class="text-center py-5 text-muted">
                                     <i class="ph ph-inbox fs-1 d-block mb-2"></i>
                                     Belum ada data hasil analisis. Silakan unggah file penjualan harian di atas atau klik "Analisis Ulang Semua Produk".
                                 </td>
