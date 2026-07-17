@@ -117,7 +117,10 @@
                             <th style="width: 140px;">NO. TRANSAKSI</th>
                             <th>PRODUK</th>
                             <th class="text-center" style="width: 130px;">QTY KELUAR<br><span class="text-muted text-lowercase font-normal small" style="font-size: 0.65rem;">(pcs)</span></th>
-                            <th class="text-center" style="width: 160px;">TANGGAL MASUK<br><span class="text-muted font-normal small" style="font-size: 0.65rem;">(PENERAPAN FIFO)</span></th>
+                            <th class="text-center" style="width: 160px;">
+                                TANGGAL MASUK <i class="ph ph-question text-muted" style="cursor: help;" title="Menunjukkan tanggal masuk batch stok terpakai. Jika ada lebih dari 1 tanggal, artinya pengambilan barang memotong beberapa batch (kiriman) karena stok kiriman lama habis."></i><br>
+                                <span class="text-muted font-normal small" style="font-size: 0.65rem;">(PENERAPAN FIFO)</span>
+                            </th>
                             <th class="text-end" style="width: 160px;">TOTAL NILAI<br><span class="text-muted text-lowercase font-normal small" style="font-size: 0.65rem;">(Rp)</span></th>
                         </tr>
                     </thead>
@@ -158,7 +161,7 @@
                 <h6 class="fw-bold text-warning-dark mb-0"><i class="ph ph-scales me-2"></i> Informasi Penerapan Metode FIFO (First In, First Out)</h6>
                 <button type="button" class="btn-close" onclick="closeFifoDetails()"></button>
             </div>
-            <p class="text-muted small mt-1 mb-2">Barang keluar menggunakan metode FIFO, yaitu stok yang masuk lebih dahulu akan dikeluarkan terlebih dahulu.</p>
+            <p class="text-muted small mt-1 mb-2">Barang keluar menggunakan metode FIFO, yaitu stok yang masuk lebih dahulu akan dikeluarkan terlebih dahulu. Jika transaksi mengambil stok dari beberapa kiriman masuk yang berbeda, kolom Tanggal Masuk akan menampilkan beberapa tanggal.</p>
         </div>
         <div class="card-body">
             <h6 class="fw-bold mb-3" style="font-size: 0.88rem; color: var(--text-primary);" id="fifoDetailTitle">Contoh Perhitungan FIFO - Produk: - (Transaksi: -)</h6>
