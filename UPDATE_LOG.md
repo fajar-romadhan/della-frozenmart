@@ -22,7 +22,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
   - Menyesuaikan tag `colspan` pada baris kosong (`@empty`) dari 5 menjadi 4 agar layout grid tabel tetap rapi.
   - Perubahan ini 100% aman bagi integritas database karena hanya bersifat kosmetik pada visual/tampilan (UI), sehingga tidak memengaruhi atau mengganggu data produk yang sudah diinput.
 
-### 1.2 Perbaikan Bug Jam Laporan Barang Keluar
+### 1.3 Perbaikan Bug Jam Laporan Barang Keluar
 * **Latar Belakang**: Tampilan jam transaksi barang keluar di tabel laporan web, PDF, dan Excel selalu menampilkan `00:00` karena kolom `tanggal_keluar` menggunakan tipe database `DATE`.
 * **Solusi**: 
   - Mengubah cara parsing di [ReportController.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Http/Controllers/ReportController.php) (pada method `barangKeluar` dan `getProcessedOutgoingData`) dengan menggabungkan date dari `tanggal_keluar` dengan time (hour/minute/second) dari timestamp `created_at` secara presentation-layer.
