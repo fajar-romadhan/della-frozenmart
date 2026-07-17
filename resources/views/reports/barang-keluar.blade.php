@@ -161,7 +161,6 @@
                 <h6 class="fw-bold text-warning-dark mb-0"><i class="ph ph-scales me-2"></i> Informasi Penerapan Metode FIFO (First In, First Out)</h6>
                 <button type="button" class="btn-close" onclick="closeFifoDetails()"></button>
             </div>
-            <p class="text-muted small mt-1 mb-2">Barang keluar menggunakan metode FIFO, yaitu stok yang masuk lebih dahulu akan dikeluarkan terlebih dahulu. Jika transaksi mengambil stok dari beberapa kiriman masuk yang berbeda, kolom Tanggal Masuk akan menampilkan beberapa tanggal.</p>
         </div>
         <div class="card-body">
             <h6 class="fw-bold mb-3" style="font-size: 0.88rem; color: var(--text-primary);" id="fifoDetailTitle">Contoh Perhitungan FIFO - Produk: - (Transaksi: -)</h6>
