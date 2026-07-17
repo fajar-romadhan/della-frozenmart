@@ -1,11 +1,23 @@
 # Log Update Pekerjaan Terakhir (Recap Session)
-*Terakhir Diperbarui: 16 Juli 2026 (Malam — Sesi Lanjutan)*
+*Terakhir Diperbarui: 17 Juli 2026 (Sesi Perbaikan Bug Jam)*
 
 Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan agar dapat dibaca langsung oleh AI Agent pada sesi berikutnya.
 
 ---
 
-## 1. Sesi Terbaru: 16 Juli 2026 (Selesai Sesi Ini)
+## 1. Sesi Terbaru: 17 Juli 2026 (Selesai Sesi Ini)
+
+### 1.1 Perbaikan Bug Jam Laporan Barang Keluar
+* **Latar Belakang**: Tampilan jam transaksi barang keluar di tabel laporan web, PDF, dan Excel selalu menampilkan `00:00` karena kolom `tanggal_keluar` menggunakan tipe database `DATE`.
+* **Solusi**: 
+  - Mengubah cara parsing di [ReportController.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Http/Controllers/ReportController.php) (pada method `barangKeluar` dan `getProcessedOutgoingData`) dengan menggabungkan date dari `tanggal_keluar` dengan time (hour/minute/second) dari timestamp `created_at` secara presentation-layer.
+  - Menjamin 100% data yang diinput kemarin malam aman dan utuh karena tidak mengubah skema database.
+  - Jam transaksi yang diinput kemarin malam kini otomatis retroaktif tampil dengan jam/menit yang benar di laporan.
+  - Menyelaraskan sorting data menggunakan `latest('id')` agar urutan data ekspor sinkron dengan halaman web.
+
+---
+
+## 2. Sesi Sebelumnya: 16 Juli 2026 (Selesai Sesi Ini)
 
 ### 1.1 Fitur Hapus Barang Keluar & Reversal FIFO
 * **Latar Belakang**: Admin membutuhkan fitur untuk menghapus transaksi barang keluar yang salah input tanpa merusak keandalan sisa stok di sistem.

@@ -244,7 +244,7 @@ class ReportController extends Controller
             $query->where('product_id', $request->product_id);
         }
 
-        $allOutgoing = $query->latest('tanggal_keluar')->get();
+        $allOutgoing = $query->latest('tanggal_keluar')->latest('id')->get();
 
         $processedOutgoing = collect();
 
@@ -312,9 +312,14 @@ class ReportController extends Controller
                 ];
             }
 
+            $tanggalKeluar = $item->tanggal_keluar;
+            if ($item->created_at) {
+                $tanggalKeluar = \Carbon\Carbon::parse($item->tanggal_keluar->format('Y-m-d') . ' ' . $item->created_at->format('H:i:s'));
+            }
+
             $processedOutgoing->push([
                 'id' => $item->id,
-                'tanggal_keluar' => $item->tanggal_keluar,
+                'tanggal_keluar' => $tanggalKeluar,
                 'transaction_code' => 'BK' . $item->created_at->format('ymd') . str_pad($item->id, 3, '0', STR_PAD_LEFT),
                 'product' => $product,
                 'nama_produk' => $product->nama_produk,
@@ -448,9 +453,14 @@ class ReportController extends Controller
                     })
             ];
 
+            $tanggalKeluar = $item->tanggal_keluar;
+            if ($item->created_at) {
+                $tanggalKeluar = \Carbon\Carbon::parse($item->tanggal_keluar->format('Y-m-d') . ' ' . $item->created_at->format('H:i:s'));
+            }
+
             $processedPageItems->push([
                 'id' => $item->id,
-                'tanggal_keluar' => $item->tanggal_keluar,
+                'tanggal_keluar' => $tanggalKeluar,
                 'transaction_code' => 'BK' . $item->created_at->format('ymd') . str_pad($item->id, 3, '0', STR_PAD_LEFT),
                 'product' => $product,
                 'nama_produk' => $product->nama_produk,
