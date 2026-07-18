@@ -166,6 +166,8 @@
         padding: 5px 10px;
         border-radius: 6px;
         border: 1px solid rgba(29, 78, 216, 0.08);
+        display: inline-block;
+        white-space: nowrap;
     }
     
     .badge-musim-forecast {
@@ -176,6 +178,8 @@
         padding: 5px 10px;
         border-radius: 6px;
         border: 1px solid rgba(180, 83, 9, 0.08);
+        display: inline-block;
+        white-space: nowrap;
     }
 
     .badge-kritis {
