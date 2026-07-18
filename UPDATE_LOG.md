@@ -1,11 +1,44 @@
 # Log Update Pekerjaan Terakhir (Recap Session)
-*Terakhir Diperbarui: 17 Juli 2026 (Paket Zip Client & Audit Script)*
+*Terakhir Diperbarui: 19 Juli 2026 (Integrasi Rumus Peramalan & API Kalender)*
 
 Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan agar dapat dibaca langsung oleh AI Agent pada sesi berikutnya.
 
 ---
 
-## 1. Sesi Terbaru: 17 Juli 2026 (Selesai Sesi Ini)
+## 1. Sesi Terbaru: 19 Juli 2026 (Selesai Sesi Ini)
+
+### 1.1 Integrasi Rumus Peramalan Indeks Musiman Kustom
+* **Latar Belakang**: Pengguna meminta penerapan rumus peramalan baru yang memperhitungkan baseline bulan normal, indeks musiman, growth rate, lost sales, dan buffer safety stock.
+* **Solusi**:
+  - Mengubah metode kalkulasi di [ForecastingController.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Http/Controllers/ForecastingController.php) dengan formula:
+    * **Baseline**: Rata-rata penjualan harian pada bulan normal/non-hari raya (Februari dan April dinamis berdasarkan tahun historis).
+    * **Lost Sales**: Dihitung dari stockout days menggunakan rekonstruksi stok harian maju.
+    * **Indeks Musiman**: `(Penjualan Hari Raya + Lost Sales) / Baseline` (dilengkapi penanganan pembagian nol dengan fallback Indeks Musiman = 1.0 jika Baseline = 0).
+    * **Forecast Dasar**: `Baseline * (1 + Growth Rate) * Indeks Musiman` (Sederhananya secara aljabar setara dengan: $(\text{Penjualan Hari Raya} + \text{Lost Sales}) \times (1 + \text{Growth Rate})$).
+    * **Safety Stock**: `Forecast Dasar * %Buffer`, dengan `%Buffer` dipetakan dari parameter `service_level`:
+      - 90% $\rightarrow$ Buffer 10%
+      - 95% $\rightarrow$ Buffer 15% (Sesuai contoh user)
+      - 99% $\rightarrow$ Buffer 20%
+    * **Hasil Ramalan**: `Forecast Dasar + Safety Stock`.
+  - **Log Aktivitas**: Terintegrasi otomatis ke audit [LogActivity](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Services/LogActivity.php) saat perhitungan diproses oleh Manager, mencatat nama musim dan nama produk yang diproses.
+
+### 1.2 Integrasi Kalender Hari Raya Dinamis (Opsi B)
+* **Latar Belakang**: Pengguna menginginkan sistem penanggalan yang otomatis mendeteksi libur Lebaran, Idul Adha, dan Tahun Baru di tahun-tahun mendatang secara dinamis.
+* **Solusi**:
+  - Menggunakan API Hari Libur Nasional Indonesia (`https://api-hari-libur.vercel.app/api`) untuk mendeteksi bulan jatuhnya libur tersebut secara otomatis berdasarkan parameter tahun.
+  - **Mekanisme Caching**: Data API disimpan di Cache Laravel selama 30 hari untuk efisiensi loading halaman dan mencegah delay request API.
+  - **Mekanisme Fallback**: Jika API offline, sistem otomatis menggunakan default bulan hari raya (Maret, Mei, Januari) sehingga bebas eror.
+  - **Tahun Dinamis**: Mendeteksi tahun data historis secara otomatis dari tanggal transaksi terbaru di database (default: 2026).
+
+### 1.3 Perbaikan Visual & Tampilan Badges
+* **Latar Belakang**: Panah horizontal (`→`) dan badge periode sebelumnya menyebabkan badge kedua turun secara tidak beraturan (*wrapping error*).
+* **Solusi**:
+  - **Perataan Badge**: Mengubah tata letak badge periode musim dari menyamping menjadi bertumpuk vertikal dengan penanda panah ke bawah (`↓`) di [index.blade.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/resources/views/forecasting/index.blade.php). Hal ini memecahkan bug wrapping teks `2027)` yang terpotong ke baris baru.
+  - **Pembersihan Rincian Rumus**: Menghapus teks detail Baseline/Indeks/SS dari bawah angka ramalan agar visualisasi kolom Hasil Ramalan tetap bersih dan rapi sesuai permintaan.
+
+---
+
+## 2. Sesi Sebelumnya: 17 Juli 2026 (Selesai Sesi Ini)
 
 ### 1.1 Pembuatan Paket Zip Client & Audit Script Launcher
 * **Latar Belakang**: Pengguna ingin membagikan proyek ini ke client dalam bentuk file ZIP yang bersih (hanya berisi folder/file penting) dan memastikan file launcher batch berjalan lancar.
@@ -48,7 +81,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 
 ---
 
-## 2. Sesi Sebelumnya: 16 Juli 2026 (Selesai Sesi Ini)
+## 3. Sesi Sebelumnya: 16 Juli 2026 (Selesai Sesi Ini)
 
 ### 1.1 Fitur Hapus Barang Keluar & Reversal FIFO
 * **Latar Belakang**: Admin membutuhkan fitur untuk menghapus transaksi barang keluar yang salah input tanpa merusak keandalan sisa stok di sistem.
@@ -107,7 +140,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 
 ---
 
-## 2. Sesi Sebelumnya (15 Juli 2026)
+## 4. Sesi Sebelumnya (15 Juli 2026)
 
 ### 1.1 Visualisasi Notifikasi Stok (Dropdown)
 * **Masalah**: Dropdown notifikasi sebelumnya tidak menampilkan label penanda tipe notifikasi, sehingga user kesulitan membedakan status notifikasi secara visual.
@@ -154,7 +187,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 
 ---
 
-## 2. Status Data Terakhir di Database (Live & Lokal)
+## 5. Status Data Terakhir di Database (Live & Lokal)
 * **Total Produk**: 31 Item (nama selaras dengan Excel).
 * **Transaksi Barang Masuk**: 132 Record (berasal dari Word Maret, mencakup 10 produk).
 * **Transaksi Penjualan (Excel)**: 3.491 Record.
@@ -162,7 +195,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 
 ---
 
-## 3. Langkah Menjalankan Perubahan di Server cPanel Live
+## 6. Langkah Menjalankan Perubahan di Server cPanel Live
 Jalankan perintah ini di Terminal SSH cPanel:
 
 ```bash
