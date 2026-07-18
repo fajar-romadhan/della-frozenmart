@@ -1,5 +1,6 @@
 @echo off
 setlocal enabledelayedexpansion
+set "choice="
 cd /d "%~dp0"
 title Setup ^& Launcher - Della Frozen Mart
 color 0F
@@ -132,27 +133,22 @@ echo B. Berkas log transaksi di database korup/rusak setelah PC mati mendadak.
 echo.
 echo Pilihlah langkah perbaikan di bawah ini:
 echo -----------------------------------------------------------------------
-echo [1] Nyalakan MySQL XAMPP otomatis - menggunakan default mysqld
+echo [1] Jalankan proyek - pastikan XAMPP sudah dinyalakan
 echo [2] Perbaiki MySQL XAMPP Crash - Hapus log korup otomatis - AMAN/NO DATA LOSS
 echo [3] Cek konflik port 3306 - Deteksi dan matikan aplikasi lain yang memakai 3306
-echo [4] Cek kembali - Saya sudah mengaktifkan XAMPP MySQL secara manual
+echo [4] Cek kembali koneksi database secara manual
 echo [5] Keluar
 echo -----------------------------------------------------------------------
+set "choice="
 set /p "choice=Masukkan pilihan (1-5): "
 
 if "!choice!"=="1" (
-    echo Menjalankan MySQL XAMPP di background...
+    echo Memastikan XAMPP sudah dinyalakan...
     if exist "C:\xampp\mysql\bin\mysqld.exe" (
         start "" /B "C:\xampp\mysql\bin\mysqld.exe" --defaults-file="C:\xampp\mysql\bin\my.ini"
-        echo Menunggu MySQL menyala...
-        timeout /t 5 >nul
-        goto check_mysql
-    ) else (
-        echo [ERROR] mysqld.exe tidak ditemukan di C:\xampp\mysql\bin.
-        echo Silakan nyalakan Apache ^& MySQL secara manual via XAMPP Control Panel.
-        pause
-        goto check_mysql
+        timeout /t 3 >nul
     )
+    goto check_mysql
 )
 if "!choice!"=="2" (
     call :fix_mysql_logs
