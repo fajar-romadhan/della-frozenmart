@@ -127,8 +127,14 @@ class ForecastingController extends Controller
             $seasonEnd = Carbon::parse($rangeInfo['end']);
             
             // Reconstruct daily stock levels forward
-            $reconstructStart = '2026-01-01';
-            $reconstructEnd = '2026-05-31';
+            $maxYear = Sale::max(DB::raw('YEAR(tanggal_penjualan)'));
+            if (!$maxYear) {
+                $maxYear = 2026;
+            }
+            $historicalYear = $maxYear;
+
+            $reconstructStart = "{$historicalYear}-01-01";
+            $reconstructEnd = "{$historicalYear}-12-31";
 
             $incoming = IncomingGood::where('product_id', $pId)
                 ->whereBetween('tanggal_masuk', [$reconstructStart, $reconstructEnd])
@@ -236,34 +242,98 @@ class ForecastingController extends Controller
         ]);
     }
 
+    private function getHolidayMonth($year, $holidayKey, $defaultMonth)
+    {
+        $cacheKey = "holiday_month_{$year}_{$holidayKey}";
+        
+        return \Illuminate\Support\Facades\Cache::remember($cacheKey, now()->addDays(30), function() use ($year, $holidayKey, $defaultMonth) {
+            try {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)->get("https://api-hari-libur.vercel.app/api", [
+                    'year' => $year
+                ]);
+                
+                if ($response->successful()) {
+                    $json = $response->json();
+                    if (isset($json['status']) && $json['status'] === 'success' && !empty($json['data'])) {
+                        foreach ($json['data'] as $holiday) {
+                            $desc = strtolower($holiday['description']);
+                            if (strpos($desc, $holidayKey) !== false) {
+                                $dateParts = explode('-', $holiday['date']);
+                                if (count($dateParts) === 3) {
+                                    return intval($dateParts[1]);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (\Exception $e) {
+                // Fail silently
+            }
+            return $defaultMonth;
+        });
+    }
+
     private function calculateSeasonalForecast($products, $season, $growthRate = 0.10, $leadTime = 3, $serviceLevel = 95)
     {
+        // Get historical year dynamically
+        $maxYear = Sale::max(DB::raw('YEAR(tanggal_penjualan)'));
+        if (!$maxYear) {
+            $maxYear = 2026;
+        }
+        $historicalYear = $maxYear;
+        $forecastYear = $historicalYear + 1;
+
+        // Fetch dynamic months using API or Cache or Default fallback
+        $histLebaranMonth = $this->getHolidayMonth($historicalYear, 'idul fitri', 3);
+        $foreLebaranMonth = $this->getHolidayMonth($forecastYear, 'idul fitri', 3);
+
+        $histAdhaMonth = $this->getHolidayMonth($historicalYear, 'idul adha', 5);
+        $foreAdhaMonth = $this->getHolidayMonth($forecastYear, 'idul adha', 5);
+
+        $histTahunBaruMonth = $this->getHolidayMonth($historicalYear, 'tahun baru', 1);
+        $foreTahunBaruMonth = $this->getHolidayMonth($forecastYear, 'tahun baru', 1);
+
+        // Map months to Indonesian names
+        $monthNames = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni',
+            7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        // Format dates
+        $histLebaranMonthPad = str_pad($histLebaranMonth, 2, '0', STR_PAD_LEFT);
+        $foreLebaranMonthPad = str_pad($foreLebaranMonth, 2, '0', STR_PAD_LEFT);
+        
+        $histAdhaMonthPad = str_pad($histAdhaMonth, 2, '0', STR_PAD_LEFT);
+        $foreAdhaMonthPad = str_pad($foreAdhaMonth, 2, '0', STR_PAD_LEFT);
+        
+        $histTahunBaruMonthPad = str_pad($histTahunBaruMonth, 2, '0', STR_PAD_LEFT);
+        $foreTahunBaruMonthPad = str_pad($foreTahunBaruMonth, 2, '0', STR_PAD_LEFT);
+
         // Define date ranges
         $ranges = [
             'lebaran' => [
-                'start' => '2026-03-01',
-                'end' => '2026-03-31',
-                'name_prev' => 'Maret 2026 (Lebaran 2026)',
-                'name_forecast' => 'Maret 2027 (Lebaran 2027)',
+                'start' => "{$historicalYear}-{$histLebaranMonthPad}-01",
+                'end' => Carbon::create($historicalYear, $histLebaranMonth, 1)->endOfMonth()->format('Y-m-d'),
+                'name_prev' => $monthNames[$histLebaranMonth] . " {$historicalYear} (Lebaran {$historicalYear})",
+                'name_forecast' => $monthNames[$foreLebaranMonth] . " {$forecastYear} (Lebaran {$forecastYear})",
                 'label' => 'Lebaran',
-                'days' => 31
+                'days' => Carbon::create($historicalYear, $histLebaranMonth, 1)->daysInMonth
             ],
             'idul_adha' => [
-                'start' => '2026-05-01',
-                'end' => '2026-05-31',
-                'name_prev' => 'Mei 2026 (Idul Adha 2026)',
-                'name_forecast' => 'Mei 2027 (Idul Adha 2027)',
+                'start' => "{$historicalYear}-{$histAdhaMonthPad}-01",
+                'end' => Carbon::create($historicalYear, $histAdhaMonth, 1)->endOfMonth()->format('Y-m-d'),
+                'name_prev' => $monthNames[$histAdhaMonth] . " {$historicalYear} (Idul Adha {$historicalYear})",
+                'name_forecast' => $monthNames[$foreAdhaMonth] . " {$forecastYear} (Idul Adha {$forecastYear})",
                 'label' => 'Idul Adha',
-                'days' => 31
+                'days' => Carbon::create($historicalYear, $histAdhaMonth, 1)->daysInMonth
             ],
-
             'tahun_baru' => [
-                'start' => '2026-01-01',
-                'end' => '2026-01-31',
-                'name_prev' => 'Januari 2026 (Tahun Baru 2026)',
-                'name_forecast' => 'Januari 2027 (Tahun Baru 2027)',
+                'start' => "{$historicalYear}-{$histTahunBaruMonthPad}-01",
+                'end' => Carbon::create($historicalYear, $histTahunBaruMonth, 1)->endOfMonth()->format('Y-m-d'),
+                'name_prev' => $monthNames[$histTahunBaruMonth] . " {$historicalYear} (Tahun Baru {$historicalYear})",
+                'name_forecast' => $monthNames[$foreTahunBaruMonth] . " {$forecastYear} (Tahun Baru {$forecastYear})",
                 'label' => 'Tahun Baru',
-                'days' => 31
+                'days' => Carbon::create($historicalYear, $histTahunBaruMonth, 1)->daysInMonth
             ],
         ];
 
@@ -273,8 +343,8 @@ class ForecastingController extends Controller
         $daysInMonth = $selectedRange['days'];
 
         // Eager load all transactions for the entire range to prevent N+1 query problem
-        $reconstructStart = '2026-01-01';
-        $reconstructEnd = '2026-05-31';
+        $reconstructStart = "{$historicalYear}-01-01";
+        $reconstructEnd = "{$historicalYear}-12-31";
 
         $incomingGoods = IncomingGood::whereBetween('tanggal_masuk', [$reconstructStart, $reconstructEnd])
             ->select('product_id', 'tanggal_masuk', DB::raw('SUM(jumlah) as qty'))
@@ -368,13 +438,13 @@ class ForecastingController extends Controller
                 }
             }
 
-            // Calculate Baseline (Februari and April 2026 sales)
+            // Calculate Baseline (Februari and April of historicalYear sales)
             $salesFeb = 0;
             $salesApr = 0;
             foreach ($pCombinedOutgoing as $dateStr => $qty) {
-                if (strpos($dateStr, '2026-02-') === 0) {
+                if (strpos($dateStr, "{$historicalYear}-02-") === 0) {
                     $salesFeb += floatval($qty);
-                } elseif (strpos($dateStr, '2026-04-') === 0) {
+                } elseif (strpos($dateStr, "{$historicalYear}-04-") === 0) {
                     $salesApr += floatval($qty);
                 }
             }
