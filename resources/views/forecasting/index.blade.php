@@ -413,9 +413,11 @@
                                     <div class="text-muted fw-semibold mt-1" style="font-size: 0.76rem; letter-spacing: 0.2px; text-transform: uppercase;">{{ $item['kode'] }}</div>
                                 </td>
                                 <td>
-                                    <span class="badge-periode-forecast">{{ $historicalPeriod }}</span>
-                                    <i class="ph ph-arrow-right mx-2 text-muted" style="font-size: 0.8rem; vertical-align: middle;"></i>
-                                    <span class="badge-musim-forecast">{{ $forecastPeriod }}</span>
+                                    <div class="d-flex flex-column gap-1 align-items-center" style="max-width: fit-content;">
+                                        <span class="badge-periode-forecast w-100 text-center">{{ $historicalPeriod }}</span>
+                                        <div class="text-muted" style="font-size: 0.7rem; line-height: 1;"><i class="ph ph-arrow-down bold"></i></div>
+                                        <span class="badge-musim-forecast w-100 text-center">{{ $forecastPeriod }}</span>
+                                    </div>
                                 </td>
                                 <td class="text-end">
                                     <span class="fw-semibold text-slate-700">{{ number_format($item['sales_actual']) }} pcs</span>
@@ -630,9 +632,11 @@
                                     <div class="text-muted fw-semibold mt-1" style="font-size: 0.76rem; letter-spacing: 0.2px; text-transform: uppercase;">${item.kode}</div>
                                 </td>
                                 <td>
-                                    <span class="badge-periode-forecast">${res.historical_period}</span>
-                                    <i class="ph ph-arrow-right mx-2 text-muted" style="font-size: 0.8rem; vertical-align: middle;"></i>
-                                    <span class="badge-musim-forecast">${res.forecast_period}</span>
+                                    <div class="d-flex flex-column gap-1 align-items-center" style="max-width: fit-content;">
+                                        <span class="badge-periode-forecast w-100 text-center">${res.historical_period}</span>
+                                        <div class="text-muted" style="font-size: 0.7rem; line-height: 1;"><i class="ph ph-arrow-down bold"></i></div>
+                                        <span class="badge-musim-forecast w-100 text-center">${res.forecast_period}</span>
+                                    </div>
                                 </td>
                                 <td class="text-end">
                                     <span class="fw-semibold text-slate-700">${item.sales_actual.toLocaleString('id-ID')} pcs</span>
