@@ -354,6 +354,18 @@ class ForecastingController extends Controller
                 }
             }
 
+            // Calculate Baseline (Februari and April 2026 sales)
+            $salesFeb = 0;
+            $salesApr = 0;
+            foreach ($pCombinedOutgoing as $dateStr => $qty) {
+                if (strpos($dateStr, '2026-02-') === 0) {
+                    $salesFeb += floatval($qty);
+                } elseif (strpos($dateStr, '2026-04-') === 0) {
+                    $salesApr += floatval($qty);
+                }
+            }
+            $baseline = ($salesFeb + $salesApr) / 2;
+
             // Lost sales calculation
             $activeDays = $daysInMonth - $stockoutDays;
             if ($activeDays <= 0) {
@@ -366,17 +378,30 @@ class ForecastingController extends Controller
                 $lostSales = $adr * $stockoutDays;
             }
 
-            $correctedDemand = $salesActual + $lostSales;
-            $projectedDemand = $correctedDemand * (1 + $growthRate);
+            $correctedHariRayaSales = $salesActual + $lostSales;
 
-            // Safety stock: (Max Daily - Average Daily) * Lead Time
-            $averageDailySales = $salesActual / $daysInMonth;
-            $safetyStock = ($maxDailySales - $averageDailySales) * $leadTime;
-            if ($safetyStock < 0) {
-                $safetyStock = 0;
+            // Seasonal Index Calculation with Safe Fallback
+            if ($baseline > 0) {
+                $seasonalIndex = $correctedHariRayaSales / $baseline;
+                $forecastDasar = $baseline * (1 + $growthRate) * $seasonalIndex;
+            } else {
+                $seasonalIndex = 1.0;
+                $forecastDasar = $correctedHariRayaSales * (1 + $growthRate);
             }
 
-            $hasilRamalan = $projectedDemand + $safetyStock;
+            // Safety Stock based on Service Level Buffer mapping
+            $bufferRate = 0.15;
+            if ($serviceLevel == 90) {
+                $bufferRate = 0.10;
+            } elseif ($serviceLevel == 95) {
+                $bufferRate = 0.15;
+            } elseif ($serviceLevel == 99) {
+                $bufferRate = 0.20;
+            }
+            $safetyStock = $forecastDasar * $bufferRate;
+
+            // Hasil Ramalan Final
+            $hasilRamalan = $forecastDasar + $safetyStock;
 
             $forecastData[] = [
                 'id' => $product->id,
@@ -389,9 +414,11 @@ class ForecastingController extends Controller
                 'sales_actual' => intval(round($salesActual)),
                 'stockout_days' => intval($stockoutDays),
                 'lost_sales' => intval(round($lostSales)),
-                'corrected_demand' => intval(round($correctedDemand)),
+                'corrected_demand' => intval(round($correctedHariRayaSales)),
+                'baseline' => floatval(round($baseline, 2)),
+                'seasonal_index' => floatval(round($seasonalIndex, 4)),
                 'safety_stock' => intval(round($safetyStock)),
-                'projected_demand' => intval(round($projectedDemand)),
+                'projected_demand' => intval(round($forecastDasar)),
                 'hasil_ramalan' => intval(round($hasilRamalan)),
             ];
         }

@@ -425,6 +425,9 @@
                                 </td>
                                 <td class="text-end fw-bold text-success rec-cell" style="background-color: #f0fdf4; font-size: 0.95rem;">
                                     {{ number_format($item['hasil_ramalan']) }} pcs
+                                    <div class="text-muted mt-1 fw-normal" style="font-size: 0.72rem;">
+                                        Baseline: {{ number_format($item['baseline'], 1) }} | Indeks: {{ number_format($item['seasonal_index'], 2) }} | SS: {{ number_format($item['safety_stock']) }}
+                                    </div>
                                 </td>
                             </tr>
                         @endforeach
@@ -636,6 +639,9 @@
                                 </td>
                                 <td class="text-end fw-bold text-success rec-cell" style="background-color: #f0fdf4; font-size: 0.95rem;">
                                     ${item.hasil_ramalan.toLocaleString('id-ID')} pcs
+                                    <div class="text-muted mt-1 fw-normal" style="font-size: 0.72rem;">
+                                        Baseline: ${item.baseline.toLocaleString('id-ID', {minimumFractionDigits: 1, maximumFractionDigits: 1})} | Indeks: ${item.seasonal_index.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2})} | SS: ${item.safety_stock.toLocaleString('id-ID')}
+                                    </div>
                                 </td>
                             </tr>
                         `;
