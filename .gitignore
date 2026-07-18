@@ -20,3 +20,27 @@ della-frozenmart.zip
 storage/logs/*.log
 
 /setup_dan_jalankan.bat
+
+# AI Agent directories
+/.agent/
+/.agents/
+
+# Demo ZIP and documentation assets
+/della-frozenmart-siap-demo.zip
+/*.docx
+/*.xlsx
+/data produk/
+/excel_data_extracted.json
+/read_excel_output.json
+
+# Temporary development logs / text guides
+/perbedaan_akses_user.txt
+/hosting_info.txt
+/infoakun.txt
+
+# Public utility check scripts (keeping clean.php & reset_demo.php for cPanel demo control)
+/public/check_analysis.php
+/public/check_count.php
+/public/check_db_excel.php
+/public/measure_performance.php
+/public/diagnose.php
