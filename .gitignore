@@ -18,3 +18,5 @@ yarn-error.log
 della-frozenmart.zip
 
 storage/logs/*.log
+
+/setup_dan_jalankan.bat
