@@ -88,6 +88,20 @@ class ForecastingController extends Controller
             }
         }
 
+        // Log activity to system logs
+        $seasonLabels = [
+            'lebaran' => 'Lebaran (Hari Raya Idul Fitri)',
+            'idul_adha' => 'Hari Raya Idul Adha',
+            'tahun_baru' => 'Liburan Tahun Baru'
+        ];
+        $seasonText = $seasonLabels[$season] ?? $season;
+        if ($productId === 'all') {
+            \App\Services\LogActivity::log('forecasting', 'Peramalan Penjualan', "Memicu kalkulasi peramalan penjualan musiman '{$seasonText}' untuk seluruh produk aktif.");
+        } else {
+            $productName = $products->first()->nama_produk;
+            \App\Services\LogActivity::log('forecasting', 'Peramalan Penjualan', "Memicu kalkulasi peramalan penjualan musiman '{$seasonText}' untuk produk '{$productName}'.");
+        }
+
         // Perform calculation
         $resultData = $this->calculateSeasonalForecast($products, $season, $growthRate, $leadTime, $serviceLevel);
         
