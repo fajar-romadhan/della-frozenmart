@@ -1,12 +1,12 @@
 @echo off
 setlocal enabledelayedexpansion
 cd /d "%~dp0"
-title Setup & Launcher - Della Frozen Mart
+title Setup ^& Launcher - Della Frozen Mart
 color 0F
 cls
 
 echo =======================================================================
-echo          DELLA FROZEN MART - BATCH SETUP & LAUNCHER (1-CLICK)
+echo          DELLA FROZEN MART - BATCH SETUP ^& LAUNCHER (1-CLICK)
 echo =======================================================================
 echo.
 echo Script ini dirancang untuk menyiapkan dan menjalankan aplikasi
@@ -18,24 +18,24 @@ echo.
 :: 1. DETEKSI PATH PHP XAMPP
 echo [1/6] Memeriksa instalasi PHP...
 where php >nul 2>nul
-if %errorlevel% neq 0 (
-    echo - PHP tidak terdaftar di PATH global.
-    echo - Memeriksa lokasi default XAMPP (C:\xampp\php)...
-    if exist "C:\xampp\php\php.exe" (
-        set "PATH=%PATH%;C:\xampp\php"
-        echo - BERHASIL: PHP XAMPP ditambahkan sementara ke sesi terminal ini.
-    ) else (
-        echo.
-        echo [ERROR] PHP tidak ditemukan!
-        echo Aplikasi ini membutuhkan PHP versi 8.2 atau 8.3 (bawaan XAMPP baru).
-        echo Silakan instal XAMPP di lokasi standar (C:\xampp) terlebih dahulu.
-        echo.
-        pause
-        exit /b
-    )
-) else (
-    echo - BERHASIL: PHP terdeteksi di sistem Anda.
+if %errorlevel% equ 0 goto php_found
+echo - PHP tidak terdaftar di PATH global.
+echo - Memeriksa lokasi default XAMPP (C:\xampp\php)...
+if exist "C:\xampp\php\php.exe" (
+    set "PATH=%PATH%;C:\xampp\php"
+    echo - BERHASIL: PHP XAMPP ditambahkan sementara ke sesi terminal ini.
+    goto php_found
 )
+echo.
+echo [ERROR] PHP tidak ditemukan!
+echo Aplikasi ini membutuhkan PHP versi 8.2 atau 8.3 - bawaan XAMPP baru.
+echo Silakan instal XAMPP di lokasi standar (C:\xampp) terlebih dahulu.
+echo.
+pause
+exit /b
+
+:php_found
+echo - BERHASIL: PHP terdeteksi di sistem Anda.
 php -v | findstr /i "php"
 echo.
 
@@ -45,25 +45,28 @@ php -d display_errors=0 -d error_reporting=0 -r "$req=['gd','zip','fileinfo','in
 set /p ext_status=<temp_ext_check.txt
 del temp_ext_check.txt
 
-if "%ext_status:~0,7%"=="MISSING" (
-    set "missing_list=%ext_status:MISSING:=%"
-    echo.
-    echo [PERINGATAN] Beberapa ekstensi PHP penting belum aktif di php.ini:
-    echo Kebutuhan yang belum aktif: !missing_list!
-    echo.
-    echo Cara mengaktifkannya di XAMPP:
-    echo 1. Buka XAMPP Control Panel.
-    echo 2. Klik 'Config' pada Apache -^ Pilih 'PHP (php.ini)'.
-    echo 3. Cari baris ';extension=nama_ekstensi' (misal: ;extension=zip).
-    echo 4. Hapus tanda titik koma (;) di depannya agar menjadi 'extension=zip'.
-    echo 5. Simpan file dan restart Apache Anda.
-    echo.
-    echo Aplikasi akan tetap dicoba untuk dijalankan, namun fitur Excel/PDF mungkin eror.
-    echo.
-    pause
-) else (
-    echo - BERHASIL: Semua ekstensi PHP yang diperlukan (GD, ZIP, Intl, Fileinfo) telah aktif.
-)
+if not "%ext_status:~0,7%"=="MISSING" goto ext_ok
+set "missing_list=%ext_status:MISSING:=%"
+echo.
+echo [PERINGATAN] Beberapa ekstensi PHP penting belum aktif di php.ini:
+echo Kebutuhan yang belum aktif: !missing_list!
+echo.
+echo Cara mengaktifkannya di XAMPP:
+echo 1. Buka XAMPP Control Panel.
+echo 2. Klik 'Config' pada Apache -^ Pilih 'PHP php.ini'.
+echo 3. Cari baris ';extension=nama_ekstensi' - contoh: ;extension=zip.
+echo 4. Hapus tanda titik koma (;) di depannya agar menjadi 'extension=zip'.
+echo 5. Simpan file dan restart Apache Anda.
+echo.
+echo Aplikasi akan tetap dicoba untuk dijalankan, namun fitur Excel/PDF mungkin eror.
+echo.
+pause
+goto ext_end
+
+:ext_ok
+echo - BERHASIL: Semua ekstensi PHP yang diperlukan (GD, ZIP, Intl, Fileinfo) telah aktif.
+
+:ext_end
 echo.
 
 :: 2. DETEKSI / INSTAL COMPOSER
@@ -117,58 +120,58 @@ echo.
 echo [4/6] Memeriksa koneksi database MySQL...
 :check_mysql
 php -r "$c=@new mysqli('127.0.0.1','root',''); if($c->connect_error){ exit(1); } exit(0);" >nul 2>nul
-if %errorlevel% neq 0 (
-    echo.
-    echo =======================================================================
-    echo [PENTING] MySQL di XAMPP belum aktif/running (Koneksi Ditolak)
-    echo =======================================================================
-    echo.
-    echo Beberapa penyebab umum MySQL XAMPP tidak bisa start:
-    echo A. Port 3306 sedang digunakan oleh MySQL Server lain (bukan XAMPP).
-    echo B. Berkas log transaksi di database korup/rusak setelah PC mati mendadak.
-    echo.
-    echo Pilihlah langkah perbaikan di bawah ini:
-    echo -----------------------------------------------------------------------
-    echo [1] Nyalakan MySQL XAMPP otomatis (menggunakan default mysqld)
-    echo [2] Perbaiki MySQL XAMPP Crash (Hapus log korup otomatis - AMAN/NO DATA LOSS)
-    echo [3] Cek konflik port 3306 (Deteksi & matikan aplikasi lain yang memakai 3306)
-    echo [4] Cek kembali (Saya sudah mengaktifkan XAMPP MySQL secara manual)
-    echo [5] Keluar
-    echo -----------------------------------------------------------------------
-    set /p "choice=Masukkan pilihan (1-5): "
-    
-    if "!choice!"=="1" (
-        echo Menjalankan MySQL XAMPP di background...
-        if exist "C:\xampp\mysql\bin\mysqld.exe" (
-            start "" /B "C:\xampp\mysql\bin\mysqld.exe" --defaults-file="C:\xampp\mysql\bin\my.ini"
-            echo Menunggu MySQL menyala...
-            timeout /t 5 >nul
-            goto check_mysql
-        ) else (
-            echo [ERROR] mysqld.exe tidak ditemukan di C:\xampp\mysql\bin.
-            echo Silakan nyalakan Apache ^& MySQL secara manual via XAMPP Control Panel.
-            pause
-            goto check_mysql
-        )
-    )
-    if "!choice!"=="2" (
-        call :fix_mysql_logs
+if %errorlevel% equ 0 goto mysql_ok
+echo.
+echo =======================================================================
+echo [PENTING] MySQL di XAMPP belum aktif/running - Koneksi Ditolak
+echo =======================================================================
+echo.
+echo Beberapa penyebab umum MySQL XAMPP tidak bisa start:
+echo A. Port 3306 sedang digunakan oleh MySQL Server lain - bukan XAMPP.
+echo B. Berkas log transaksi di database korup/rusak setelah PC mati mendadak.
+echo.
+echo Pilihlah langkah perbaikan di bawah ini:
+echo -----------------------------------------------------------------------
+echo [1] Nyalakan MySQL XAMPP otomatis - menggunakan default mysqld
+echo [2] Perbaiki MySQL XAMPP Crash - Hapus log korup otomatis - AMAN/NO DATA LOSS
+echo [3] Cek konflik port 3306 - Deteksi dan matikan aplikasi lain yang memakai 3306
+echo [4] Cek kembali - Saya sudah mengaktifkan XAMPP MySQL secara manual
+echo [5] Keluar
+echo -----------------------------------------------------------------------
+set /p "choice=Masukkan pilihan (1-5): "
+
+if "!choice!"=="1" (
+    echo Menjalankan MySQL XAMPP di background...
+    if exist "C:\xampp\mysql\bin\mysqld.exe" (
+        start "" /B "C:\xampp\mysql\bin\mysqld.exe" --defaults-file="C:\xampp\mysql\bin\my.ini"
+        echo Menunggu MySQL menyala...
+        timeout /t 5 >nul
+        goto check_mysql
+    ) else (
+        echo [ERROR] mysqld.exe tidak ditemukan di C:\xampp\mysql\bin.
+        echo Silakan nyalakan Apache ^& MySQL secara manual via XAMPP Control Panel.
+        pause
         goto check_mysql
     )
-    if "!choice!"=="3" (
-        call :check_port_conflict
-        goto check_mysql
-    )
-    if "!choice!"=="4" (
-        goto check_mysql
-    )
-    if "!choice!"=="5" (
-        exit /b
-    )
-    goto check_mysql
-) else (
-    echo - BERHASIL: Terhubung ke MySQL.
 )
+if "!choice!"=="2" (
+    call :fix_mysql_logs
+    goto check_mysql
+)
+if "!choice!"=="3" (
+    call :check_port_conflict
+    goto check_mysql
+)
+if "!choice!"=="4" (
+    goto check_mysql
+)
+if "!choice!"=="5" (
+    exit /b
+)
+goto check_mysql
+
+:mysql_ok
+echo - BERHASIL: Terhubung ke MySQL.
 
 :: MEMBUAT DATABASE BILA BELUM ADA
 php -r "$c=new mysqli('127.0.0.1','root',''); $c->query('CREATE DATABASE IF NOT EXISTS della_frozenmart');"
