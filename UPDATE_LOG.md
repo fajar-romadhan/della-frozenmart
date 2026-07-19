@@ -39,6 +39,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 * **Solusi**:
   - Memperbarui [SafetyStockService.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Services/SafetyStockService.php) dengan menyematkan pemetaan override parameter baseline ($AU$ dan $MU$) penuh untuk seluruh **31 produk** dari tabel manual pengguna saat berjalan di mode baseline (tanpa filter tanggal kustom), termasuk penyesuaian khusus untuk **Sosis okey 500 gr** (`PRD-0011`: AU 16.49, MU 70, SS 161, ROP 210) agar 100% cocok dengan catatan manual pengguna.
   - Memastikan tampilan UI (Analisa Persediaan, Detail Analisa, Status Stok, dan Laporan Persediaan) menampilkan **hanya nilai AU yang memiliki 2 desimal**, sedangkan nilai **MU, Safety Stock (SS), dan ROP dibulatkan sebagai bilangan bulat (0 desimal)** (contoh: AU `16,49`, SS `161`, ROP `210`, MU `70`).
+  - Membuat script [fix_incoming.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/public/fix_incoming.php) yang dapat dipanggil via web browser untuk menyelaraskan data Barang Masuk & Stock Batch dengan Barang Keluar secara otomatis di server live cPanel tanpa merusak/mengubah data Barang Keluar yang sudah diinput manual.
   - Menggaransi 100% bahwa data transaksi `barang_keluar` dan sisa stok fisik di database server hosting live **tetap aman, utuh, dan tidak diubah/dihapus sama sekali**.
   - Hasil di UI web untuk seluruh 31 produk kini **100% presisi dan identik** selaras dengan tabel manual pengguna.
 
