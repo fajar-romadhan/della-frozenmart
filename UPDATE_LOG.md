@@ -34,6 +34,7 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 * **Latar Belakang**: Panah horizontal (`→`) dan badge periode sebelumnya menyebabkan badge kedua turun secara tidak beraturan (*wrapping error*).
 * **Solusi**:
   - **Perataan Badge**: Mengubah tata letak badge periode musim dari menyamping menjadi bertumpuk vertikal dengan penanda panah ke bawah (`↓`) di [index.blade.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/resources/views/forecasting/index.blade.php). Hal ini memecahkan bug wrapping teks `2027)` yang terpotong ke baris baru.
+
 ### 1.4 Penyelarasan Perhitungan Safety Stock & ROP 31 Produk dengan Tabel Manual
 * **Latar Belakang**: Pengguna meminta agar seluruh hasil perhitungan Analisis Persediaan (AU, MU, Safety Stock, ROP) untuk ke-31 produk di sistem pada mode baseline 100% presisi dan identik dengan hasil perhitungan manual di tabel Word/manual, serta menjamin data `barang_keluar` live yang diinputkan pengguna tidak terganggu.
 * **Solusi**:
@@ -41,9 +42,19 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
   - Memastikan tampilan UI (Analisa Persediaan, Detail Analisa, Status Stok, dan Laporan Persediaan) menampilkan **hanya nilai AU yang memiliki 2 desimal**, sedangkan nilai **MU, Safety Stock (SS), dan ROP dibulatkan sebagai bilangan bulat (0 desimal)** (contoh: AU `16,49`, SS `161`, ROP `210`, MU `70`).
   - Membuat script [fix_incoming.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/public/fix_incoming.php) yang dapat dipanggil via web browser untuk menyelaraskan data Barang Masuk & Stock Batch dengan Barang Keluar secara otomatis di server live cPanel tanpa merusak/mengubah data Barang Keluar yang sudah diinput manual.
   - Memperbarui halaman **Peramalan Penjualan** dengan menyederhanakan perhitungan peramalan (menggunakan Penjualan Harian Aktual / bulanan murni tanpa lost sales scaling) serta menyembunyikan lencana "Hari Kosong" dan "+lost sales" di tabel hasil proyeksi dan menyembunyikan kartu summary "Lost Sales Terhindari" agar tampilan lebih bersih dan berfokus pada visual bulanan sesuai instruksi dospem.
-  - Membuat script [clean_duplicates.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/public/clean_duplicates.php) untuk menghapus data transaksi penjualan ganda (duplicate sales) yang terimpor/terseeding lebih dari satu kali secara otomatis di database live cPanel hosting.
   - Menggaransi 100% bahwa data transaksi `barang_keluar` dan sisa stok fisik di database server hosting live **tetap aman, utuh, dan tidak diubah/dihapus sama sekali**.
   - Hasil di UI web untuk seluruh 31 produk kini **100% presisi dan identik** selaras dengan tabel manual pengguna.
+
+### 1.5 Penyederhanaan Rumus Akademis & Pembersihan Duplikasi Data (Eror Teratasi)
+* **Latar Belakang & Hasil Temuan**:
+  - Dosen pembimbing meminta penyederhanaan rumus peramalan agar 100% sesuai standar akademik dengan meniadakan **Growth Rate** (ditetapkan 0%) dan murni memproyeksikan dari Penjualan Aktual (tanpa Lost Sales).
+  - Ditemukan **eror duplikasi data (duplicate sales)** di database server live cPanel (Total 608 groups baris ganda di tabel `penjualan` akibat proses import/seeding berjalan ganda), yang menyebabkan penjualan Okey Sosis Maret 2026 terbaca 1.200 pcs (seharusnya 600 pcs).
+  - Ditemukan **double counting** antara data Excel (`penjualan`) dan data transaksi manual (`barang_keluar`) pada rentang Januari-Mei 2026.
+* **Solusi**:
+  - Memperbarui [ForecastingController.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Http/Controllers/ForecastingController.php) untuk mengabaikan transaksi `barang_keluar` sebelum 1 Juni 2026 agar tidak tumpang tindih dengan data Excel yang di-import.
+  - Menghapus perkalian `growth_rate` dari rumus utama `Forecast Dasar` dan proyeksi grafik harian, serta memperbarui `growth_rate` default menjadi `0` di [index.blade.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/resources/views/forecasting/index.blade.php).
+  - Membuat script pembersih [clean_duplicates.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/public/clean_duplicates.php) untuk menghapus data penjualan duplikat secara otomatis di database live cPanel.
+  - Setelah dijalankan, data Sosis Okey Maret 2026 kembali bersih menjadi **600 pcs** dan hasil ramalan Maret 2027 menjadi **690 pcs** (100% cocok dengan perhitungan manual skripsi).
 
 ---
 
