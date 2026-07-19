@@ -27,7 +27,7 @@
                 <div class="stat-icon"><i class="bi bi-shield-check"></i></div>
                 <div class="stat-info">
                     <span class="stat-label">Safety Stock</span>
-                    <span class="stat-value">{{ number_format($analysis->safety_stock, 2, ',', '.') }}</span>
+                    <span class="stat-value">{{ number_format($analysis->safety_stock, 0, ',', '.') }}</span>
                 </div>
             </div>
         </div>
@@ -60,7 +60,7 @@
                         <tr><td class="text-muted">Rata-rata Penjualan/Hari</td><td class="fw-bold">{{ number_format($analysis->average_usage, 2, ',', '.') }}</td></tr>
                         <tr><td class="text-muted">Penjualan Maksimum/Hari</td><td class="fw-bold">{{ number_format($analysis->max_sales, 0, ',', '.') }}</td></tr>
                         <tr><td class="text-muted">Lead Time (Hari)</td><td class="fw-bold">{{ $analysis->lead_time ?? '-' }}</td></tr>
-                        <tr><td class="text-muted">Safety Stock</td><td class="fw-bold text-success">{{ number_format($analysis->safety_stock, 2, ',', '.') }}</td></tr>
+                        <tr><td class="text-muted">Safety Stock</td><td class="fw-bold text-success">{{ number_format($analysis->safety_stock, 0, ',', '.') }}</td></tr>
                         <tr><td class="text-muted">Reorder Point (ROP)</td><td class="fw-bold text-warning">{{ number_format($analysis->reorder_point, 0, ',', '.') }}</td></tr>
                     </table>
                 </div>
