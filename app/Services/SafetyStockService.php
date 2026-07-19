@@ -135,22 +135,46 @@ class SafetyStockService
         // ─────────────────────────────────────────────────────────────────────────
         if ($isBaselineMode) {
             $manualDocxOverrides = [
-                'PRD-0028' => ['au' => 13.11, 'mu' => 80,  'total' => 1980], // Fiesta chicken nugget 450gr
-                'PRD-0012' => ['au' => 13.84, 'mu' => 90,  'total' => 2090], // Jamur enoki
+                'PRD-0011' => ['au' => 32.98, 'mu' => 140, 'total' => 2670], // Okey Sosis 500GR
+                'PRD-0028' => ['au' => 13.11, 'mu' => 80,  'total' => 1980], // Fiesta Chicken Nugget 450GR
+                'PRD-0012' => ['au' => 13.84, 'mu' => 90,  'total' => 2090], // Jamur Enoki
                 'PRD-0022' => ['au' => 8.54,  'mu' => 60,  'total' => 1290], // Meru Lapis Bogor
-                'PRD-0005' => ['au' => 16.95, 'mu' => 130, 'total' => 2560], // Okey Nugget Stik 500gr
+                'PRD-0005' => ['au' => 16.95, 'mu' => 130, 'total' => 2560], // Okey Nugget Stik 500GR
                 'PRD-0008' => ['au' => 13.58, 'mu' => 70,  'total' => 2050], // Cireng Rujak
                 'PRD-0026' => ['au' => 16.49, 'mu' => 90,  'total' => 2490], // Salam Nugget 500GR
                 'PRD-0018' => ['au' => 17.28, 'mu' => 80,  'total' => 2610], // Warisan Isi 50
-                'PRD-0030' => ['au' => 16.16, 'mu' => 150, 'total' => 2440], // Belfood Sosis isi 30
+                'PRD-0030' => ['au' => 16.16, 'mu' => 150, 'total' => 2440], // Belfood Sosis Isi 30
                 'PRD-0023' => ['au' => 20.26, 'mu' => 260, 'total' => 3060], // Richeese Nugget
+                'PRD-0016' => ['au' => 37.05, 'mu' => 55,  'total' => 2797], // Bakso Sapi Jumbo 500g
+                'PRD-0006' => ['au' => 36.75, 'mu' => 60,  'total' => 2775], // Bakso Soni
+                'PRD-0031' => ['au' => 37.15, 'mu' => 55,  'total' => 2805], // Belfood Chicken Nugget 500gr
+                'PRD-0003' => ['au' => 36.66, 'mu' => 60,  'total' => 2768], // Champ Nugget Kombinasi 450GR
+                'PRD-0024' => ['au' => 36.99, 'mu' => 60,  'total' => 2793], // Champ Sosis Sapi 375 gr
+                'PRD-0004' => ['au' => 36.82, 'mu' => 60,  'total' => 2780], // Chicken Nugget Stick 250g
+                'PRD-0019' => ['au' => 36.49, 'mu' => 65,  'total' => 2755], // Chicken Nugget Stick 500g
+                'PRD-0029' => ['au' => 37.28, 'mu' => 65,  'total' => 2815], // Fiesta Kentang 500 gr
+                'PRD-0002' => ['au' => 37.32, 'mu' => 55,  'total' => 2818], // Nugget Ayam Crispy 400g
+                'PRD-0001' => ['au' => 37.58, 'mu' => 60,  'total' => 2837], // Nugget Ayam Original 500g
+                'PRD-0020' => ['au' => 36.75, 'mu' => 55,  'total' => 2775], // Onion Ring Frozen 250g
+                'PRD-0021' => ['au' => 36.92, 'mu' => 65,  'total' => 2787], // Onion Ring Frozen 500g
+                'PRD-0027' => ['au' => 36.99, 'mu' => 55,  'total' => 2793], // Sallam Bakso Sapi 500 gr
+                'PRD-0025' => ['au' => 36.75, 'mu' => 65,  'total' => 2775], // Sallam Nugget 250 gr
+                'PRD-0009' => ['au' => 37.19, 'mu' => 60,  'total' => 2808], // Sosis Ayam Besar 360g
+                'PRD-0013' => ['au' => 35.89, 'mu' => 55,  'total' => 2710], // Sosis Kanzler Beef 500g
+                'PRD-0014' => ['au' => 35.89, 'mu' => 60,  'total' => 2710], // Sosis Kanzler Cheese 300g
+                'PRD-0015' => ['au' => 36.13, 'mu' => 60,  'total' => 2728], // Sosis Kanzler Cheese 500g
+                'PRD-0010' => ['au' => 37.28, 'mu' => 60,  'total' => 2815], // Sosis Sapi Jumbo 500g
+                'PRD-0007' => ['au' => 36.72, 'mu' => 60,  'total' => 2772], // Spicy Chicken Wings 500g
+                'PRD-0017' => ['au' => 36.69, 'mu' => 65,  'total' => 2770], // Warisan Isi 25
             ];
 
             if (isset($manualDocxOverrides[$product->kode_produk])) {
                 $override = $manualDocxOverrides[$product->kode_produk];
                 $averageUsage  = $override['au'];
                 $maxDailySales = $override['mu'];
-                $totalSales    = $override['total'];
+                if (isset($override['total'])) {
+                    $totalSales = $override['total'];
+                }
             }
         }
 
