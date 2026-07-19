@@ -98,7 +98,7 @@
                             <td class="fw-semibold">{{ $item->product->nama_produk ?? '-' }}</td>
                             <td class="text-center fw-bold">{{ number_format($item->stok_saat_ini) }}</td>
                             <td class="text-center">{{ number_format($item->safety_stock, 2, ',', '.') }}</td>
-                            <td class="text-center">{{ number_format($item->reorder_point, 2, ',', '.') }}</td>
+                            <td class="text-center">{{ number_format($item->reorder_point, 0, ',', '.') }}</td>
                             <td class="text-center">
                                 @if($item->status_stok == 'Aman')
                                     <span class="badge bg-success">Aman</span>
