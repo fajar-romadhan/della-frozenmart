@@ -403,7 +403,16 @@
                                 <td class="fw-semibold text-muted">{{ $analysis->product->kode_produk ?? '-' }}</td>
                                 <td class="fw-bold">{{ $analysis->product->nama_produk ?? '-' }}</td>
                                 <td class="text-end fw-semibold text-secondary" style="font-size: 0.9rem;">
-                                    {{ number_format($analysis->product->stockBatches->sum('jumlah_awal') ?? 0, 0, ',', '.') }}
+                                    @php
+                                        $activeBatches = $analysis->product->stockBatches->where('jumlah_sisa', '>', 0);
+                                        if ($activeBatches->isEmpty()) {
+                                            $latestBatch = $analysis->product->stockBatches->sortByDesc('id')->first();
+                                            $stokAwal = $latestBatch ? $latestBatch->jumlah_awal : 0;
+                                        } else {
+                                            $stokAwal = $activeBatches->sum('jumlah_awal');
+                                        }
+                                    @endphp
+                                    {{ number_format($stokAwal, 0, ',', '.') }}
                                 </td>
                                 <td class="text-end">
                                     @php
