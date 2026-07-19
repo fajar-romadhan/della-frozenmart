@@ -327,7 +327,7 @@
         <div class="spinner-border spinner-border-premium" role="status">
             <span class="visually-hidden">Loading...</span>
         </div>
-        <p class="text-muted mt-3 fw-bold" style="font-size: 0.92rem;">Sistem sedang merekonstruksi stok harian secara maju, menghitung Lost Sales & indeks musiman...</p>
+        <p class="text-muted mt-3 fw-bold" style="font-size: 0.92rem;">Sistem sedang menghitung indeks musiman dan peramalan penjualan...</p>
     </div>
 
     {{-- Result Section (Populated dynamically) --}}
@@ -352,7 +352,7 @@
                     <span class="stat-chip-value" id="statSalesActual">0 pcs</span>
                 </div>
             </div>
-            <div class="stat-chip">
+            <div class="stat-chip d-none">
                 <div class="stat-chip-icon" style="background: rgba(217, 119, 6, 0.06); color: #d97706;">
                     <i class="ph ph-warning"></i>
                 </div>
@@ -421,13 +421,6 @@
                                 </td>
                                 <td class="text-end">
                                     <span class="fw-semibold text-slate-700">{{ number_format($item['sales_actual']) }} pcs</span>
-                                    @if($item['stockout_days'] > 0)
-                                        <div class="mt-1">
-                                            <span class="badge-stokout" title="Stok habis selama beberapa hari pada periode ini">
-                                                <i class="ph ph-clock-countdown text-orange"></i> {{ $item['stockout_days'] }} Hari Kosong (+{{ number_format($item['lost_sales']) }} pcs lost sales)
-                                            </span>
-                                        </div>
-                                    @endif
                                 </td>
                                 <td class="text-end fw-bold text-success rec-cell" style="background-color: #f0fdf4; font-size: 0.95rem;">
                                     {{ number_format($item['hasil_ramalan']) }} pcs
@@ -620,9 +613,7 @@
                     let tbodyHtml = '';
 
                     res.forecast_data.forEach((item, index) => {
-                        const stockoutBadge = item.stockout_days > 0 
-                            ? `<div class="mt-1"><span class="badge-stokout" title="Stok habis selama beberapa hari pada periode ini"><i class="ph ph-clock-countdown text-orange"></i> ${item.stockout_days} Hari Kosong (+${item.lost_sales.toLocaleString('id-ID')} pcs lost sales)</span></div>`
-                            : '';
+                        const stockoutBadge = '';
 
                         tbodyHtml += `
                             <tr data-product-id="${item.id}">
