@@ -400,7 +400,7 @@
                             <th width="60" class="text-center">No</th>
                             <th>Produk</th>
                             <th>Periode Musim</th>
-                            <th class="text-end">Data Tahun Sebelumnya (2026)</th>
+                            <th class="text-end">Data Bulan Tahun Sebelumnya (2026)</th>
                             <th class="text-end fw-bold text-success" style="background-color: #f0fdf4;">Hasil Ramalan (2027)</th>
                         </tr>
                     </thead>
