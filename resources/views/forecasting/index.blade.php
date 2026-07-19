@@ -314,7 +314,7 @@
             </div>
 
             {{-- Hidden parameters with default values --}}
-            <input type="hidden" name="growth_rate" value="10">
+            <input type="hidden" name="growth_rate" value="0">
             <input type="hidden" name="lead_time" value="3">
             <input type="hidden" name="service_level" value="95">
         </form>

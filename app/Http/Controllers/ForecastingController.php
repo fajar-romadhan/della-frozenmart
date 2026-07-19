@@ -198,7 +198,7 @@ class ForecastingController extends Controller
                 $correctedData[] = round($correctedDemandVal);
                 
                 // Forecast daily point (Menggunakan actual sales sesuai rumus peramalan baru)
-                $dailyForecastVal = $out * (1 + $growthRate) + $dailySafetyStock;
+                $dailyForecastVal = $out + $dailySafetyStock;
                 $recData[] = round($dailyForecastVal);
             }
         } else {
@@ -274,7 +274,7 @@ class ForecastingController extends Controller
         });
     }
 
-    private function calculateSeasonalForecast($products, $season, $growthRate = 0.10, $leadTime = 3, $serviceLevel = 95)
+    private function calculateSeasonalForecast($products, $season, $growthRate = 0.0, $leadTime = 3, $serviceLevel = 95)
     {
         // Get historical year dynamically
         $maxYear = Sale::max(DB::raw('YEAR(tanggal_penjualan)'));
@@ -470,10 +470,10 @@ class ForecastingController extends Controller
             // Seasonal Index Calculation with Safe Fallback (Menggunakan Penjualan Aktual sesuai rumus baru)
             if ($baseline > 0) {
                 $seasonalIndex = $salesActual / $baseline;
-                $forecastDasar = $baseline * (1 + $growthRate) * $seasonalIndex;
+                $forecastDasar = $baseline * $seasonalIndex;
             } else {
                 $seasonalIndex = 1.0;
-                $forecastDasar = $salesActual * (1 + $growthRate);
+                $forecastDasar = $salesActual;
             }
 
             // Safety Stock based on Service Level Buffer mapping
