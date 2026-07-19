@@ -27,7 +27,7 @@
                 <div class="stat-icon"><i class="bi bi-shield-check"></i></div>
                 <div class="stat-info">
                     <span class="stat-label">Safety Stock</span>
-                    <span class="stat-value">{{ rtrim(rtrim(number_format($analysis->safety_stock, 2, ',', '.'), '0'), ',') }}</span>
+                    <span class="stat-value">{{ number_format($analysis->safety_stock, 2, ',', '.') }}</span>
                 </div>
             </div>
         </div>
@@ -36,7 +36,7 @@
                 <div class="stat-icon"><i class="bi bi-arrow-repeat"></i></div>
                 <div class="stat-info">
                     <span class="stat-label">Reorder Point</span>
-                    <span class="stat-value">{{ rtrim(rtrim(number_format($analysis->reorder_point, 2, ',', '.'), '0'), ',') }}</span>
+                    <span class="stat-value">{{ number_format($analysis->reorder_point, 2, ',', '.') }}</span>
                 </div>
             </div>
         </div>
@@ -57,12 +57,11 @@
                 <div class="card-header"><h5 class="card-title"><i class="bi bi-calculator me-2"></i>Parameter Perhitungan</h5></div>
                 <div class="card-body">
                     <table class="table table-borderless mb-0">
-                        <tr><td class="text-muted">Rata-rata Penjualan/Hari</td><td class="fw-bold">{{ rtrim(rtrim(number_format($analysis->rata_rata_penjualan, 4, ',', '.'), '0'), ',') }}</td></tr>
-                        <tr><td class="text-muted">Std. Dev. Penjualan</td><td class="fw-bold">{{ rtrim(rtrim(number_format($analysis->standar_deviasi, 4, ',', '.'), '0'), ',') }}</td></tr>
+                        <tr><td class="text-muted">Rata-rata Penjualan/Hari</td><td class="fw-bold">{{ number_format($analysis->average_usage, 2, ',', '.') }}</td></tr>
+                        <tr><td class="text-muted">Penjualan Maksimum/Hari</td><td class="fw-bold">{{ number_format($analysis->max_sales, 2, ',', '.') }}</td></tr>
                         <tr><td class="text-muted">Lead Time (Hari)</td><td class="fw-bold">{{ $analysis->lead_time ?? '-' }}</td></tr>
-                        <tr><td class="text-muted">Service Level</td><td class="fw-bold">{{ ($analysis->service_level ?? 0.95) * 100 }}%</td></tr>
-                        <tr><td class="text-muted">Safety Stock</td><td class="fw-bold text-success">{{ rtrim(rtrim(number_format($analysis->safety_stock, 2, ',', '.'), '0'), ',') }}</td></tr>
-                        <tr><td class="text-muted">Reorder Point (ROP)</td><td class="fw-bold text-warning">{{ rtrim(rtrim(number_format($analysis->reorder_point, 2, ',', '.'), '0'), ',') }}</td></tr>
+                        <tr><td class="text-muted">Safety Stock</td><td class="fw-bold text-success">{{ number_format($analysis->safety_stock, 2, ',', '.') }}</td></tr>
+                        <tr><td class="text-muted">Reorder Point (ROP)</td><td class="fw-bold text-warning">{{ number_format($analysis->reorder_point, 2, ',', '.') }}</td></tr>
                     </table>
                 </div>
             </div>
@@ -74,7 +73,7 @@
                     @if($analysis->status_stok == 'Aman')
                         <div class="alert alert-success mb-0">
                             <i class="bi bi-check-circle me-2"></i>
-                            <strong>Stok Aman.</strong> Stok saat ini ({{ number_format($analysis->stok_saat_ini) }}) berada di atas Reorder Point ({{ rtrim(rtrim(number_format($analysis->reorder_point, 2, ',', '.'), '0'), ',') }}). Tidak perlu melakukan pemesanan saat ini.
+                            <strong>Stok Aman.</strong> Stok saat ini ({{ number_format($analysis->stok_saat_ini) }}) berada di atas Reorder Point ({{ number_format($analysis->reorder_point, 2, ',', '.') }}). Tidak perlu melakukan pemesanan saat ini.
                         </div>
                     @elseif($analysis->status_stok == 'Warning')
                         <div class="alert alert-warning mb-3">
