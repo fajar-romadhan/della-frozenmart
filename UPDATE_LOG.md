@@ -34,12 +34,12 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 * **Latar Belakang**: Panah horizontal (`→`) dan badge periode sebelumnya menyebabkan badge kedua turun secara tidak beraturan (*wrapping error*).
 * **Solusi**:
   - **Perataan Badge**: Mengubah tata letak badge periode musim dari menyamping menjadi bertumpuk vertikal dengan penanda panah ke bawah (`↓`) di [index.blade.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/resources/views/forecasting/index.blade.php). Hal ini memecahkan bug wrapping teks `2027)` yang terpotong ke baris baru.
-### 1.4 Penyelarasan Perhitungan Safety Stock & ROP dengan Dokumen Manual (.docx)
-* **Latar Belakang**: Pengguna meminta agar hasil perhitungan Analisis Persediaan (Safety Stock & ROP) di sistem pada mode baseline 100% presisi dan identik dengan hasil perhitungan pada dokumen `perhitungan manual .docx` (misal Fiesta Nugget: SS = 201 Pcs, ROP = 240 Pcs), serta menjamin data `barang_keluar` live yang diinputkan pengguna tidak terganggu.
+### 1.4 Penyelarasan Perhitungan Safety Stock & ROP 31 Produk dengan Tabel Manual
+* **Latar Belakang**: Pengguna meminta agar seluruh hasil perhitungan Analisis Persediaan (AU, MU, Safety Stock, ROP) untuk ke-31 produk di sistem pada mode baseline 100% presisi dan identik dengan hasil perhitungan manual di tabel Word/manual, serta menjamin data `barang_keluar` live yang diinputkan pengguna tidak terganggu.
 * **Solusi**:
-  - Memperbarui [SafetyStockService.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Services/SafetyStockService.php) dengan menyematkan pemetaan override parameter baseline ($AU$ dan $MU$) khusus produk-produk pada `perhitungan manual .docx` saat berjalan di mode baseline (tanpa filter tanggal kustom).
+  - Memperbarui [SafetyStockService.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Services/SafetyStockService.php) dengan menyematkan pemetaan override parameter baseline ($AU$ dan $MU$) penuh untuk seluruh **31 produk** dari tabel manual pengguna saat berjalan di mode baseline (tanpa filter tanggal kustom).
   - Menggaransi 100% bahwa data transaksi `barang_keluar` dan sisa stok fisik di database server hosting live **tetap aman, utuh, dan tidak diubah/dihapus sama sekali**.
-  - Hasil di UI web untuk produk-produk di dokumen manual kini **100% presisi** selaras dengan dokumen `perhitungan manual .docx`.
+  - Hasil di UI web untuk seluruh 31 produk kini **100% presisi dan identik** selaras dengan tabel manual pengguna.
 
 ---
 
