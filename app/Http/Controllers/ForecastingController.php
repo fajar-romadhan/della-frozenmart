@@ -196,8 +196,8 @@ class ForecastingController extends Controller
                 $correctedDemandVal = ($s <= 0 && $out <= 0) ? $dailyAvgSales : $out;
                 $correctedData[] = round($correctedDemandVal);
                 
-                // Forecast daily point
-                $dailyForecastVal = $correctedDemandVal * (1 + $growthRate) + $dailySafetyStock;
+                // Forecast daily point (Menggunakan actual sales sesuai rumus peramalan baru)
+                $dailyForecastVal = $out * (1 + $growthRate) + $dailySafetyStock;
                 $recData[] = round($dailyForecastVal);
             }
         } else {
@@ -464,13 +464,13 @@ class ForecastingController extends Controller
 
             $correctedHariRayaSales = $salesActual + $lostSales;
 
-            // Seasonal Index Calculation with Safe Fallback
+            // Seasonal Index Calculation with Safe Fallback (Menggunakan Penjualan Aktual sesuai rumus baru)
             if ($baseline > 0) {
-                $seasonalIndex = $correctedHariRayaSales / $baseline;
+                $seasonalIndex = $salesActual / $baseline;
                 $forecastDasar = $baseline * (1 + $growthRate) * $seasonalIndex;
             } else {
                 $seasonalIndex = 1.0;
-                $forecastDasar = $correctedHariRayaSales * (1 + $growthRate);
+                $forecastDasar = $salesActual * (1 + $growthRate);
             }
 
             // Safety Stock based on Service Level Buffer mapping
