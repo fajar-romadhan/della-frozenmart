@@ -138,6 +138,21 @@ try {
         echo "Hasil Migrasi: " . ($exitCode === 0 ? "<span class='success'>SELESAI/TIDAK ADA PERUBAHAN (OK)</span>" : "<span class='error'>GAGAL (Code: $exitCode)</span>") . "\n";
     }
     
+    // 3. Recalculate Safety Stock Analysis for all active products
+    echo "\n3. Menghitung Ulang Analisis Persediaan (Safety Stock & ROP)...\n";
+    try {
+        $safetyStockService = $app->make(\App\Services\SafetyStockService::class);
+        $products = \App\Models\Product::where('status_aktif', true)->get();
+        $recount = 0;
+        foreach ($products as $product) {
+            $safetyStockService->calculate($product);
+            $recount++;
+        }
+        echo "Kalkulasi Ulang Analisis Persediaan: <span class='success'>SELESAI ($recount produk dianalisis)</span>\n";
+    } catch (\Exception $ex) {
+        echo "Kalkulasi Ulang Analisis Persediaan: <span class='error'>GAGAL (" . $ex->getMessage() . ")</span>\n";
+    }
+
 } catch (Exception $e) {
     echo "<span class='error'>[ERROR]</span> " . $e->getMessage() . "\n";
 }

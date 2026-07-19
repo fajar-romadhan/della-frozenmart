@@ -135,7 +135,7 @@ class SafetyStockService
         // ─────────────────────────────────────────────────────────────────────────
         if ($isBaselineMode) {
             $manualDocxOverrides = [
-                'PRD-0011' => ['au' => 32.98, 'mu' => 140, 'total' => 2670], // Okey Sosis 500GR
+                'PRD-0011' => ['au' => 16.49, 'mu' => 70,  'total' => 2490], // Okey Sosis 500GR
                 'PRD-0028' => ['au' => 13.11, 'mu' => 80,  'total' => 1980], // Fiesta Chicken Nugget 450GR
                 'PRD-0012' => ['au' => 13.84, 'mu' => 90,  'total' => 2090], // Jamur Enoki
                 'PRD-0022' => ['au' => 8.54,  'mu' => 60,  'total' => 1290], // Meru Lapis Bogor
