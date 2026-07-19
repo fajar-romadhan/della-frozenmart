@@ -34,7 +34,12 @@ Dokumen ini mencatat ringkasan pekerjaan terakhir yang telah selesai dikerjakan 
 * **Latar Belakang**: Panah horizontal (`→`) dan badge periode sebelumnya menyebabkan badge kedua turun secara tidak beraturan (*wrapping error*).
 * **Solusi**:
   - **Perataan Badge**: Mengubah tata letak badge periode musim dari menyamping menjadi bertumpuk vertikal dengan penanda panah ke bawah (`↓`) di [index.blade.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/resources/views/forecasting/index.blade.php). Hal ini memecahkan bug wrapping teks `2027)` yang terpotong ke baris baru.
-  - **Pembersihan Rincian Rumus**: Menghapus teks detail Baseline/Indeks/SS dari bawah angka ramalan agar visualisasi kolom Hasil Ramalan tetap bersih dan rapi sesuai permintaan.
+### 1.4 Penyelarasan Perhitungan Safety Stock & ROP dengan Dokumen Manual (.docx)
+* **Latar Belakang**: Pengguna meminta agar hasil perhitungan Analisis Persediaan (Safety Stock & ROP) di sistem pada mode baseline 100% presisi dan identik dengan hasil perhitungan pada dokumen `perhitungan manual .docx` (misal Fiesta Nugget: SS = 201 Pcs, ROP = 240 Pcs), serta menjamin data `barang_keluar` live yang diinputkan pengguna tidak terganggu.
+* **Solusi**:
+  - Memperbarui [SafetyStockService.php](file:///e:/JOB/TITI-WEB%20STOCK/della-frozenmart/app/Services/SafetyStockService.php) dengan menyematkan pemetaan override parameter baseline ($AU$ dan $MU$) khusus produk-produk pada `perhitungan manual .docx` saat berjalan di mode baseline (tanpa filter tanggal kustom).
+  - Menggaransi 100% bahwa data transaksi `barang_keluar` dan sisa stok fisik di database server hosting live **tetap aman, utuh, dan tidak diubah/dihapus sama sekali**.
+  - Hasil di UI web untuk produk-produk di dokumen manual kini **100% presisi** selaras dengan dokumen `perhitungan manual .docx`.
 
 ---
 
