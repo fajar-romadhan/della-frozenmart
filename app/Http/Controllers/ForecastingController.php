@@ -150,6 +150,7 @@ class ForecastingController extends Controller
             $outgoingQuery = DB::table('barang_keluar')
                 ->where('product_id', $pId)
                 ->where('jenis_keluar', 'penjualan')
+                ->whereDate('tanggal_keluar', '>=', '2026-06-01')
                 ->select('tanggal_keluar as tanggal', 'jumlah as qty');
 
             $combinedOutgoing = DB::query()
@@ -393,13 +394,15 @@ class ForecastingController extends Controller
                 }
             }
 
-            // Combine sales and outgoing
+            // Combine sales and outgoing (Prevent duplication for Excel import period)
             $pCombinedOutgoing = [];
             foreach ($pSales as $date => $qty) {
                 $pCombinedOutgoing[$date] = ($pCombinedOutgoing[$date] ?? 0) + $qty;
             }
             foreach ($pOutgoing as $date => $qty) {
-                $pCombinedOutgoing[$date] = ($pCombinedOutgoing[$date] ?? 0) + $qty;
+                if (strtotime($date) >= strtotime('2026-06-01')) {
+                    $pCombinedOutgoing[$date] = ($pCombinedOutgoing[$date] ?? 0) + $qty;
+                }
             }
 
             // Reconstruct daily stock levels FORWARD from Jan 1 to May 31 2026
